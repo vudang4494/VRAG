@@ -680,6 +680,42 @@ async def chat_v3_stream(body: dict[str, Any]):
     )
 
 
+@router.post("/chat/react", tags=["v3"])
+async def chat_v3_react(body: dict[str, Any]):
+    """
+    Multi-step ReAct chat — explicit Thought→Action→Observation reasoning.
+
+    Each loop step: LLM picks next action (search_entity, expand_relation,
+    retrieve_chunks, graph_aware_search, rerank, FINISH). Max 4 steps then
+    synthesize final answer from accumulated chunks.
+
+    Returns:
+      {
+        "answer": "...",
+        "trace": [ { step, thought, action, args, observation_summary } ],
+        "steps_used": N,
+        "chunks_examined": K,
+        "discovered_entities": [...],
+        "sources": [...],
+        "latency_ms": {total, synthesize}
+      }
+
+    Body: {"query": "...", "tenant_id": "default", "max_steps": 4}
+    """
+    from src.services.react_loop import react_chat as react_chat_fn
+
+    settings = get_settings()
+    clients = get_clients()
+    query = (body.get("query") or "").strip()
+    if not query:
+        raise HTTPException(status_code=400, detail="Missing 'query'")
+    tenant_id = body.get("tenant_id") or "default"
+    max_steps = int(body.get("max_steps", 4))
+
+    result = await react_chat_fn(query, clients, settings, tenant_id, max_steps)
+    return result
+
+
 @router.post("/gaea/refine", tags=["v3"])
 async def gaea_refine(body: dict[str, Any]):
     """
