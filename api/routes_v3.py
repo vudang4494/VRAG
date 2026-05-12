@@ -755,6 +755,62 @@ async def chat_v3_react(body: dict[str, Any]):
     return result
 
 
+@router.post("/hefr/populate", tags=["v3"])
+async def hefr_populate(body: dict[str, Any]):
+    """Phase 4: populate per-tenant entity Qdrant collection with aggregate embeddings.
+    Run after ingest + GAEA. Body: {tenant_id, batch_size}."""
+    from src.services.hefr_retrieval import populate_entity_collection
+    settings = get_settings()
+    clients = get_clients()
+    tenant_id = body.get("tenant_id", "default")
+    started = time.monotonic()
+    result = await populate_entity_collection(
+        clients.neo4j, clients.qdrant,
+        chunk_collection=settings.qdrant_collection,
+        tenant_id=tenant_id,
+        batch_size=int(body.get("batch_size", 100)),
+    )
+    result["duration_seconds"] = time.monotonic() - started
+    return result
+
+
+@router.post("/hefr/retrieve", tags=["v3"])
+async def hefr_retrieve_endpoint(body: dict[str, Any]):
+    """Phase 4: entity-first retrieval. Body: {query, tenant_id, top_entities, top_chunks}."""
+    from src.services.embedding import embed_single
+    from src.services.hefr_retrieval import hefr_retrieve
+    settings = get_settings()
+    clients = get_clients()
+    query = body.get("query", "")
+    tenant_id = body.get("tenant_id", "default")
+    if not query:
+        raise HTTPException(status_code=400, detail="Missing 'query'")
+
+    # Embed query + extract entities
+    q_vec = await embed_single(
+        clients.http, settings.ollama_embed_url, settings.ollama_embed_model, query, timeout=30.0,
+    )
+    q_entities = []
+    if getattr(clients, "entity_extractor", None) is not None:
+        try:
+            ents, _ = await clients.entity_extractor.extract(query)
+            q_entities = [e.name for e in ents]
+        except Exception:
+            pass
+
+    chunks, entities = await hefr_retrieve(
+        q_vec, q_entities, clients, settings, tenant_id,
+        top_entities=int(body.get("top_entities", 20)),
+        top_chunks=int(body.get("top_chunks", 30)),
+    )
+    return {
+        "query_entities_extracted": q_entities,
+        "top_entities_found": entities[:10],
+        "chunks_returned": len(chunks),
+        "sample_chunks": chunks[:5],
+    }
+
+
 @router.post("/gaea/refine", tags=["v3"])
 async def gaea_refine(body: dict[str, Any]):
     """
