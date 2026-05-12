@@ -68,7 +68,8 @@ class SemanticCache:
 class Clients:
     """Holds all external-service client instances."""
 
-    llm: AsyncOpenAI
+    llm: AsyncOpenAI                # semantic LLM — generation, chat, validation
+    entity_extractor: Any           # separate entity LLM/NER — GLiNER / OpenAI / etc.
     qdrant: AsyncQdrantClient
     neo4j: Any
     redis: redis.Redis
@@ -110,6 +111,19 @@ async def init_clients() -> Clients:
         ),
     )
 
+    # Monkey-patch chat.completions.create to inject keep_alive=-1 globally.
+    # Ollama's default 5-minute model expiry causes ~50s cold-load latency
+    # mid-pipeline. With keep_alive=-1 on every call, model stays in VRAM
+    # for the lifetime of the API process.
+    _original_create = clients.llm.chat.completions.create
+
+    async def _create_keep_alive(**kwargs):
+        extra_body = kwargs.pop("extra_body", None) or {}
+        extra_body.setdefault("keep_alive", -1)
+        return await _original_create(extra_body=extra_body, **kwargs)
+
+    clients.llm.chat.completions.create = _create_keep_alive  # type: ignore[method-assign]
+
     # Qdrant — async client, minimal timeout
     clients.qdrant = AsyncQdrantClient(
         url=settings.qdrant_url,
@@ -149,5 +163,33 @@ async def init_clients() -> Clients:
 
     # Concurrency limiter — M4 optimized
     clients.concurrent_semaphore = asyncio.Semaphore(settings.max_concurrent_requests)
+
+    # Entity extractor (separate from semantic LLM)
+    # Pre-load at startup so memory is committed early and predictable.
+    # If we lazy-load inside an ingest request, model load can OOM under
+    # concurrent memory pressure from qdrant/neo4j/embedding clients.
+    try:
+        from src.services.entity_extractor import create_entity_extractor
+        clients.entity_extractor = create_entity_extractor(
+            provider=settings.entity_extractor_provider,
+            model=settings.entity_extractor_model,
+            threshold=settings.entity_extractor_threshold,
+            llm_for_relations=clients.llm if settings.entity_relations_enabled else None,
+            relation_model=settings.ollama_model,
+            extract_relations=settings.entity_relations_enabled,
+        )
+        # Force eager load of underlying model (GLiNER) to commit memory up front.
+        try:
+            ner = getattr(clients.entity_extractor, "ner", None)
+            if ner is not None and hasattr(ner, "_load"):
+                import asyncio as _aio
+                await _aio.to_thread(ner._load)
+        except Exception as _e:
+            import logging as _lg
+            _lg.getLogger(__name__).warning(f"Entity model eager-load skipped: {_e}")
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Entity extractor init failed: {e}")
+        clients.entity_extractor = None
 
     return clients

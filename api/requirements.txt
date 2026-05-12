@@ -43,3 +43,7 @@ torch>=2.2.0
 networkx>=3.0
 python-igraph>=0.11.0
 leidenalg>=0.10.0
+
+# ── Pipeline V2 — Entity extraction (separate from semantic LLM) ────────
+# GLiNER: zero-shot NER, ~168M params, runs CPU, multilingual incl. Vietnamese.
+gliner>=0.2.0

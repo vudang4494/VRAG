@@ -37,7 +37,15 @@ async def link_documents_by_entities(
     Create (:Document)-[:SHARES_ENTITIES {count, jaccard}]->(:Document)
     when two documents share at least `min_shared` entities AND Jaccard ≥ `min_jaccard`.
     """
-    where_t = "WHERE c.tenant_id = $tid" if tenant_id else ""
+    # Skip gracefully if no Entity nodes exist (e.g., entity_vote_passes=0 mode)
+    async with neo4j_driver.session() as s:
+        check = await s.run("MATCH (e:Entity) RETURN count(e) AS c LIMIT 1")
+        entity_count = (await check.single())["c"]
+    if entity_count == 0:
+        logger.info("link_documents_by_entities: 0 Entity nodes, skipping")
+        return {"pairs_checked": 0, "edges_written": 0, "skipped_no_entities": True}
+
+    where_t = "WHERE c1.tenant_id = $tid AND c2.tenant_id = $tid" if tenant_id else ""
     params: dict[str, Any] = {"min_shared": min_shared, "min_jaccard": min_jaccard}
     if tenant_id:
         params["tid"] = tenant_id
@@ -61,10 +69,11 @@ async def link_documents_by_entities(
 
     # Need per-doc total entities for Jaccard
     doc_entity_count: dict[str, int] = {}
+    where_doc = "WHERE d.tenant_id = $tid" if tenant_id else ""
     async with neo4j_driver.session() as s:
         cypher_count = f"""
         MATCH (d:Document)<-[:FROM_DOCUMENT]-(c:Chunk)-[:CONTAINS_ENTITY]->(e:Entity)
-        {where_t.replace('c.tenant_id', 'd.tenant_id') if where_t else ''}
+        {where_doc}
         RETURN d.id AS id, count(DISTINCT e) AS cnt
         """
         result = await s.run(cypher_count, **({"tid": tenant_id} if tenant_id else {}))

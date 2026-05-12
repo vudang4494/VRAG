@@ -72,17 +72,32 @@ class Settings(BaseSettings):
     pipeline_v2_enabled: bool = bool(int(os.environ.get("PIPELINE_V2_ENABLED", "0")))
 
     # Consistency Simulation (ingest time)
+    # consistency_views_enabled=False bypasses 4 LLM view generation calls per chunk
+    # — major speedup for small/slow LLMs. Single embedding from original text used.
+    # Entity extractor — SEPARATE from semantic LLM (architecture decision)
+    # provider options: gliner (local NER) | openai | anthropic
+    entity_extractor_provider: str = os.environ.get("ENTITY_EXTRACTOR_PROVIDER", "gliner")
+    entity_extractor_model: str = os.environ.get("ENTITY_EXTRACTOR_MODEL", "urchade/gliner_multi-v2.1")
+    entity_extractor_threshold: float = float(os.environ.get("ENTITY_EXTRACTOR_THRESHOLD", "0.5"))
+    entity_relations_enabled: bool = bool(int(os.environ.get("ENTITY_RELATIONS_ENABLED", "0")))
+
+    consistency_views_enabled: bool = bool(int(os.environ.get("CONSISTENCY_VIEWS_ENABLED", "1")))
     consistency_num_views: int = 5
     consistency_low_threshold: float = 0.60
     consistency_high_threshold: float = 0.85
-    entity_vote_passes: int = 3
+    entity_vote_passes: int = int(os.environ.get("ENTITY_VOTE_PASSES", "3"))
     entity_vote_min: int = 2
 
     # PII masking
-    pii_mask_enabled: bool = True
+    pii_mask_enabled: bool = bool(int(os.environ.get("PII_MASK_ENABLED", "1")))
+    pii_llm_ner_enabled: bool = bool(int(os.environ.get("PII_LLM_NER_ENABLED", "1")))
 
-    # Hierarchical chunking
-    chunk_levels_enabled: list[str] = ["paragraph", "section"]  # add "sentence", "document" if needed
+    # Hierarchical chunking — comma-separated string, parsed lazily
+    chunk_levels_csv: str = os.environ.get("CHUNK_LEVELS_ENABLED", "paragraph,section")
+
+    @property
+    def chunk_levels_enabled(self) -> list[str]:
+        return [x.strip() for x in self.chunk_levels_csv.split(",") if x.strip()]
     section_max_chars: int = 4000
     paragraph_max_chars: int = 800
     sentence_max_chars: int = 200

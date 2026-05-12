@@ -110,14 +110,24 @@ async def ingest_document_v2(
 ) -> dict[str, Any]:
     """
     Full V2 ingest of a single document.
-    Returns IngestResult-like dict with rich metrics.
+    Returns IngestResult-like dict with rich metrics + per-stage timings (ms).
     """
+    import time as _time
     from src.config import get_settings
     settings = get_settings()
 
     doc_hash = _doc_hash(content)
     doc_id = f"doc_{doc_hash}"
     started = datetime.now(timezone.utc)
+    stage_ms: dict[str, float] = {}
+    _stage_t0 = _time.monotonic()
+
+    def _mark(stage: str) -> None:
+        nonlocal _stage_t0
+        now = _time.monotonic()
+        stage_ms[stage] = round((now - _stage_t0) * 1000, 1)
+        _stage_t0 = now
+        logger.info(f"[V2-timing] {filename}: {stage}={stage_ms[stage]:.0f}ms")
 
     # 1. Format detection + chunking
     fmt, chunk_units = await route_and_chunk(
@@ -135,6 +145,7 @@ async def ingest_document_v2(
         return {"status": "error", "reason": "no_chunks", "filename": filename, "doc_id": doc_id}
 
     logger.info(f"[V2] {filename}: format={fmt}, chunks={len(chunk_units)}")
+    _mark("parse_chunk")
 
     # 2. Convert to dict-like chunks for the rest of the pipeline
     chunks = []
@@ -156,11 +167,13 @@ async def ingest_document_v2(
     # 3. PII masking with consistent placeholders
     if settings.pii_mask_enabled:
         chunks, mask_map = await mask_chunks(
-            chunks, llm=clients.llm, model=settings.ollama_model, use_llm_ner=True,
+            chunks, llm=clients.llm, model=settings.ollama_model,
+            use_llm_ner=settings.pii_llm_ner_enabled,
         )
         logger.info(f"[V2] {filename}: masked {len(mask_map.forward)} PII entities")
+    _mark("pii_mask")
 
-    # 4. Consistency Simulation — generate 5 views + embed + score
+    # 4. Consistency Simulation — generate views + embed + score (optional)
     chunks = await process_batch_consistency(
         chunks,
         llm=clients.llm,
@@ -169,38 +182,77 @@ async def ingest_document_v2(
         embed_model=settings.ollama_embed_model,
         llm_model=settings.ollama_model,
         concurrent_limit=settings.embed_concurrent_limit,
-        enable_llm_views=True,
+        enable_llm_views=settings.consistency_views_enabled,
     )
+    _mark("consistency_embed")
 
-    # 5. Filter out very low-quality chunks (consistency < low threshold AND not very short)
+    # 5. Filter out very low-quality chunks (only when multi-view consistency is on;
+    # with views disabled, score is always 0 and would drop everything).
     pre_filter_avg = sum(c.get("consistency_score", 0.0) for c in chunks) / max(len(chunks), 1)
-    chunks_kept = [c for c in chunks if c.get("consistency_score", 0.0) >= settings.consistency_low_threshold or len(c["text"]) < 200]
-    dropped = len(chunks) - len(chunks_kept)
-    if dropped:
-        logger.info(f"[V2] {filename}: dropped {dropped} low-consistency chunks")
-    chunks = chunks_kept
+    if settings.consistency_views_enabled:
+        chunks_kept = [c for c in chunks if c.get("consistency_score", 0.0) >= settings.consistency_low_threshold or len(c["text"]) < 200]
+        dropped = len(chunks) - len(chunks_kept)
+        if dropped:
+            logger.info(f"[V2] {filename}: dropped {dropped} low-consistency chunks")
+        chunks = chunks_kept
+    else:
+        dropped = 0
     # Average for telemetry — computed on KEPT chunks if any, else pre-filter avg
     avg_consistency = (
         sum(c.get("consistency_score", 0.0) for c in chunks) / len(chunks)
         if chunks else pre_filter_avg
     )
 
-    # 6. Entity voting (3 LLM passes, vote)
-    async def _entities_for(chunk):
-        return await _vote_entities(
-            chunk["text"],
-            clients.llm,
-            settings.ollama_model,
-            passes=settings.entity_vote_passes,
-            min_votes=settings.entity_vote_min,
-        )
+    # 6. Entity extraction — uses SEPARATE entity extractor (GLiNER / API)
+    # NOT the semantic LLM. Falls back to old LLM-vote if extractor unavailable.
+    entity_extractor = getattr(clients, "entity_extractor", None)
 
-    sem = asyncio.Semaphore(2)  # avoid Ollama saturation
+    async def _entities_for(chunk):
+        if entity_extractor is not None:
+            try:
+                ents_obj, rels_obj = await entity_extractor.extract(chunk["text"])
+                # Convert to dict format expected by upsert_chunk_and_entities
+                ents = [
+                    {
+                        "name": e.name,
+                        "type": e.type,
+                        "description": e.description,
+                        "confidence": e.confidence,
+                    }
+                    for e in ents_obj
+                ]
+                rels = [
+                    {
+                        "source": r.source,
+                        "target": r.target,
+                        "description": r.description,
+                        "type": r.type,
+                        "confidence": r.confidence,
+                    }
+                    for r in rels_obj
+                ]
+                return ents, rels
+            except Exception as e:
+                logger.warning(f"Entity extractor failed, fallback to LLM: {e}")
+
+        # Fallback path: LLM-vote (kept for backward compat with entity_vote_passes>0)
+        if settings.entity_vote_passes > 0:
+            return await _vote_entities(
+                chunk["text"],
+                clients.llm,
+                settings.ollama_model,
+                passes=settings.entity_vote_passes,
+                min_votes=settings.entity_vote_min,
+            )
+        return [], []
+
+    sem = asyncio.Semaphore(4)  # GLiNER is CPU-bound and fast → higher concurrency OK
     async def _bounded_entities(chunk):
         async with sem:
             return await _entities_for(chunk)
 
     entity_results = await asyncio.gather(*[_bounded_entities(c) for c in chunks])
+    _mark("entity_voting")
 
     # 7. Build Qdrant points + Neo4j writes (parallel)
     qdrant_points: list[dict] = []
@@ -261,9 +313,11 @@ async def ingest_document_v2(
     chunks_indexed, (entities_extracted, relationships_extracted) = await asyncio.gather(
         qdrant_task, _neo4j_writes(),
     )
+    _mark("upsert_qdrant_neo4j")
 
     # 8. Cross-chunk SIMILAR_TO links via in-doc cosine
     await _link_in_doc(clients, chunks)
+    _mark("link_in_doc")
 
     return {
         "status": "success",
@@ -278,6 +332,7 @@ async def ingest_document_v2(
         "entities_extracted": entities_extracted,
         "relationships_extracted": relationships_extracted,
         "duration_seconds": (datetime.now(timezone.utc) - started).total_seconds(),
+        "stage_ms": stage_ms,
     }
 
 

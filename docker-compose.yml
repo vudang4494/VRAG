@@ -33,6 +33,8 @@ volumes:
     driver: local
   grafana_data:
     driver: local
+  hf_cache:
+    driver: local
 
 services:
 
@@ -340,8 +342,32 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - MAX_CONCURRENT_REQUESTS=8
       - REQUEST_TIMEOUT_S=180
+      # Pipeline V2 knobs (optional tuning via .env)
+      - PIPELINE_V2_ENABLED=${PIPELINE_V2_ENABLED:-0}
+      - ENTITY_VOTE_PASSES=${ENTITY_VOTE_PASSES:-3}
+      - QUERY_REFORMULATIONS=${QUERY_REFORMULATIONS:-3}
+      - QUERY_UNDERSTANDING_TIMEOUT_S=${QUERY_UNDERSTANDING_TIMEOUT_S:-60}
+      - GENERATION_DRAFTS=${GENERATION_DRAFTS:-1}
+      - GENERATION_OUTLINE_ENABLED=${GENERATION_OUTLINE_ENABLED:-0}
+      - GENERATION_JUDGE_ENABLED=${GENERATION_JUDGE_ENABLED:-0}
+      - RERANK_STAGE1_ENABLED=${RERANK_STAGE1_ENABLED:-0}
+      - RERANK_STAGE3_ENABLED=${RERANK_STAGE3_ENABLED:-0}
+      - COMMUNITY_ENABLED=${COMMUNITY_ENABLED:-0}
+      - CONSISTENCY_VIEWS_ENABLED=${CONSISTENCY_VIEWS_ENABLED:-1}
+      - PII_MASK_ENABLED=${PII_MASK_ENABLED:-1}
+      - PII_LLM_NER_ENABLED=${PII_LLM_NER_ENABLED:-1}
+      - CHUNK_LEVELS_ENABLED=${CHUNK_LEVELS_ENABLED:-paragraph,section}
+      # GLiNER entity extractor — disable HF progress bars to avoid tqdm._lock async issue
+      - HF_HUB_DISABLE_PROGRESS_BARS=1
+      - TQDM_DISABLE=1
+      - TRANSFORMERS_VERBOSITY=error
+      - ENTITY_EXTRACTOR_PROVIDER=${ENTITY_EXTRACTOR_PROVIDER:-gliner}
+      - ENTITY_EXTRACTOR_MODEL=${ENTITY_EXTRACTOR_MODEL:-urchade/gliner_multi-v2.1}
+      - ENTITY_EXTRACTOR_THRESHOLD=${ENTITY_EXTRACTOR_THRESHOLD:-0.5}
     ports:
       - "127.0.0.1:8800:8800"
+    volumes:
+      - hf_cache:/root/.cache/huggingface  # persist GLiNER model across container recreates
     networks:
       - rag-internal
     healthcheck:
@@ -353,7 +379,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1G
+          memory: 6G
     logging:
       driver: json-file
       options:

@@ -18,7 +18,7 @@ async def embed_single(
     try:
         resp = await http_client.post(
             f"{url}/api/embeddings",
-            json={"model": model, "prompt": text},
+            json={"model": model, "prompt": text, "keep_alive": -1},
             timeout=timeout,
         )
         resp.raise_for_status()
@@ -64,7 +64,7 @@ async def embed_batch(
             try:
                 resp = await http_client.post(
                     f"{url}/api/embeddings",
-                    json={"model": model, "prompt": text},
+                    json={"model": model, "prompt": text, "keep_alive": -1},
                     timeout=timeout,
                 )
                 resp.raise_for_status()
