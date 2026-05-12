@@ -1,0 +1,218 @@
+{
+  "name": "Vietnamese GraphRAG Benchmark v1 — Academic Papers Subset",
+  "description": "30 Vietnamese queries grouped by capability tested. For ablation comparing baseline RAG vs GraphRAG + GAEA + ReAct + L2R.",
+  "version": "1.0.0",
+  "corpus": "10 academic papers (RAG/embedding/graph/biology mix)",
+  "queries": [
+    {
+      "id": "f01",
+      "category": "factual_local",
+      "query": "GraphRAG là gì?",
+      "expected_doc": "01_graphrag.md",
+      "expected_keywords": ["graph", "retrieval", "Microsoft"]
+    },
+    {
+      "id": "f02",
+      "category": "factual_local",
+      "query": "BGE-M3 hỗ trợ bao nhiêu ngôn ngữ?",
+      "expected_doc": "05_bge_m3.md",
+      "expected_keywords": ["100", "ngôn ngữ", "multilingual"]
+    },
+    {
+      "id": "f03",
+      "category": "factual_local",
+      "query": "Thuật toán Leiden cải tiến từ thuật toán nào?",
+      "expected_doc": "08_leiden.md",
+      "expected_keywords": ["Louvain"]
+    },
+    {
+      "id": "f04",
+      "category": "factual_local",
+      "query": "ColBERT dùng cơ chế gì để retrieval?",
+      "expected_doc": "07_colbert.md",
+      "expected_keywords": ["late interaction", "MaxSim"]
+    },
+    {
+      "id": "f05",
+      "category": "factual_local",
+      "query": "AlphaFold dự đoán cái gì?",
+      "expected_doc": "10_alphafold.md",
+      "expected_keywords": ["protein", "structure"]
+    },
+    {
+      "id": "f06",
+      "category": "factual_local",
+      "query": "Self-RAG khác RAG truyền thống ở điểm nào?",
+      "expected_doc": "03_self_rag.md",
+      "expected_keywords": ["self", "reflection", "critic"]
+    },
+    {
+      "id": "f07",
+      "category": "factual_local",
+      "query": "RAGAS đánh giá theo những metric nào?",
+      "expected_doc": "04_ragas.md",
+      "expected_keywords": ["faithfulness", "relevance"]
+    },
+    {
+      "id": "f08",
+      "category": "factual_local",
+      "query": "HyDE viết tắt của gì?",
+      "expected_doc": "02_hyde.md",
+      "expected_keywords": ["Hypothetical", "Document", "Embedding"]
+    },
+    {
+      "id": "m01",
+      "category": "multi_hop",
+      "query": "GraphRAG sử dụng thuật toán phân cụm cộng đồng nào?",
+      "expected_docs": ["01_graphrag.md", "08_leiden.md"],
+      "expected_keywords": ["Leiden", "community", "clustering"]
+    },
+    {
+      "id": "m02",
+      "category": "multi_hop",
+      "query": "GraphSAGE và GraphRAG đều dùng graph - khác nhau ra sao?",
+      "expected_docs": ["01_graphrag.md", "09_graphsage.md"],
+      "expected_keywords": ["embedding", "summarization"]
+    },
+    {
+      "id": "m03",
+      "category": "multi_hop",
+      "query": "Self-RAG và RAGAS đều liên quan đến đánh giá RAG. Mối liên hệ?",
+      "expected_docs": ["03_self_rag.md", "04_ragas.md"],
+      "expected_keywords": ["evaluation", "faithfulness"]
+    },
+    {
+      "id": "m04",
+      "category": "multi_hop",
+      "query": "BGE-M3 và E5 đều là embedding models. Phương pháp huấn luyện?",
+      "expected_docs": ["05_bge_m3.md", "06_e5.md"],
+      "expected_keywords": ["contrastive", "training"]
+    },
+    {
+      "id": "c01",
+      "category": "comparison",
+      "query": "So sánh ColBERT, E5, và BGE-M3.",
+      "expected_docs": ["05_bge_m3.md", "06_e5.md", "07_colbert.md"],
+      "expected_keywords": ["dense retrieval", "embedding"]
+    },
+    {
+      "id": "c02",
+      "category": "comparison",
+      "query": "GraphRAG vs HyDE: hai cách cải thiện RAG khác nhau ra sao?",
+      "expected_docs": ["01_graphrag.md", "02_hyde.md"],
+      "expected_keywords": ["graph", "hypothetical"]
+    },
+    {
+      "id": "c03",
+      "category": "comparison",
+      "query": "Leiden và Louvain: thuật toán nào tốt hơn?",
+      "expected_doc": "08_leiden.md",
+      "expected_keywords": ["Leiden", "guaranteed", "connected"]
+    },
+    {
+      "id": "s01",
+      "category": "summarization",
+      "query": "Tóm tắt các kỹ thuật chính cải thiện RAG được nghiên cứu.",
+      "expected_docs": ["01_graphrag.md", "02_hyde.md", "03_self_rag.md", "04_ragas.md"],
+      "expected_keywords": ["RAG", "improvement"]
+    },
+    {
+      "id": "s02",
+      "category": "summarization",
+      "query": "Tóm tắt các phương pháp embedding hiện đại.",
+      "expected_docs": ["05_bge_m3.md", "06_e5.md", "07_colbert.md"],
+      "expected_keywords": ["embedding", "dense"]
+    },
+    {
+      "id": "s03",
+      "category": "summarization",
+      "query": "Các đóng góp chính trong nghiên cứu về knowledge graph trong RAG?",
+      "expected_docs": ["01_graphrag.md", "08_leiden.md", "09_graphsage.md"],
+      "expected_keywords": ["graph", "knowledge"]
+    },
+    {
+      "id": "a01",
+      "category": "analytical",
+      "query": "Tại sao GraphRAG cần community detection?",
+      "expected_doc": "01_graphrag.md",
+      "expected_keywords": ["community", "summarization", "global"]
+    },
+    {
+      "id": "a02",
+      "category": "analytical",
+      "query": "Vai trò của contrastive learning trong embedding models?",
+      "expected_docs": ["05_bge_m3.md", "06_e5.md"],
+      "expected_keywords": ["contrastive", "negative"]
+    },
+    {
+      "id": "a03",
+      "category": "analytical",
+      "query": "Self-RAG giải quyết vấn đề gì của RAG truyền thống?",
+      "expected_doc": "03_self_rag.md",
+      "expected_keywords": ["reflection", "retrieval decision"]
+    },
+    {
+      "id": "o01",
+      "category": "out_of_domain",
+      "query": "Thời tiết Hà Nội ngày mai?",
+      "expect_refusal": true,
+      "expected_keywords": []
+    },
+    {
+      "id": "o02",
+      "category": "out_of_domain",
+      "query": "Giá Bitcoin hôm nay?",
+      "expect_refusal": true,
+      "expected_keywords": []
+    },
+    {
+      "id": "o03",
+      "category": "out_of_domain",
+      "query": "Công thức nấu phở bò?",
+      "expect_refusal": true,
+      "expected_keywords": []
+    },
+    {
+      "id": "e01",
+      "category": "entity_pivot",
+      "query": "Những paper nào đề cập đến BM25 baseline?",
+      "expected_docs": ["02_hyde.md", "05_bge_m3.md", "06_e5.md", "07_colbert.md"],
+      "expected_keywords": ["BM25"]
+    },
+    {
+      "id": "e02",
+      "category": "entity_pivot",
+      "query": "Microsoft Research có công trình gì?",
+      "expected_doc": "01_graphrag.md",
+      "expected_keywords": ["Microsoft", "GraphRAG"]
+    },
+    {
+      "id": "e03",
+      "category": "entity_pivot",
+      "query": "Paper nào của Traag và cộng sự?",
+      "expected_doc": "08_leiden.md",
+      "expected_keywords": ["Traag", "Leiden"]
+    },
+    {
+      "id": "v01",
+      "category": "vietnamese_complex",
+      "query": "Phương pháp GraphRAG hoạt động thông qua việc xây dựng đồ thị tri thức như thế nào?",
+      "expected_doc": "01_graphrag.md",
+      "expected_keywords": ["entity", "graph"]
+    },
+    {
+      "id": "v02",
+      "category": "vietnamese_complex",
+      "query": "Hệ thống đánh giá RAG cần đo lường những khía cạnh nào để đảm bảo chất lượng?",
+      "expected_docs": ["03_self_rag.md", "04_ragas.md"],
+      "expected_keywords": ["evaluation", "metric"]
+    },
+    {
+      "id": "v03",
+      "category": "vietnamese_complex",
+      "query": "Sự khác biệt giữa các phương pháp embedding đa ngôn ngữ?",
+      "expected_docs": ["05_bge_m3.md", "06_e5.md"],
+      "expected_keywords": ["multilingual"]
+    }
+  ]
+}

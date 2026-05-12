@@ -1,0 +1,70 @@
+{
+  "name": "Vietnamese GraphRAG Benchmark v1 — Academic Papers Subset",
+  "description": "30 Vietnamese queries grouped by capability tested. For ablation comparing baseline RAG vs GraphRAG + GAEA + ReAct + L2R.",
+  "version": "1.0.0",
+  "corpus": "10 academic papers (RAG/embedding/graph/biology mix)",
+  "queries": [
+    {
+      "id": "f01",
+      "category": "factual_local",
+      "query": "GraphRAG là gì?",
+      "expected_doc": "01_graphrag.md",
+      "expected_keywords": [
+        "graph",
+        "retrieval",
+        "Microsoft"
+      ]
+    },
+    {
+      "id": "f02",
+      "category": "factual_local",
+      "query": "BGE-M3 hỗ trợ bao nhiêu ngôn ngữ?",
+      "expected_doc": "05_bge_m3.md",
+      "expected_keywords": [
+        "100",
+        "ngôn ngữ",
+        "multilingual"
+      ]
+    },
+    {
+      "id": "f03",
+      "category": "factual_local",
+      "query": "Thuật toán Leiden cải tiến từ thuật toán nào?",
+      "expected_doc": "08_leiden.md",
+      "expected_keywords": [
+        "Louvain"
+      ]
+    },
+    {
+      "id": "f04",
+      "category": "factual_local",
+      "query": "ColBERT dùng cơ chế gì để retrieval?",
+      "expected_doc": "07_colbert.md",
+      "expected_keywords": [
+        "late interaction",
+        "MaxSim"
+      ]
+    },
+    {
+      "id": "f05",
+      "category": "factual_local",
+      "query": "AlphaFold dự đoán cái gì?",
+      "expected_doc": "10_alphafold.md",
+      "expected_keywords": [
+        "protein",
+        "structure"
+      ]
+    },
+    {
+      "id": "f06",
+      "category": "factual_local",
+      "query": "Self-RAG khác RAG truyền thống ở điểm nào?",
+      "expected_doc": "03_self_rag.md",
+      "expected_keywords": [
+        "self",
+        "reflection",
+        "critic"
+      ]
+    }
+  ]
+}
