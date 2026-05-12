@@ -680,6 +680,45 @@ async def chat_v3_stream(body: dict[str, Any]):
     )
 
 
+@router.post("/rerank/l2r/test", tags=["v3"])
+async def rerank_l2r_test(body: dict[str, Any]):
+    """Test L2R rerank standalone. Body: {query, tenant_id, top_k}."""
+    from src.services.rerank_l2r import rerank_l2r
+    settings = get_settings()
+    clients = get_clients()
+    query = body.get("query", "")
+    tenant_id = body.get("tenant_id", "default")
+    top_k = int(body.get("top_k", 5))
+
+    # Run a retrieval to get candidates
+    from src.services.query_understanding import understand_query
+    from src.services.retrieval_v2 import multi_path_retrieve
+
+    understanding = await understand_query(query, clients.llm, model=settings.ollama_model,
+                                            timeout=settings.query_understanding_timeout_s)
+    candidates = await multi_path_retrieve(
+        understanding, clients, tenant_id=tenant_id, final_top_k=30,
+    )
+    # Extract query entities
+    qe = candidates[0].get("_query_entities", []) if candidates else []
+
+    reranked = await rerank_l2r(query, candidates, query_entities=qe, top_k=top_k)
+    return {
+        "query": query,
+        "top_k": [
+            {
+                "chunk_id": c.get("chunk_id"),
+                "source": c.get("source"),
+                "final_score": round(c.get("final_score", 0), 4),
+                "l2r_score": round(c.get("l2r_score", 0), 4),
+                "stage2_score": round(c.get("stage2_score", 0), 4),
+                "features": {k: round(v, 3) for k, v in (c.get("l2r_features") or {}).items()},
+            }
+            for c in reranked
+        ],
+    }
+
+
 @router.post("/chat/react", tags=["v3"])
 async def chat_v3_react(body: dict[str, Any]):
     """
