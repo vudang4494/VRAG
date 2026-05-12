@@ -199,14 +199,14 @@ class LLMRelationExtractor:
         snippet = text[: self.max_chars]
         prompt = _REL_PROMPT.format(entities=entity_str, text=snippet)
 
+        from src.services.ollama_helper import ollama_chat
         try:
-            resp = await self.llm.chat.completions.create(
-                model=self.model,
+            raw = await ollama_chat(
                 messages=[{"role": "user", "content": prompt}],
+                model=self.model,
                 temperature=0.1,
                 max_tokens=400,
             )
-            raw = (resp.choices[0].message.content or "").strip()
             if not raw:
                 return []
             raw = re.sub(r"```(?:json)?\s*|\s*```$", "", raw).strip()

@@ -52,17 +52,16 @@ Từ khóa:"""
 
 
 async def _llm_call(llm: Any, model: str, prompt: str, max_tokens: int = 256) -> str:
-    try:
-        resp = await llm.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
-            max_tokens=max_tokens,
-        )
-        return (resp.choices[0].message.content or "").strip()
-    except Exception as e:
-        logger.debug(f"LLM view generation failed: {e}")
-        return ""
+    """Use Ollama native API (Phase 0a fix). The `llm` arg is kept for signature
+    compat but unused; helper reads global clients/settings.
+    """
+    from src.services.ollama_helper import ollama_chat
+    return await ollama_chat(
+        messages=[{"role": "user", "content": prompt}],
+        model=model,
+        temperature=0.3,
+        max_tokens=max_tokens,
+    )
 
 
 async def generate_views(

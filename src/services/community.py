@@ -198,15 +198,16 @@ async def generate_consistent_summary(
     chunk_str = "\n---\n".join(c["text"][:500] for c in chunks[:5])
     prompt = _COMMUNITY_SUMMARY_PROMPT.format(entities=ent_str, chunks=chunk_str)
 
+    from src.services.ollama_helper import ollama_chat
+
     async def _one(seed_temp: float) -> str:
         try:
-            resp = await llm.chat.completions.create(
-                model=model,
+            return await ollama_chat(
                 messages=[{"role": "user", "content": prompt}],
+                model=model,
                 temperature=seed_temp,
                 max_tokens=400,
             )
-            return (resp.choices[0].message.content or "").strip()
         except Exception as e:
             logger.debug(f"Summary generation failed: {e}")
             return ""
@@ -226,13 +227,12 @@ async def generate_consistent_summary(
         s3=summaries[2] if len(summaries) > 2 else "(không có)",
     )
     try:
-        resp = await llm.chat.completions.create(
-            model=model,
+        raw = await ollama_chat(
             messages=[{"role": "user", "content": judge_prompt}],
+            model=model,
             temperature=0.1,
             max_tokens=10,
         )
-        raw = (resp.choices[0].message.content or "").strip()
         match = re.search(r"\d", raw)
         if match:
             idx = int(match.group(0)) - 1

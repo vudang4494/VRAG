@@ -42,21 +42,27 @@ Các đoạn tham khảo:
 Dàn ý:"""
 
 
-_DRAFT_PROMPT = """Bạn là trợ lý AI nội bộ. Trả lời câu hỏi sau bằng tiếng Việt, dựa
-HOÀN TOÀN trên các đoạn văn bản tham khảo. Mỗi câu phải có trích dẫn [chunk_id] ở cuối.
+_DRAFT_PROMPT = """Bạn là trợ lý AI nội bộ. Trả lời câu hỏi sau bằng tiếng Việt
+NGẮN GỌN (2-5 câu), dựa HOÀN TOÀN trên các đoạn văn bản tham khảo bên dưới.
 
-NẾU không có đủ thông tin để trả lời chắc chắn, viết "Tôi không có đủ thông tin chắc chắn"
-và giải thích thiếu gì.
+QUY TẮC NGHIÊM NGẶT (PHẢI TUÂN THỦ):
+1. MỖI câu trong câu trả lời PHẢI kết thúc bằng [chunk_id] của đoạn nguồn.
+   Ví dụ: "BGE-M3 hỗ trợ 100 ngôn ngữ [doc_abc::para::5]."
+2. CHỈ dùng tên thực thể (entity) XUẤT HIỆN trong các đoạn tham khảo.
+   KHÔNG đưa thêm entity từ kiến thức training của bạn.
+3. Nếu thực sự không có thông tin trong đoạn tham khảo, chỉ trả lời:
+   "Tôi không có đủ thông tin chắc chắn dựa trên tài liệu hiện có."
+4. KHÔNG suy luận, KHÔNG bổ sung, KHÔNG diễn giải ngoài context.
 
 Câu hỏi: {query}
 
-Dàn ý:
+Dàn ý gợi ý (tham khảo):
 {outline}
 
-Các đoạn tham khảo:
+Các đoạn tham khảo (chunk_id ở đầu mỗi đoạn):
 {context}
 
-Câu trả lời (mỗi câu có [chunk_id]):"""
+Câu trả lời (mỗi câu KÈM [chunk_id] ở cuối):"""
 
 
 _JUDGE_PROMPT = """Trong 3 bản trả lời sau, bản nào CHÍNH XÁC NHẤT (dựa trên context),
@@ -80,25 +86,78 @@ Số bản tốt nhất:"""
 
 
 def _format_context(candidates: list[dict]) -> str:
-    """Format reranked candidates into a prompt-ready context block."""
+    """Format reranked candidates into a prompt-ready context block.
+
+    Includes:
+      - Top entities extracted from the query (if any) — helps LLM stay focused
+      - Per-chunk: chunk_id, source, retrieval_path, matched entities (if entity-pivot)
+      - Chunk text
+    """
+    if not candidates:
+        return ""
+
+    # Pull query entities (set by retrieval_v2 on each candidate)
+    query_entities: list[str] = []
+    for c in candidates:
+        qe = c.get("_query_entities")
+        if qe:
+            query_entities = qe
+            break
+
+    header_parts = []
+    if query_entities:
+        header_parts.append(
+            "Các thực thể chính trong câu hỏi (được trích từ knowledge graph): "
+            + ", ".join(query_entities[:8])
+        )
+    header = ("\n".join(header_parts) + "\n\n") if header_parts else ""
+
     lines = []
     for i, c in enumerate(candidates, 1):
         cid = c.get("chunk_id", f"cand_{i}")
         src = c.get("source", "unknown")
         text = (c.get("text") or "")[:1200]
-        lines.append(f"[{cid}] (source: {src})\n{text}")
-    return "\n\n---\n\n".join(lines)
+        # Surface entity-pivot signal if this chunk came via that path
+        matched = c.get("matched_entities") or []
+        path = c.get("retrieval_path", "")
+        annotations = []
+        if "entity_pivot" in path or matched:
+            annotations.append(f"matched_entities: {', '.join(matched[:6])}")
+        ann = f" ({'; '.join(annotations)})" if annotations else ""
+        lines.append(f"[{cid}] (source: {src}{ann})\n{text}")
+
+    return header + "\n\n---\n\n".join(lines)
 
 
 async def _llm_complete(llm, model: str, prompt: str, max_tokens: int = 800, temperature: float = 0.3) -> str:
+    """Generation via Ollama native /api/chat — bypasses OpenAI-compat layer
+    that silently drops Qwen3 `think:false` (causing empty content responses)."""
+    from src.config import get_settings
+    settings = get_settings()
+    clients = get_clients()
     try:
-        resp = await llm.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=temperature,
-            max_tokens=max_tokens,
+        resp = await clients.http.post(
+            f"{settings.ollama_base_url}/api/chat",
+            json={
+                "model": model,
+                "messages": [{"role": "user", "content": prompt}],
+                "stream": False,
+                "think": False,  # Qwen3 emit content (not hidden thinking tokens)
+                "keep_alive": -1,
+                "options": {
+                    "temperature": temperature,
+                    "num_predict": max_tokens,
+                },
+            },
+            timeout=settings.request_timeout_s,
         )
-        return (resp.choices[0].message.content or "").strip()
+        resp.raise_for_status()
+        data = resp.json()
+        content = (data.get("message", {}).get("content") or "").strip()
+        # Fallback: some Qwen3 builds put response in 'thinking' even with think:false
+        if not content:
+            content = (data.get("message", {}).get("thinking") or "").strip()
+        return content
     except Exception as e:
         logger.warning(f"LLM completion failed: {e}")
         return ""

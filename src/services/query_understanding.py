@@ -74,17 +74,14 @@ Loại:"""
 
 
 async def _llm_text(llm: Any, model: str, prompt: str, max_tokens: int = 200) -> str:
-    try:
-        resp = await llm.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.2,
-            max_tokens=max_tokens,
-        )
-        return (resp.choices[0].message.content or "").strip()
-    except Exception as e:
-        logger.debug(f"Query understanding LLM call failed: {e}")
-        return ""
+    """Phase 0a fix — Ollama native to bypass Qwen3 thinking-mode content loss."""
+    from src.services.ollama_helper import ollama_chat
+    return await ollama_chat(
+        messages=[{"role": "user", "content": prompt}],
+        model=model,
+        temperature=0.2,
+        max_tokens=max_tokens,
+    )
 
 
 async def rewrite_query(query: str, llm: Any, model: str = "qwen3.5:4b") -> str:

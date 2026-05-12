@@ -42,18 +42,26 @@ _ENTITY_PATTERN = re.compile(
 
 
 async def extract_atomic_claims(answer: str, llm: Any, model: str = "qwen3.5:4b") -> list[str]:
-    """Use LLM to extract verifiable claims from the answer."""
+    """Use LLM to extract verifiable claims from the answer.
+
+    Phase 0a fix: use Ollama native (think:false) to avoid Qwen3 empty content.
+    """
+    from src.services.ollama_helper import ollama_chat
     if not answer.strip():
         return []
     try:
-        resp = await llm.chat.completions.create(
-            model=model,
+        raw = await ollama_chat(
             messages=[{"role": "user", "content": _CLAIM_EXTRACT_PROMPT.format(answer=answer)}],
+            model=model,
             temperature=0.1,
             max_tokens=600,
         )
-        raw = (resp.choices[0].message.content or "").strip()
+        if not raw:
+            raise ValueError("empty content")
         raw = re.sub(r"```(?:json)?\s*|\s*```", "", raw).strip()
+        match = re.search(r"\{[\s\S]*\}", raw)
+        if match:
+            raw = match.group(0)
         data = json.loads(raw)
         return [c.strip() for c in data.get("claims", []) if c.strip()]
     except Exception as e:
@@ -63,15 +71,16 @@ async def extract_atomic_claims(answer: str, llm: Any, model: str = "qwen3.5:4b"
 
 
 async def verify_claim(claim: str, context: str, llm: Any, model: str = "qwen3.5:4b") -> str:
-    """Returns 'YES' | 'NO' | 'PARTIAL'."""
+    """Returns 'YES' | 'NO' | 'PARTIAL'. Phase 0a — Ollama native."""
+    from src.services.ollama_helper import ollama_chat
     try:
-        resp = await llm.chat.completions.create(
-            model=model,
+        raw = await ollama_chat(
             messages=[{"role": "user", "content": _VERIFY_CLAIM_PROMPT.format(claim=claim, context=context[:5000])}],
+            model=model,
             temperature=0.1,
             max_tokens=20,
         )
-        raw = (resp.choices[0].message.content or "").strip().upper()
+        raw = raw.upper()
         for v in ("YES", "PARTIAL", "NO"):
             if v in raw:
                 return v
@@ -164,10 +173,33 @@ async def entity_gate(
     }
 
 
+_REFUSAL_PATTERNS = [
+    r"không có đủ thông tin",
+    r"không tìm thấy",
+    r"không thể trả lời",
+    r"không đủ dữ liệu",
+    r"i don'?t have enough information",
+    r"insufficient information",
+]
+
+
+def is_refusal_answer(answer: str) -> bool:
+    """Detect if LLM produced a refusal-style answer (which by design has no citations)."""
+    if len(answer.strip()) < 200:  # short answers often refusals
+        a = answer.lower()
+        return any(re.search(p, a) for p in _REFUSAL_PATTERNS)
+    return False
+
+
 def citation_gate(answer: str, min_ratio: float = 0.70) -> dict[str, Any]:
     """
     Check that most sentences have a citation [chunk_id] marker.
+    Skip check entirely if answer is a refusal (no citations expected).
     """
+    # Refusal answers don't need citations — they're an explicit "I don't know"
+    if is_refusal_answer(answer):
+        return {"passed": True, "citation_ratio": 1.0, "uncited": [], "skipped_refusal": True}
+
     sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", answer) if len(s.strip()) > 10]
     if not sentences:
         return {"passed": True, "citation_ratio": 1.0, "uncited": []}

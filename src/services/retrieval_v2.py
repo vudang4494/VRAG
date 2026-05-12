@@ -71,6 +71,11 @@ def reformulation_weight(kind: str) -> float:
         "step_back": 0.8,
         "keywords": 0.9,
         "decompose": 1.1,
+        # Entity-pivot is a high-precision path — boost when entities match.
+        # Higher weight means top-matched chunks rank very high in fused output.
+        "entity_pivot": 1.5,
+        "graph": 1.0,
+        "community": 1.2,
     }.get(kind, 1.0)
 
 
@@ -80,6 +85,102 @@ async def _embed_query(http, embed_url, embed_model, text: str) -> list[float]:
     except Exception as e:
         logger.warning(f"Query embed failed for '{text[:60]}': {e}")
         return []
+
+
+async def _entity_pivot_path(
+    neo4j_driver,
+    entity_extractor: Any,
+    query_text: str,
+    tenant_id: str | None,
+    top_k: int = 20,
+) -> tuple[list[dict], list[str]]:
+    """
+    Entity-pivot retrieval — bridge from query to chunks via shared entities.
+
+    This is the path that makes Vector+KG actually deliver value:
+      1. Extract entities from the user query (same GLiNER used at ingest).
+      2. Cypher: find chunks that CONTAINS_ENTITY any of those entities.
+      3. Score by number of matched entities + tenant filter.
+
+    Returns (candidates, query_entity_names) so caller can also include the
+    extracted entities in the LLM prompt context.
+    """
+    if entity_extractor is None or not query_text.strip():
+        return [], []
+
+    try:
+        ents, _ = await entity_extractor.extract(query_text)
+    except Exception as e:
+        logger.debug(f"Query entity extraction failed: {e}")
+        return [], []
+
+    if not ents:
+        return [], []
+
+    # Use unique lowercased names for matching, keep original case for display
+    seen: dict[str, str] = {}
+    for e in ents:
+        key = e.name.strip().lower()
+        if key and key not in seen and len(key) >= 2:
+            seen[key] = e.name.strip()
+    if not seen:
+        return [], []
+    names_lower = list(seen.keys())
+    names_display = [seen[k] for k in names_lower]
+
+    where_clause = "WHERE c.tenant_id = $tid" if tenant_id else ""
+    params: dict[str, Any] = {"names": names_lower, "top_k": top_k}
+    if tenant_id:
+        params["tid"] = tenant_id
+
+    # Match entities: exact case-insensitive OR substring (catches "Leiden" → "Leiden algorithm")
+    cypher = f"""
+    UNWIND $names AS qname
+    MATCH (e:Entity)
+    WHERE toLower(e.name) = qname OR toLower(e.name) CONTAINS qname
+    MATCH (c:Chunk)-[:CONTAINS_ENTITY]->(e)
+    {where_clause}
+    WITH c, count(DISTINCT e) AS matches, collect(DISTINCT e.name) AS matched_names
+    ORDER BY matches DESC
+    LIMIT $top_k
+    OPTIONAL MATCH (c)-[:FROM_DOCUMENT]->(d:Document)
+    RETURN c.id AS chunk_id, c.text AS text, c.source AS source,
+           c.format AS format, c.chunk_level AS chunk_level,
+           c.consistency_score AS consistency_score,
+           matches, matched_names
+    """
+
+    try:
+        async with neo4j_driver.session() as s:
+            result = await s.run(cypher, **params)
+            rows = await result.data()
+    except Exception as e:
+        logger.warning(f"Entity-pivot Cypher failed: {e}")
+        return [], names_display
+
+    candidates: list[dict] = []
+    max_possible_matches = max(len(names_lower), 1)
+    for r in rows:
+        score = float(r["matches"]) / max_possible_matches  # normalized 0..1
+        candidates.append({
+            "chunk_id": r["chunk_id"],
+            "text": r["text"] or "",
+            "source": r["source"] or "unknown",
+            "format": r["format"] or "unknown",
+            "chunk_level": r["chunk_level"] or "paragraph",
+            "consistency_score": float(r["consistency_score"] or 0.7),
+            "score": score,
+            "retrieval_path": "entity_pivot",
+            "matched_entities": r["matched_names"] or [],
+            "entity_match_count": r["matches"],
+            "metadata": {},
+        })
+
+    logger.info(
+        f"entity_pivot: query entities {names_display} → "
+        f"{len(candidates)} chunks (top matches={candidates[0]['entity_match_count'] if candidates else 0})"
+    )
+    return candidates, names_display
 
 
 async def _graph_path(neo4j_driver, query_vec, http, embed_url, embed_model, tenant_id, top_k=20):
@@ -268,8 +369,28 @@ async def multi_path_retrieve(
             tenant_id, top_k=5,
         )
 
+    # Entity-pivot path — always-on when entity_extractor available.
+    # Bridges from query→entities→chunks, complements vector cosine.
+    # Returns the extracted query entities for later inclusion in context.
+    entity_pivot_task = None
+    query_entities_holder: dict[str, list[str]] = {"entities": []}
+    entity_extractor = getattr(clients, "entity_extractor", None)
+    if entity_extractor is not None:
+        async def _run_entity_pivot():
+            cands, query_ents = await _entity_pivot_path(
+                clients.neo4j, entity_extractor,
+                understanding.get("original", ""),
+                tenant_id, top_k=top_k_per_path,
+            )
+            query_entities_holder["entities"] = query_ents
+            return cands
+        entity_pivot_task = _run_entity_pivot()
+
     # Run all paths in parallel
-    all_tasks = search_tasks + ([graph_task] if graph_task else []) + ([community_task] if community_task else [])
+    all_tasks = search_tasks \
+        + ([graph_task] if graph_task else []) \
+        + ([community_task] if community_task else []) \
+        + ([entity_pivot_task] if entity_pivot_task else [])
     results = await asyncio.gather(*all_tasks, return_exceptions=True)
 
     # Collect vector search results
@@ -293,8 +414,15 @@ async def multi_path_retrieve(
     # Community results
     if community_task is not None:
         res = results[idx]
+        idx += 1
         if not isinstance(res, Exception):
             paths["community"] = res
+
+    # Entity-pivot results (entity-aware retrieval — KG bridge)
+    if entity_pivot_task is not None:
+        res = results[idx]
+        if not isinstance(res, Exception):
+            paths["entity_pivot"] = res
 
     # Normalize scores per format BEFORE RRF
     all_cands: list[dict] = []
@@ -309,4 +437,11 @@ async def multi_path_retrieve(
 
     # Weighted RRF
     fused = weighted_rrf(paths, k=settings.rrf_k, final_top_k=final_top_k)
+
+    # Attach query entities to first result for caller (LLM prompt) to access.
+    # Uses a global key on each candidate so it survives downstream processing.
+    if fused and query_entities_holder.get("entities"):
+        for c in fused:
+            c["_query_entities"] = query_entities_holder["entities"]
+
     return fused

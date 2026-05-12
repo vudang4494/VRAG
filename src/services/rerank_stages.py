@@ -126,19 +126,19 @@ Câu hỏi: {query}
 
 
 async def _judge_one(query: str, candidate: dict, llm: Any, model: str, timeout: float = 5.0) -> dict:
+    from src.services.ollama_helper import ollama_chat
     text = candidate.get("text", "")[:1500]
     prompt = _LLM_JUDGE_PROMPT.format(query=query, text=text)
     try:
-        resp = await asyncio.wait_for(
-            llm.chat.completions.create(
-                model=model,
+        raw = await asyncio.wait_for(
+            ollama_chat(
                 messages=[{"role": "user", "content": prompt}],
+                model=model,
                 temperature=0.1,
                 max_tokens=120,
             ),
             timeout=timeout,
         )
-        raw = (resp.choices[0].message.content or "").strip()
     except Exception as e:
         logger.debug(f"Stage 3 judge failed (fallback to stage2 score): {e}")
         return {**candidate, "stage3_score": float(candidate.get("stage2_score", 0.0)), "judge_reason": None}

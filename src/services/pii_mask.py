@@ -86,15 +86,15 @@ async def _mask_llm_ner(
     """Use LLM to detect PERSON / ORGANIZATION / ADDRESS, then mask."""
     import json
 
+    from src.services.ollama_helper import ollama_chat
     snippet = text[:max_chars]
     try:
-        resp = await llm.chat.completions.create(
-            model=model,
+        raw = await ollama_chat(
             messages=[{"role": "user", "content": _LLM_NER_PROMPT.format(text=snippet)}],
+            model=model,
             temperature=0.1,
             max_tokens=512,
         )
-        raw = (resp.choices[0].message.content or "").strip()
         if not raw:
             return text
         raw = re.sub(r"```(?:json)?\s*|\s*```$", "", raw).strip()

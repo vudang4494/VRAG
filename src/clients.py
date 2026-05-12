@@ -111,18 +111,19 @@ async def init_clients() -> Clients:
         ),
     )
 
-    # Monkey-patch chat.completions.create to inject keep_alive=-1 globally.
-    # Ollama's default 5-minute model expiry causes ~50s cold-load latency
-    # mid-pipeline. With keep_alive=-1 on every call, model stays in VRAM
-    # for the lifetime of the API process.
+    # Monkey-patch chat.completions.create to inject Ollama-specific options:
+    #   • keep_alive=-1 → model stays in VRAM (avoid 5-min expiry cold reload)
+    #   • think=False   → disable Qwen3-style thinking mode (content was empty
+    #                     because all tokens consumed by hidden thinking).
     _original_create = clients.llm.chat.completions.create
 
-    async def _create_keep_alive(**kwargs):
+    async def _create_with_ollama_opts(**kwargs):
         extra_body = kwargs.pop("extra_body", None) or {}
         extra_body.setdefault("keep_alive", -1)
+        extra_body.setdefault("think", False)
         return await _original_create(extra_body=extra_body, **kwargs)
 
-    clients.llm.chat.completions.create = _create_keep_alive  # type: ignore[method-assign]
+    clients.llm.chat.completions.create = _create_with_ollama_opts  # type: ignore[method-assign]
 
     # Qdrant — async client, minimal timeout
     clients.qdrant = AsyncQdrantClient(

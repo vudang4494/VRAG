@@ -38,22 +38,26 @@ Van ban:
 
 async def extract_entities_and_relations(
     text: str,
-    llm: Any,
+    llm: Any,  # kept for backward compat; ignored — uses Ollama native helper
     model: str = "qwen3.5:4b",
     max_chars: int = 2500,
 ) -> dict:
-    """Use LLM to extract entities + relationships from text. Returns dict."""
+    """Use LLM to extract entities + relationships from text. Returns dict.
+
+    Uses Ollama native /api/chat (Phase 0a fix) — OpenAI compat drops think:false
+    and Qwen3 returns empty content otherwise.
+    """
+    from src.services.ollama_helper import ollama_chat
     truncated = text[:max_chars]
     prompt = _ENTITY_EXTRACT_PROMPT.format(text=truncated)
 
     try:
-        response = await llm.chat.completions.create(
-            model=model,
+        raw = await ollama_chat(
             messages=[{"role": "user", "content": prompt}],
+            model=model,
             temperature=0.1,
             max_tokens=512,
         )
-        raw = (response.choices[0].message.content or "").strip()
         if not raw:
             return {"entities": [], "relationships": []}
         # Strip code fences
