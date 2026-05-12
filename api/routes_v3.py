@@ -680,6 +680,43 @@ async def chat_v3_stream(body: dict[str, Any]):
     )
 
 
+@router.post("/gaea/refine", tags=["v3"])
+async def gaea_refine(body: dict[str, Any]):
+    """
+    GAEA — Graph-Augmented Embedding Aggregation.
+
+    Refines all chunk embeddings for a tenant using entity-neighborhood
+    attention. Adds `graph_aware` named vector to Qdrant collection.
+
+    Body: {
+      "tenant_id": "eval",
+      "alpha": 0.35,            // blend factor (0-1)
+      "neighbor_cap": 20,        // max co-mention chunks per chunk
+      "batch_size": 50
+    }
+
+    Run AFTER ingest + cross_doc build. Idempotent (re-run updates the vector).
+    """
+    from src.services.graph_embeddings import batch_refine_tenant
+
+    settings = get_settings()
+    clients = get_clients()
+    tenant_id = body.get("tenant_id") or "default"
+
+    started = time.monotonic()
+    result = await batch_refine_tenant(
+        clients.neo4j,
+        clients.qdrant,
+        settings.qdrant_collection,
+        tenant_id=tenant_id,
+        alpha=float(body.get("alpha", 0.35)),
+        neighbor_cap=int(body.get("neighbor_cap", 20)),
+        batch_size=int(body.get("batch_size", 50)),
+    )
+    result["duration_seconds"] = time.monotonic() - started
+    return result
+
+
 @router.post("/cross_doc/build", tags=["v3"])
 async def cross_doc_build(body: dict[str, Any]):
     """

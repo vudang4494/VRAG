@@ -30,31 +30,33 @@ from src.services.vector_v2 import (
 )
 
 
-# Map intent → preferred views + flags
+# Map intent → preferred views + flags.
+# "graph_aware" view (Phase 1 GAEA refined) included for all intents — it
+# carries cross-chunk context via entity-neighborhood attention.
 INTENT_STRATEGY: dict[str, dict[str, Any]] = {
     "factual": {
-        "views": ["dense", "keywords"],
+        "views": ["dense", "graph_aware", "keywords"],
         "use_graph": False,
         "use_community": False,
         "format_preference": None,
         "graph_hops": 0,
     },
     "analytical": {
-        "views": ["dense", "summary", "question"],
+        "views": ["dense", "graph_aware", "summary", "question"],
         "use_graph": True,
         "use_community": True,
         "format_preference": None,
         "graph_hops": 2,
     },
     "summarization": {
-        "views": ["summary"],
+        "views": ["summary", "graph_aware"],
         "use_graph": False,
         "use_community": True,
         "format_preference": None,
         "graph_hops": 1,
     },
     "comparison": {
-        "views": ["dense", "question"],
+        "views": ["dense", "graph_aware", "question"],
         "use_graph": True,
         "use_community": False,
         "format_preference": None,

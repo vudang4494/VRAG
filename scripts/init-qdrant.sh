@@ -65,6 +65,11 @@ VECTOR_CONFIG=$(cat <<EOF
     "size": $DIM,
     "distance": "Cosine",
     "hnsw_config": { "m": 8, "ef_construct": 100, "on_disk": false }
+  },
+  "graph_aware": {
+    "size": $DIM,
+    "distance": "Cosine",
+    "hnsw_config": { "m": 8, "ef_construct": 100, "on_disk": false }
   }
 }
 EOF
