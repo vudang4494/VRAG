@@ -90,6 +90,78 @@ async def ollama_chat(
     return content
 
 
+async def ollama_chat_stream(
+    messages: list[dict[str, str]],
+    model: str | None = None,
+    max_tokens: int = 1024,
+    temperature: float = 0.2,
+    timeout: float | None = None,
+    think: bool = False,
+):
+    """Stream chat tokens via Ollama native /api/chat (stream=True).
+
+    Yields dicts: {"token": str, "done": bool, "thinking": str | None}.
+    Final yield has done=True with cumulative stats.
+
+    Note: even with think=False, some Qwen3 builds still emit a brief thinking
+    block at start. Filter those out — only yield content tokens.
+    """
+    import json as _json
+    from src.config import get_settings
+    from src.clients import get_clients
+
+    settings = get_settings()
+    clients = get_clients()
+    model = model or settings.ollama_model
+    timeout = timeout or settings.request_timeout_s
+
+    body = {
+        "model": model,
+        "messages": messages,
+        "stream": True,
+        "think": think,
+        "keep_alive": -1,
+        "options": {
+            "temperature": temperature,
+            "num_predict": max_tokens,
+        },
+    }
+
+    try:
+        async with clients.http.stream(
+            "POST",
+            f"{settings.ollama_base_url}/api/chat",
+            json=body,
+            timeout=timeout,
+        ) as resp:
+            resp.raise_for_status()
+            async for line in resp.aiter_lines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    chunk = _json.loads(line)
+                except Exception:
+                    continue
+                msg = chunk.get("message") or {}
+                token = msg.get("content") or ""
+                thinking = msg.get("thinking")
+                done = bool(chunk.get("done"))
+                if token or done:
+                    yield {
+                        "token": token,
+                        "thinking": thinking,
+                        "done": done,
+                        "eval_count": chunk.get("eval_count"),
+                        "done_reason": chunk.get("done_reason"),
+                    }
+                if done:
+                    break
+    except Exception as e:
+        logger.warning(f"ollama_chat_stream failure: {e}")
+        yield {"token": "", "done": True, "error": str(e)[:200]}
+
+
 async def ollama_chat_with_meta(
     messages: list[dict[str, str]],
     model: str | None = None,
