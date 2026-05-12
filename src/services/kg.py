@@ -244,3 +244,34 @@ async def graph_retrieve(
 
     chunks.sort(key=lambda x: x["graph_score"], reverse=True)
     return chunks[:top_k]
+
+async def link_semantic_chunks(
+    driver,
+    source_chunk_id: str,
+    target_chunks: list[tuple[str, float]],
+) -> None:
+    """
+    Tạo liên kết ngữ nghĩa (Semantic Edge) giữa các đoạn văn bản (chunks) 
+    khác nhau dựa trên độ tương đồng của Vector Embedding.
+    Giúp tối ưu GraphRAG bằng cách kết nối tri thức xuyên tài liệu (Cross-Document).
+    """
+    if not target_chunks:
+        return
+        
+    async with driver.session() as s:
+        for target_id, score in target_chunks:
+            if target_id == source_chunk_id or score < 0.70:
+                continue
+                
+            await s.run(
+                """
+                MATCH (c1:Chunk {id: $source_id})
+                MATCH (c2:Chunk {id: $target_id})
+                MERGE (c1)-[r:SIMILAR_TO]->(c2)
+                SET r.score = $score
+                """,
+                source_id=source_chunk_id,
+                target_id=target_id,
+                score=score
+            )
+

@@ -404,3 +404,27 @@ class SystemStats(BaseModel):
     total_api_calls_today: int
     system_health: str
     uptime_seconds: float
+
+
+class HealthResponse(BaseModel):
+    """Health check response format."""
+    status: str
+    checks: dict[str, Any]
+
+class ServiceCheck(BaseModel):
+    status: str
+    detail: str | None = None
+    models: list[str] | None = None
+    collections: int | None = None
+
+class IngestResponse(BaseModel):
+    status: str
+    filename: str
+    doc_hash: str
+    chunks_indexed: int
+    entities_extracted: int
+    relationships_extracted: int
+    failed_chunks: int
+
+class ModelList(BaseModel):
+    data: list[dict[str, str]]

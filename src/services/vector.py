@@ -39,12 +39,14 @@ async def vector_search(
 ) -> list[dict]:
     """Dense vector search in Qdrant using named 'dense' vector."""
     try:
-        results = await client.search(
+        response = await client.query_points(
             collection_name=collection,
-            query_vector={"dense": query_vector},
+            query=query_vector,
+            using="dense",
             limit=limit,
             with_payload=True,
         )
+        results = response.points
     except Exception as e:
         logger.warning(f"Qdrant search failed: {e}")
         return []

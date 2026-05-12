@@ -150,7 +150,8 @@ async def ingest_document(
         embeddings = [[0.0] * settings.embed_dimension for _ in texts]
 
     # 4 & 5: Parallel KG extraction + Neo4j upsert
-    semaphore = asyncio.Semaphore(4)
+    # Giảm từ 4 xuống 2 để tránh httpx.ReadTimeout trên Ollama (tránh overload)
+    semaphore = asyncio.Semaphore(2)
     successful = []
     failed = 0
 
@@ -235,6 +236,28 @@ async def ingest_document(
             chunk.get("relationships", []),
         )
 
+    # 6. Semantic Graph Linking (Vector-to-Graph Masking)
+    # Áp dụng Vector Embedding từ Qdrant để tạo liên kết ngữ nghĩa (SIMILAR_TO) trong Neo4j
+    from src.services.vector import vector_search
+    from src.services.kg import link_semantic_chunks
+    
+    semantic_links_created = 0
+    for chunk in successful:
+        try:
+            similar = await vector_search(
+                clients.qdrant,
+                settings.qdrant_collection,
+                chunk["embedding"],
+                limit=4
+            )
+            target_links = [(s["chunk_id"], s["score"]) for s in similar if s["chunk_id"] != chunk["chunk_id"]]
+            
+            if target_links:
+                await link_semantic_chunks(clients.neo4j, chunk["chunk_id"], target_links)
+                semantic_links_created += len(target_links)
+        except Exception as e:
+            logger.warning(f"Semantic linking failed: {e}")
+
     return {
         "status": "success",
         "filename": filename,
@@ -242,5 +265,6 @@ async def ingest_document(
         "chunks_indexed": indexed,
         "entities_extracted": len(dedup_entities),
         "relationships_extracted": len(all_rels),
+        "semantic_edges_created": semantic_links_created,
         "failed_chunks": failed,
     }
