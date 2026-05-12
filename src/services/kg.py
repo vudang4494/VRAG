@@ -53,13 +53,25 @@ async def extract_entities_and_relations(
             temperature=0.1,
             max_tokens=512,
         )
-        raw = response.choices[0].message.content or ""
-        raw = re.sub(r"```(?:json)?\s*", "", raw.strip()).strip().strip("`")
+        raw = (response.choices[0].message.content or "").strip()
+        if not raw:
+            return {"entities": [], "relationships": []}
+        # Strip code fences
+        raw = re.sub(r"```(?:json)?\s*|\s*```$", "", raw).strip()
+        # Extract first {...} block if LLM wrapped JSON in prose
+        match = re.search(r"\{[\s\S]*\}", raw)
+        if match:
+            raw = match.group(0)
+        if not raw or raw == "{}":
+            return {"entities": [], "relationships": []}
         data = json.loads(raw)
         return {
             "entities": data.get("entities", []),
             "relationships": data.get("relationships", []),
         }
+    except json.JSONDecodeError:
+        # LLM produced unparseable output — silent skip (already logged elsewhere)
+        return {"entities": [], "relationships": []}
     except Exception as e:
         logger.warning(f"Entity extraction failed: {e}")
         return {"entities": [], "relationships": []}
@@ -80,45 +92,105 @@ async def upsert_chunk_and_entities(
     relationships: list[dict],
 ) -> None:
     """
-    Store a chunk + its entities + relationships in Neo4j.
-    Uses batched writes for performance.
+    Store chunk + entities + relationships in Neo4j.
+
+    Promotes key metadata fields to top-level properties so Cypher filters
+    can match them:  tenant_id, doc_id, chunk_level, format, consistency_score,
+    parent_chunk_id, access_level.
     """
+    tenant_id = metadata.get("tenant_id")
+    doc_id = metadata.get("doc_id") or source
+    chunk_level = metadata.get("chunk_level", "paragraph")
+    fmt = metadata.get("format")
+    consistency_score = metadata.get("consistency_score")
+    parent_chunk_id = metadata.get("parent_chunk_id")
+    access_level = metadata.get("access_level", "INTERNAL")
+
     async with driver.session() as s:
+        # Document — set tenant_id at top level
         await s.run(
-            "MERGE (d:Document {id: $source}) SET d.source = $source",
+            """
+            MERGE (d:Document {id: $doc_id})
+            SET d.source = $source,
+                d.tenant_id = coalesce($tenant_id, d.tenant_id),
+                d.format = coalesce($fmt, d.format)
+            """,
+            doc_id=doc_id,
             source=source,
+            tenant_id=tenant_id,
+            fmt=fmt,
         )
 
+        # Chunk — promote filter-relevant properties to top level
         await s.run(
             """
             MERGE (c:Chunk {id: $chunk_id})
-            SET c.text = $text, c.metadata = $metadata, c.source = $source
-            WITH c MATCH (d:Document {id: $source})
+            SET c.text = $text,
+                c.source = $source,
+                c.metadata = $metadata,
+                c.tenant_id = coalesce($tenant_id, c.tenant_id),
+                c.doc_id = coalesce($doc_id, c.doc_id),
+                c.chunk_level = $chunk_level,
+                c.format = coalesce($fmt, c.format),
+                c.consistency_score = coalesce($consistency, c.consistency_score),
+                c.parent_chunk_id = $parent_chunk_id,
+                c.access_level = $access_level
+            WITH c
+            MATCH (d:Document {id: $doc_id})
             MERGE (c)-[:FROM_DOCUMENT]->(d)
             """,
             chunk_id=chunk_id,
             text=text,
             source=source,
             metadata=json.dumps(metadata),
+            tenant_id=tenant_id,
+            doc_id=doc_id,
+            chunk_level=chunk_level,
+            fmt=fmt,
+            consistency=consistency_score,
+            parent_chunk_id=parent_chunk_id,
+            access_level=access_level,
         )
 
-        # Batch entity writes
+        # Hierarchical chunk link (child → parent in same doc)
+        if parent_chunk_id and parent_chunk_id != chunk_id:
+            await s.run(
+                """
+                MATCH (c:Chunk {id: $chunk_id})
+                MATCH (p:Chunk {id: $parent_id})
+                MERGE (c)-[:VARIANT_OF]->(p)
+                """,
+                chunk_id=chunk_id,
+                parent_id=parent_chunk_id,
+            )
+
+        # Entities — set tenant_id + confidence on Entity node
         for entity in entities:
             name = _sanitize(entity.get("name", ""))
             if not name:
                 continue
             etype = entity.get("type", "OTHER")
             desc = entity.get("description", "")[:500]
+            confidence = float(entity.get("confidence", 1.0))
+            vote_count = int(entity.get("vote_count", 1))
             await s.run(
                 """
                 MERGE (e:Entity {name: $name})
-                SET e.type = $etype, e.description = $desc
-                WITH e MATCH (c:Chunk {id: $chunk_id})
+                SET e.type = $etype,
+                    e.description = $desc,
+                    e.tenant_id = coalesce($tenant_id, e.tenant_id),
+                    e.confidence = $confidence,
+                    e.vote_count = $vote_count
+                WITH e
+                MATCH (c:Chunk {id: $chunk_id})
                 MERGE (c)-[:CONTAINS_ENTITY]->(e)
                 """,
                 name=name,
                 etype=etype,
                 desc=desc,
+                tenant_id=tenant_id,
+                confidence=confidence,
+                vote_count=vote_count,
                 chunk_id=chunk_id,
             )
 
@@ -128,16 +200,22 @@ async def upsert_chunk_and_entities(
             if not src or not tgt:
                 continue
             desc = rel.get("description", "")[:500]
+            confidence = float(rel.get("confidence", 1.0))
+            vote_count = int(rel.get("vote_count", 1))
             await s.run(
                 """
                 MERGE (s:Entity {name: $src})
                 MERGE (t:Entity {name: $tgt})
                 MERGE (s)-[r:RELATES_TO]->(t)
-                SET r.description = $desc
+                SET r.description = $desc,
+                    r.confidence = $confidence,
+                    r.vote_count = $vote_count
                 """,
                 src=src,
                 tgt=tgt,
                 desc=desc,
+                confidence=confidence,
+                vote_count=vote_count,
             )
 
         logger.debug(

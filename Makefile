@@ -8,6 +8,23 @@ help:
 	@echo ""
 	@echo "  Enterprise RAG Stack — Available commands:"
 	@echo ""
+	@echo "  === PIPELINE V2 (quality-first) ==="
+	@echo "  make v2-status          Health + V2 dependencies + metrics"
+	@echo "  make v2-init             Re-init Qdrant V2 schema + Neo4j (DESTRUCTIVE)"
+	@echo "  make v2-smoke            End-to-end smoke test (ingest + chat)"
+	@echo "  make v2-eval             Run Vietnamese eval set against /api/v3/chat"
+	@echo "  make v2-eval-v1          Same set against V1 /v1/chat/completions"
+	@echo "  make v2-migrate DIR=./docs  Re-ingest a folder through V2"
+	@echo "  make v2-community        Build community summaries (Leiden) for default tenant"
+	@echo "  make v2-cross-doc        Build Document↔Document relationships"
+	@echo "  make v2-verify-graph     Audit Neo4j relationships + counts"
+	@echo "  make v2-verify-cosine    Test cosine similarity on known pairs"
+	@echo "  make v2-verify-local-global  Analyze retrieval local vs global pattern"
+	@echo "  make v2-verify-all       Run all 3 verifications"
+	@echo "  make v2-test             Pytest tests/test_pipeline_v2.py (unit)"
+	@echo "  make v2-enable           Set PIPELINE_V2_ENABLED=1 in .env"
+	@echo "  make v2-disable          Set PIPELINE_V2_ENABLED=0 in .env"
+	@echo ""
 	@echo "  === SETUP ==="
 	@echo "  make secrets          Generate .env with strong secrets"
 	@echo "  make init            First-time: secrets + directories + build"
@@ -353,3 +370,81 @@ watch-ollama:
 watch-models:
 	@echo "Checking if models are loaded..."
 	@curl -sS http://localhost:11434/api/tags | python3 -c "import json,sys; d=json.load(sys.stdin); models=d.get('models',[]); [print('  -', m['name'], '|', m.get('size','?')[:10]) for m in models]; print(); print('Loaded:', len(models), 'models')"
+
+# ==============================================================================
+# PIPELINE V2 (quality-first GraphRAG)
+# ==============================================================================
+
+.PHONY: v2-status v2-init v2-smoke v2-eval v2-eval-v1 v2-migrate v2-community v2-test v2-enable v2-disable
+
+v2-status:
+	@echo "═══ Pipeline V2 Status ═══"
+	@curl -sS http://localhost:8800/api/v3/health/deep | python3 -m json.tool 2>/dev/null || echo "API not reachable on :8800"
+
+v2-init:
+	@echo "═══ Re-init Qdrant V2 schema (5 named vectors + sparse + indexes) ═══"
+	@echo "WARNING: This DROPS the existing 'enterprise_kb' collection."
+	@echo -n "Type 'YES' to confirm: " && read confirm && [ "$$confirm" = "YES" ] || exit 1
+	@bash scripts/init-qdrant.sh
+	@$(MAKE) init-neo4j
+
+v2-smoke:
+	@echo "═══ V2 end-to-end smoke test ═══"
+	$(PYTEST:pytest=python3) scripts/v2_smoke_test.py --api http://localhost:8800 --tenant default
+
+v2-eval:
+	@echo "═══ V2 eval against /api/v3/chat ═══"
+	python3 scripts/eval_run.py --eval eval/datasets/sample_queries_vi.json --endpoint v3 --api http://localhost:8800 --tenant default --output eval/results/v3_$$(date +%Y%m%d_%H%M%S).json
+
+v2-eval-v1:
+	@echo "═══ V1 baseline eval ═══"
+	python3 scripts/eval_run.py --eval eval/datasets/sample_queries_vi.json --endpoint v1 --api http://localhost:8800 --tenant default --output eval/results/v1_$$(date +%Y%m%d_%H%M%S).json
+
+v2-migrate:
+	@if [ -z "$(DIR)" ]; then echo "Usage: make v2-migrate DIR=./docs [TENANT=default]"; exit 1; fi
+	python3 scripts/migrate_v1_to_v2.py --source-dir "$(DIR)" --tenant "$${TENANT:-default}" --api http://localhost:8800 --concurrent 2 --report eval/results/migrate_$$(date +%Y%m%d_%H%M%S).json
+
+v2-community:
+	python3 scripts/community_worker.py --tenant "$${TENANT:-default}" --api http://localhost:8800 --levels 1 --resolution 1.0 --min-size 3 --vote-passes 3
+
+v2-test:
+	@echo "═══ V2 pytest tests ═══"
+	$(PYTEST) tests/test_pipeline_v2.py -v
+
+v2-verify-graph:
+	@echo "═══ Verify Neo4j graph ═══"
+	@NEO4J_PASSWORD=$$(grep NEO4J_PASSWORD .env | cut -d= -f2); \
+	python3 scripts/verify_graph.py --http http://localhost:7474 --user neo4j --password "$$NEO4J_PASSWORD" --tenant default
+
+v2-verify-cosine:
+	@echo "═══ Verify cosine similarity ═══"
+	python3 scripts/verify_cosine.py --api http://localhost:11434 --model bge-m3
+
+v2-verify-local-global:
+	@echo "═══ Verify local vs global retrieval ═══"
+	python3 scripts/local_vs_global_check.py --api http://localhost:8800 --tenant default
+
+v2-cross-doc:
+	@echo "═══ Build cross-document relationships ═══"
+	curl -sS -X POST http://localhost:8800/api/v3/cross_doc/build \
+		-H "Content-Type: application/json" \
+		-d '{"tenant_id":"default","sample_chunks":500,"min_chunk_score":0.75,"min_shared_entities":3}' | python3 -m json.tool
+
+v2-verify-all: v2-verify-cosine v2-verify-graph v2-verify-local-global
+	@echo "═══ All V2 verifications complete ═══"
+
+v2-enable:
+	@if grep -q "^PIPELINE_V2_ENABLED=" .env 2>/dev/null; then \
+	  sed -i.bak 's/^PIPELINE_V2_ENABLED=.*/PIPELINE_V2_ENABLED=1/' .env; \
+	else \
+	  echo "PIPELINE_V2_ENABLED=1" >> .env; \
+	fi
+	@echo "Pipeline V2 enabled in .env. Run 'make restart-core' to apply."
+
+v2-disable:
+	@if grep -q "^PIPELINE_V2_ENABLED=" .env 2>/dev/null; then \
+	  sed -i.bak 's/^PIPELINE_V2_ENABLED=.*/PIPELINE_V2_ENABLED=0/' .env; \
+	else \
+	  echo "PIPELINE_V2_ENABLED=0" >> .env; \
+	fi
+	@echo "Pipeline V2 disabled in .env."

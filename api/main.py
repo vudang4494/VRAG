@@ -84,6 +84,10 @@ app = FastAPI(
 from api.multi_tenant import router as multi_tenant_router
 app.include_router(multi_tenant_router, prefix="/api/v2")
 
+# Pipeline V3 — quality-first GraphRAG (feature-flagged via PIPELINE_V2_ENABLED env)
+from api.routes_v3 import router as v3_router
+app.include_router(v3_router, prefix="/api/v3", tags=["v3"])
+
 # Prometheus metrics
 from src.metrics import MetricsMiddleware, get_metrics
 app.add_middleware(MetricsMiddleware)

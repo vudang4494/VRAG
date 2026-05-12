@@ -624,6 +624,13 @@ def build_dashboard():
                 )
 
             # ── Tab 5: Plugins ─────────────────────────────────────────────────
+            with gr.TabItem("Pipeline V2"):
+                try:
+                    from dashboard.v3_panel import build_v3_tab
+                    build_v3_tab(api_base=API_BASE)
+                except Exception as _e:
+                    gr.Markdown(f"V3 panel unavailable: {_e}")
+
             with gr.TabItem("Plugins"):
                 gr.Markdown("### Available Source Plugins")
                 gr.Markdown(

@@ -21,6 +21,15 @@ class PrometheusMetrics:
         self._entities_extracted: int = 0
         self._active_requests: int = 0
         self._start_time: float = time.time()
+        # Pipeline V2 counters
+        self._v2_chats_total: int = 0
+        self._v2_refusals_total: int = 0
+        self._v2_validation_passes: int = 0
+        self._v2_validation_fails: int = 0
+        self._v2_consistency_scores: list[float] = []
+        self._v2_grounded_ratios: list[float] = []
+        self._v2_stage_latencies: dict[str, list[float]] = defaultdict(list)
+        self._v2_communities_built: int = 0
 
     def record_request(self, endpoint: str, status: int, latency: float) -> None:
         self._requests_total[endpoint] += 1
@@ -39,6 +48,64 @@ class PrometheusMetrics:
     def record_ingestion(self, chunks: int, entities: int) -> None:
         self._chunks_indexed += chunks
         self._entities_extracted += entities
+
+    # ── V2 recording ─────────────────────────────────────────────────────────
+    def record_v2_chat(
+        self,
+        refused: bool,
+        validation_passed: bool,
+        grounded_ratio: float,
+        stage_latencies_ms: dict[str, float],
+    ) -> None:
+        self._v2_chats_total += 1
+        if refused:
+            self._v2_refusals_total += 1
+        if validation_passed:
+            self._v2_validation_passes += 1
+        else:
+            self._v2_validation_fails += 1
+        self._v2_grounded_ratios.append(grounded_ratio)
+        if len(self._v2_grounded_ratios) > 1000:
+            self._v2_grounded_ratios = self._v2_grounded_ratios[-1000:]
+        for stage, latency in stage_latencies_ms.items():
+            self._v2_stage_latencies[stage].append(latency)
+            if len(self._v2_stage_latencies[stage]) > 500:
+                self._v2_stage_latencies[stage] = self._v2_stage_latencies[stage][-500:]
+
+    def record_v2_ingest(self, avg_consistency: float, communities: int = 0) -> None:
+        self._v2_consistency_scores.append(avg_consistency)
+        if len(self._v2_consistency_scores) > 1000:
+            self._v2_consistency_scores = self._v2_consistency_scores[-1000:]
+        self._v2_communities_built += communities
+
+    def get_v2_metrics(self) -> dict:
+        total = self._v2_chats_total
+        refusal_rate = self._v2_refusals_total / total if total else 0.0
+        val_total = self._v2_validation_passes + self._v2_validation_fails
+        validation_pass_rate = self._v2_validation_passes / val_total if val_total else 0.0
+        avg_grounded = sum(self._v2_grounded_ratios) / len(self._v2_grounded_ratios) if self._v2_grounded_ratios else 0.0
+        avg_consistency = sum(self._v2_consistency_scores) / len(self._v2_consistency_scores) if self._v2_consistency_scores else 0.0
+
+        stage_p50 = {}
+        stage_p95 = {}
+        for stage, lats in self._v2_stage_latencies.items():
+            if not lats:
+                continue
+            sorted_l = sorted(lats)
+            stage_p50[stage] = sorted_l[len(sorted_l) // 2]
+            stage_p95[stage] = sorted_l[int(len(sorted_l) * 0.95)]
+
+        return {
+            "v2_chats_total": total,
+            "v2_refusals_total": self._v2_refusals_total,
+            "v2_refusal_rate": round(refusal_rate, 4),
+            "v2_validation_pass_rate": round(validation_pass_rate, 4),
+            "v2_avg_grounded_ratio": round(avg_grounded, 4),
+            "v2_avg_consistency_score": round(avg_consistency, 4),
+            "v2_communities_built": self._v2_communities_built,
+            "v2_stage_p50_ms": stage_p50,
+            "v2_stage_p95_ms": stage_p95,
+        }
 
     def get_metrics(self) -> dict:
         total = sum(self._requests_total.values())
@@ -72,6 +139,7 @@ class PrometheusMetrics:
                 ep: sum(lats) / len(lats) if lats else 0.0
                 for ep, lats in self._request_latencies.items()
             },
+            "v2": self.get_v2_metrics(),
         }
 
     def prometheus_output(self) -> str:
@@ -111,6 +179,35 @@ class PrometheusMetrics:
         lines.append("# HELP rag_uptime_seconds Time since API start")
         lines.append("# TYPE rag_uptime_seconds gauge")
         lines.append(f"rag_uptime_seconds {m['uptime_seconds']:.1f}")
+
+        # V2 metrics
+        v2 = self.get_v2_metrics()
+        lines.extend([
+            "",
+            "# HELP rag_v2_chats_total Pipeline V2 chat completions",
+            "# TYPE rag_v2_chats_total counter",
+            f"rag_v2_chats_total {v2['v2_chats_total']}",
+            "# HELP rag_v2_refusals_total Pipeline V2 refusals (quality gate fail)",
+            "# TYPE rag_v2_refusals_total counter",
+            f"rag_v2_refusals_total {v2['v2_refusals_total']}",
+            "# HELP rag_v2_refusal_rate Refusal ratio",
+            "# TYPE rag_v2_refusal_rate gauge",
+            f"rag_v2_refusal_rate {v2['v2_refusal_rate']}",
+            "# HELP rag_v2_validation_pass_rate Validation gates pass rate",
+            "# TYPE rag_v2_validation_pass_rate gauge",
+            f"rag_v2_validation_pass_rate {v2['v2_validation_pass_rate']}",
+            "# HELP rag_v2_avg_grounded_ratio Avg claims grounded ratio",
+            "# TYPE rag_v2_avg_grounded_ratio gauge",
+            f"rag_v2_avg_grounded_ratio {v2['v2_avg_grounded_ratio']}",
+            "# HELP rag_v2_avg_consistency_score Avg chunk consistency score",
+            "# TYPE rag_v2_avg_consistency_score gauge",
+            f"rag_v2_avg_consistency_score {v2['v2_avg_consistency_score']}",
+            "# HELP rag_v2_communities_built Total communities created",
+            "# TYPE rag_v2_communities_built counter",
+            f"rag_v2_communities_built {v2['v2_communities_built']}",
+        ])
+        for stage, lat in v2.get("v2_stage_p95_ms", {}).items():
+            lines.append(f'rag_v2_stage_p95_ms{{stage="{stage}"}} {lat:.2f}')
 
         return "\n".join(lines)
 

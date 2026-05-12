@@ -1,0 +1,151 @@
+{
+  "name": "Vietnamese Enterprise RAG Eval Set — Sample",
+  "description": "20 câu hỏi tiếng Việt khởi điểm cho 4 intent: factual/analytical/summarization/comparison. Dùng làm template để mở rộng lên 200-300 câu.",
+  "version": "0.1.0",
+  "created_at": "2026-05-12",
+  "queries": [
+    {
+      "id": "q_factual_001",
+      "query": "Doanh thu Quý 3 năm 2024 là bao nhiêu?",
+      "intent": "factual",
+      "expected_keywords": ["doanh thu", "quý 3", "2024", "tỷ"],
+      "acceptable_refusal_keywords": ["không có", "không đủ thông tin"],
+      "ground_truth_doc_keywords": ["doanh thu", "quý 3"]
+    },
+    {
+      "id": "q_factual_002",
+      "query": "Ai là người đứng đầu phòng kinh doanh năm 2024?",
+      "intent": "factual",
+      "expected_keywords": [],
+      "acceptable_refusal_keywords": ["không có", "không tìm thấy"],
+      "ground_truth_doc_keywords": ["phòng kinh doanh", "trưởng phòng", "giám đốc"]
+    },
+    {
+      "id": "q_factual_003",
+      "query": "Mã số thuế của công ty ABC là gì?",
+      "intent": "factual",
+      "expected_keywords": ["mã số thuế"],
+      "ground_truth_doc_keywords": ["mã số thuế", "MST"]
+    },
+    {
+      "id": "q_factual_004",
+      "query": "Tỷ lệ tăng trưởng lợi nhuận năm 2024 so với 2023 là bao nhiêu phần trăm?",
+      "intent": "factual",
+      "expected_keywords": ["tăng trưởng", "lợi nhuận", "%"],
+      "ground_truth_doc_keywords": ["lợi nhuận", "2024", "2023"]
+    },
+    {
+      "id": "q_factual_005",
+      "query": "Quy định về nghỉ phép năm trong sổ tay nhân viên là gì?",
+      "intent": "factual",
+      "expected_keywords": ["nghỉ phép", "ngày"],
+      "ground_truth_doc_keywords": ["nghỉ phép", "phép năm"]
+    },
+    {
+      "id": "q_analytical_001",
+      "query": "Tại sao chi phí marketing tăng trong Quý 3 năm 2024?",
+      "intent": "analytical",
+      "expected_keywords": ["chi phí marketing", "tăng"],
+      "ground_truth_doc_keywords": ["chi phí marketing", "quý 3"]
+    },
+    {
+      "id": "q_analytical_002",
+      "query": "Mối quan hệ giữa dự án X và phòng ban Y là gì?",
+      "intent": "analytical",
+      "expected_keywords": ["dự án", "phòng ban"],
+      "ground_truth_doc_keywords": ["dự án", "phòng"]
+    },
+    {
+      "id": "q_analytical_003",
+      "query": "Nguyên nhân chính dẫn đến giảm doanh số mảng bán lẻ trong nửa đầu năm là gì?",
+      "intent": "analytical",
+      "expected_keywords": ["doanh số", "bán lẻ", "nguyên nhân"],
+      "ground_truth_doc_keywords": ["bán lẻ", "doanh số"]
+    },
+    {
+      "id": "q_analytical_004",
+      "query": "Việc thay đổi cơ cấu tổ chức năm 2023 đã ảnh hưởng đến hiệu suất các phòng ban như thế nào?",
+      "intent": "analytical",
+      "expected_keywords": ["cơ cấu", "tổ chức", "hiệu suất"],
+      "ground_truth_doc_keywords": ["cơ cấu", "tổ chức"]
+    },
+    {
+      "id": "q_summarization_001",
+      "query": "Tóm tắt các rủi ro chính được nêu trong báo cáo thường niên 2024.",
+      "intent": "summarization",
+      "expected_keywords": ["rủi ro"],
+      "ground_truth_doc_keywords": ["rủi ro", "thường niên"]
+    },
+    {
+      "id": "q_summarization_002",
+      "query": "Tóm tắt nội dung chính của cuộc họp ban điều hành tháng 5/2024.",
+      "intent": "summarization",
+      "expected_keywords": ["cuộc họp", "ban điều hành"],
+      "ground_truth_doc_keywords": ["họp", "điều hành"]
+    },
+    {
+      "id": "q_summarization_003",
+      "query": "Tóm tắt chiến lược kinh doanh giai đoạn 2024-2026.",
+      "intent": "summarization",
+      "expected_keywords": ["chiến lược", "kinh doanh"],
+      "ground_truth_doc_keywords": ["chiến lược", "kinh doanh"]
+    },
+    {
+      "id": "q_summarization_004",
+      "query": "Tóm tắt các thay đổi quan trọng trong quy định nội bộ năm 2024.",
+      "intent": "summarization",
+      "expected_keywords": ["quy định", "thay đổi"],
+      "ground_truth_doc_keywords": ["quy định"]
+    },
+    {
+      "id": "q_comparison_001",
+      "query": "So sánh kết quả kinh doanh năm 2023 và năm 2024.",
+      "intent": "comparison",
+      "expected_keywords": ["2023", "2024", "so sánh"],
+      "ground_truth_doc_keywords": ["2023", "2024"]
+    },
+    {
+      "id": "q_comparison_002",
+      "query": "So sánh hiệu suất giữa phòng kinh doanh miền Bắc và miền Nam.",
+      "intent": "comparison",
+      "expected_keywords": ["miền Bắc", "miền Nam", "phòng kinh doanh"],
+      "ground_truth_doc_keywords": ["miền Bắc", "miền Nam"]
+    },
+    {
+      "id": "q_comparison_003",
+      "query": "So sánh sản phẩm A và sản phẩm B về doanh số quý 4.",
+      "intent": "comparison",
+      "expected_keywords": ["sản phẩm A", "sản phẩm B", "quý 4"],
+      "ground_truth_doc_keywords": ["sản phẩm"]
+    },
+    {
+      "id": "q_oodomain_001",
+      "query": "Thời tiết Hà Nội ngày mai như thế nào?",
+      "intent": "factual",
+      "expected_keywords": [],
+      "acceptable_refusal_keywords": ["không có", "không đủ thông tin", "không liên quan"],
+      "ground_truth_doc_keywords": [],
+      "expect_refusal": true
+    },
+    {
+      "id": "q_oodomain_002",
+      "query": "Giá Bitcoin hôm nay là bao nhiêu?",
+      "intent": "factual",
+      "expect_refusal": true
+    },
+    {
+      "id": "q_multihop_001",
+      "query": "Người đứng đầu phòng tài chính làm ở công ty được bao nhiêu năm và có những thành tích nổi bật nào?",
+      "intent": "analytical",
+      "expected_keywords": ["phòng tài chính", "thành tích"],
+      "ground_truth_doc_keywords": ["phòng tài chính"]
+    },
+    {
+      "id": "q_table_001",
+      "query": "Trong bảng doanh thu theo khu vực, khu vực nào có doanh thu cao nhất quý 3?",
+      "intent": "factual",
+      "expected_keywords": ["khu vực", "doanh thu", "quý 3"],
+      "ground_truth_doc_keywords": ["khu vực"]
+    }
+  ]
+}

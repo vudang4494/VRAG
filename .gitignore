@@ -1,22 +1,29 @@
-# Secrets
+# ── Secrets ─────────────────────────────────────────────────────────────
 .env
 .env.local
 .env.production
 .env.*.local
 
-# Backups
+# ── Internal / strategic documentation (Claude Code workspace) ──────────
+.claude/
+
+# ── Backups + state ─────────────────────────────────────────────────────
 backups/
 
-# SSL certs
+# ── SSL certs (private keys) ────────────────────────────────────────────
 ssl/*.pem
 ssl/*.key
 ssl/*.crt
 
-# Logs
+# ── Logs ────────────────────────────────────────────────────────────────
 *.log
 logs/
 
-# Python
+# ── Eval result dumps ───────────────────────────────────────────────────
+eval/results/
+*.eval.json
+
+# ── Python ──────────────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
@@ -26,16 +33,20 @@ __pycache__/
 venv/
 env/
 ENV/
+.pytest_cache/
 
-# IDE
+# ── HuggingFace model cache ─────────────────────────────────────────────
+.cache/
+
+# ── IDE ─────────────────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS
+# ── OS ──────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 
-# Docker
+# ── Docker overrides ────────────────────────────────────────────────────
 docker-compose.override.yml

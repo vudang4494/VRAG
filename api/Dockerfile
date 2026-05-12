@@ -4,8 +4,13 @@ LABEL maintainer="Enterprise RAG Team"
 LABEL description="Enterprise RAG API — FastAPI + Hybrid GraphRAG + Ollama"
 
 # ── System deps ───────────────────────────────────────────────────────────────
+# build-essential + libigraph-dev needed for native-extension packages
+# (python-igraph, leidenalg, PyMuPDF). git needed for some pip git sources.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    build-essential \
+    git \
+    libigraph-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -17,6 +22,7 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.
 # ── Source ────────────────────────────────────────────────────────────────────
 COPY src/ ./src/
 COPY api/ ./api/
+COPY plugins/ ./plugins/
 COPY pyproject.toml .
 
 # ── Non-root user ─────────────────────────────────────────────────────────────

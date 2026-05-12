@@ -428,3 +428,144 @@ class IngestResponse(BaseModel):
 
 class ModelList(BaseModel):
     data: list[dict[str, str]]
+
+
+# ============================================================================
+# Pipeline V2 — Quality-first GraphRAG
+# ============================================================================
+
+
+class ChunkLevel(str, Enum):
+    SENTENCE = "sentence"
+    PARAGRAPH = "paragraph"
+    SECTION = "section"
+    DOCUMENT = "document"
+
+
+class ViewType(str, Enum):
+    DENSE = "dense"
+    PARAPHRASE = "paraphrase"
+    QUESTION = "question"
+    SUMMARY = "summary"
+    KEYWORDS = "keywords"
+
+
+class QueryIntent(str, Enum):
+    FACTUAL = "factual"
+    ANALYTICAL = "analytical"
+    SUMMARIZATION = "summarization"
+    COMPARISON = "comparison"
+
+
+class RelationType(str, Enum):
+    IS_A = "IS_A"
+    PART_OF = "PART_OF"
+    WORKS_FOR = "WORKS_FOR"
+    LOCATED_IN = "LOCATED_IN"
+    CAUSES = "CAUSES"
+    OWNS = "OWNS"
+    MEMBER_OF = "MEMBER_OF"
+    PRODUCES = "PRODUCES"
+    PRECEDES = "PRECEDES"
+    OTHER = "OTHER"
+
+
+class ChunkV2(BaseModel):
+    """V2 chunk with hierarchical, multi-view, consistency-scored shape."""
+    id: str
+    tenant_id: str
+    document_id: str
+    text: str
+    chunk_index: int
+    chunk_level: ChunkLevel
+    parent_chunk_id: str | None = None
+    start_char: int = 0
+    end_char: int = 0
+    consistency_score: float = 0.0
+    views: dict[str, str] = Field(default_factory=dict)
+    view_embeddings: dict[str, list[float]] = Field(default_factory=dict)
+    format: str = "unknown"
+    page_num: int | None = None
+    heading_path: list[str] = Field(default_factory=list)
+    sheet_name: str | None = None
+    column_names: list[str] | None = None
+    row_range: tuple[int, int] | None = None
+    speaker: str | None = None
+    timestamp: datetime | None = None
+    thread_id: str | None = None
+    pii_mask_map_id: str | None = None
+    access_level: AccessLevel = AccessLevel.INTERNAL
+
+
+class CommunityNode(BaseModel):
+    id: str
+    tenant_id: str
+    level: int = Field(ge=0, le=5)
+    summary: str
+    member_count: int
+    member_entity_names: list[str] = Field(default_factory=list)
+    parent_community_id: str | None = None
+    generated_at: datetime
+    summary_vote_count: int = 1
+
+
+class QueryReformulation(BaseModel):
+    kind: Literal["original", "rewrite", "decompose", "hyde", "step_back", "keywords"]
+    text: str
+    weight: float = 1.0
+
+
+class QueryUnderstanding(BaseModel):
+    original: str
+    reformulations: list[QueryReformulation]
+    intent: QueryIntent
+    intent_confidence: float = 0.0
+    is_multi_hop: bool = False
+
+
+class RetrievalCandidate(BaseModel):
+    chunk_id: str
+    text: str
+    source: str
+    score: float
+    retrieval_path: str
+    consistency_score: float = 0.7
+    chunk_level: ChunkLevel = ChunkLevel.PARAGRAPH
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class RerankedCandidate(BaseModel):
+    chunk_id: str
+    text: str
+    source: str
+    final_score: float
+    stage1_score: float = 0.0
+    stage2_score: float = 0.0
+    stage3_score: float = 0.0
+    judge_reason: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class ValidationResult(BaseModel):
+    passed: bool
+    grounded_ratio: float = 0.0
+    invalid_entities: list[str] = Field(default_factory=list)
+    citation_ratio: float = 0.0
+    failure_reason: str | None = None
+    confidence: float = 0.0
+
+
+class ChatCompletionV3Response(BaseModel):
+    id: str
+    created: int
+    model: str
+    answer: str
+    sources: list[RerankedCandidate]
+    intent: QueryIntent
+    confidence: float
+    validation: ValidationResult
+    latency_breakdown_ms: dict[str, float]
+    trace_id: str | None = None
+    refused: bool = False
+    refusal_reason: str | None = None
+
