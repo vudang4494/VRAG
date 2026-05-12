@@ -1,0 +1,41 @@
+# Secrets
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Backups
+backups/
+
+# SSL certs
+ssl/*.pem
+ssl/*.key
+ssl/*.crt
+
+# Logs
+*.log
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml

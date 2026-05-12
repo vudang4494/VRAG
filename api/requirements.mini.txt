@@ -1,0 +1,24 @@
+# Minimal API deps — NO Langfuse, NO heavy observability libraries
+# Langfuse dropped to save ~200MB RAM on Mac Mini
+
+# Core
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.10.0
+pydantic-settings>=2.7.0
+python-multipart>=0.0.20
+loguru>=0.7.3
+
+# LLM / HTTP
+openai>=1.59.0
+httpx>=0.28.0
+
+# RAG stores
+qdrant-client>=1.12.0
+neo4j>=5.27.0
+
+# Cache
+redis[hiredis]>=5.2.0
+
+# Utils
+python-dotenv>=1.0.0
