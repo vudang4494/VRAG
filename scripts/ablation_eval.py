@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Phase 7 — Ablation evaluation runner.
 
-Runs the same query set through multiple pipeline configurations:
-  C1. baseline:        /v1/chat/completions (V1, single dense vector)
-  C2. v3_chat:          /api/v3/chat (full V3, no GAEA)
+Runs the same query set through multiple V3 pipeline configurations:
+  C2. v3_chat:          /api/v3/chat (full V3, no GAEA view active)
   C3. v3_chat_gaea:    /api/v3/chat with graph_aware view (Phase 1)
   C4. v3_chat_react:    /api/v3/chat/react (Phase 2 multi-step)
   C5. hefr:             /api/v3/hefr/retrieve (Phase 4 entity-first)
@@ -27,28 +26,6 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-
-
-async def query_v1(client: httpx.AsyncClient, api: str, query: str, tenant: str) -> dict:
-    t0 = time.monotonic()
-    try:
-        resp = await client.post(
-            f"{api}/v1/chat/completions",
-            json={"model": "qwen3.5:4b", "messages": [{"role": "user", "content": query}],
-                  "temperature": 0.3, "max_tokens": 800},
-            timeout=300.0,
-        )
-        resp.raise_for_status()
-        d = resp.json()
-        answer = d["choices"][0]["message"]["content"]
-    except Exception as e:
-        return {"error": str(e)[:200], "latency_ms": (time.monotonic() - t0) * 1000}
-    return {
-        "answer": answer,
-        "sources": d.get("sources", []),
-        "refused": False,
-        "latency_ms": (time.monotonic() - t0) * 1000,
-    }
 
 
 async def query_v3_chat(client: httpx.AsyncClient, api: str, query: str, tenant: str) -> dict:
@@ -116,7 +93,6 @@ async def query_hefr(client: httpx.AsyncClient, api: str, query: str, tenant: st
 
 
 CONFIGS = {
-    "C1_baseline_v1": query_v1,
     "C2_v3_chat": query_v3_chat,
     "C3_v3_chat_with_gaea": query_v3_chat,  # same endpoint but graph_aware view active
     "C4_v3_react": query_v3_react,
