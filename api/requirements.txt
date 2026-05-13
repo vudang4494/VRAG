@@ -33,10 +33,11 @@ mammoth>=1.8.0
 pypdf>=5.1.0
 
 # ── Pipeline V2 — Cross-encoder reranking (Stage 1) ─────────────────────
-# Heavy (~1.5 GB with torch). Optional — code has graceful fallback via
-# rerank_stage2 if missing. Comment out to speed up build.
-sentence-transformers>=3.0.0
-torch>=2.2.0
+# DISABLED by default (RERANK_STAGE1_ENABLED=0). sentence-transformers pulls
+# CUDA torch which is incompatible with Apple Silicon. Remove this section if you
+# need cross-encoder reranking and are on a GPU machine with CUDA.
+# sentence-transformers>=3.0.0
+# torch>=2.2.0
 
 # ── Pipeline V2 — GraphRAG community detection ──────────────────────────
 # Code has Louvain fallback (pure networkx) if igraph fails to install.

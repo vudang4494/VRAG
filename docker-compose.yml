@@ -361,6 +361,8 @@ services:
       - HF_HUB_DISABLE_PROGRESS_BARS=1
       - TQDM_DISABLE=1
       - TRANSFORMERS_VERBOSITY=error
+      # HF cache writable by appuser (1000:1000) — must be set, not just mounted volume
+      - HF_HOME=/app/.hf_cache
       - ENTITY_EXTRACTOR_PROVIDER=${ENTITY_EXTRACTOR_PROVIDER:-gliner}
       - ENTITY_EXTRACTOR_MODEL=${ENTITY_EXTRACTOR_MODEL:-urchade/gliner_multi-v2.1}
       - ENTITY_EXTRACTOR_THRESHOLD=${ENTITY_EXTRACTOR_THRESHOLD:-0.5}
@@ -371,7 +373,7 @@ services:
     ports:
       - "127.0.0.1:8800:8800"
     volumes:
-      - hf_cache:/root/.cache/huggingface  # persist GLiNER model across container recreates
+      - hf_cache:/app/.hf_cache  # persist GLiNER model across container recreates
     networks:
       - rag-internal
     healthcheck:
