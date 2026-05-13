@@ -6,6 +6,7 @@
 
 # ── Internal / strategic documentation (Claude Code workspace) ──────────
 .claude/
+CLAUDE.md
 
 # ── Backups + state ─────────────────────────────────────────────────────
 backups/
