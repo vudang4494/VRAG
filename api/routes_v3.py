@@ -23,6 +23,7 @@ from src.config import get_settings
 from src.services.community import build_communities_for_tenant
 from src.services.ingestion_v2 import ingest_document_v2
 from src.services.query_understanding import understand_query
+from src.services.rerank_l2r import rerank_l2r
 from src.services.rerank_stages import rerank_full_pipeline
 from src.services.retrieval_v2 import multi_path_retrieve
 from src.services.validation import validate_answer
@@ -297,6 +298,45 @@ async def chat_v3(body: dict[str, Any]):
     format_filter = body.get("format_filter")
     include_sources = body.get("include_sources", True)
     max_retries = int(body.get("max_retries", 1))
+    max_react_steps = int(body.get("max_react_steps", 4))
+    force_react = bool(body.get("force_react", False))
+
+    # ── Smart routing: classify query type ──────────────────────────────────────
+    from src.services.query_router import classify_query, should_use_react, describe_routing
+    query_type = classify_query(query)
+    use_react = should_use_react(query_type) or force_react
+    routing_reason = describe_routing(query_type, use_react)
+    logger.info(f"[router] '{query[:60]}' → type={query_type}, react={use_react}")
+
+    # ReAct is best for multi-hop / summarization / analytical queries.
+    # For those, bypass standard pipeline and go straight to the agent loop.
+    if use_react:
+        from src.services.react_loop import react_chat as react_chat_fn
+        react_result = await react_chat_fn(
+            query, clients, settings, tenant_id, max_react_steps,
+        )
+        # Translate ReAct result to same shape as standard pipeline response
+        total_ms = (time.monotonic() - started_total) * 1000
+        latency["total_ms"] = total_ms
+        return {
+            "id": f"chat_v3_{uuid.uuid4().hex[:12]}",
+            "created": int(time.time()),
+            "model": settings.ollama_model,
+            "answer": react_result.get("answer", ""),
+            "refused": False,
+            "refusal_reason": None,
+            "intent": query_type,
+            "routing": {
+                "query_type": query_type,
+                "react_used": True,
+                "reason": routing_reason,
+                "steps_used": react_result.get("steps_used"),
+                "chunks_examined": react_result.get("chunks_examined"),
+            },
+            "trace": react_result.get("history", []),
+            "sources": react_result.get("sources", []),
+            "latency_breakdown_ms": latency,
+        }
 
     # 1. Query understanding
     t0 = time.monotonic()
@@ -333,9 +373,17 @@ async def chat_v3(body: dict[str, Any]):
             answer = settings.refusal_message_vi
             break
 
-        # 3. 3-stage rerank
+        # 3. 3-stage rerank → L2R final
         t0 = time.monotonic()
-        top_reranked = await rerank_full_pipeline(
+        # Extract query entities from entity-pivot retrieval
+        qe: list[str] = []
+        for c in candidates:
+            qe = c.get("_query_entities") or []
+            if qe:
+                break
+
+        # Stage 1 (cross-encoder, optional) → Stage 2 (semantic), skip Stage 3 (LLM judge)
+        stage2_results = await rerank_full_pipeline(
             query=understanding.get("rewrite") or query,
             candidates=candidates,
             http=clients.http,
@@ -347,7 +395,14 @@ async def chat_v3(body: dict[str, Any]):
             stage2_top_k=settings.rerank_stage3_top_k,
             stage3_top_k=settings.final_top_k,
             enable_stage1=settings.rerank_stage1_enabled,
-            enable_stage3=settings.rerank_stage3_enabled,
+            enable_stage3=False,  # skip slow LLM judge, use L2R instead
+        )
+        # Apply L2R: blend 0.4·stage2 + 0.6·l2r for final ordering
+        top_reranked = await rerank_l2r(
+            query=understanding.get("rewrite") or query,
+            candidates=stage2_results,
+            query_entities=qe,
+            top_k=settings.final_top_k,
         )
         latency[f"rerank_attempt{attempt}_ms"] = (time.monotonic() - t0) * 1000
 
@@ -475,6 +530,11 @@ async def chat_v3(body: dict[str, Any]):
         "refusal_reason": refusal_reason,
         "intent": understanding.get("intent"),
         "confidence": validation.get("confidence", 0.0),
+        "routing": {
+            "query_type": query_type,
+            "react_used": False,
+            "reason": routing_reason,
+        },
         "validation": {
             "passed": validation.get("passed", True),
             "grounded_ratio": validation.get("grounded_ratio", 1.0),
@@ -549,9 +609,15 @@ async def chat_v3_stream(body: dict[str, Any]):
                           "total_ms": (time.monotonic() - started_total) * 1000})
                 return
 
-            # 3. Rerank
+            # 3. Rerank → L2R final
             t0 = time.monotonic()
-            top_reranked = await rerank_full_pipeline(
+            qe: list[str] = []
+            for c in candidates:
+                qe = c.get("_query_entities") or []
+                if qe:
+                    break
+
+            stage2_results = await rerank_full_pipeline(
                 query=understanding.get("rewrite") or query,
                 candidates=candidates,
                 http=clients.http,
@@ -563,7 +629,13 @@ async def chat_v3_stream(body: dict[str, Any]):
                 stage2_top_k=settings.rerank_stage3_top_k,
                 stage3_top_k=settings.final_top_k,
                 enable_stage1=settings.rerank_stage1_enabled,
-                enable_stage3=settings.rerank_stage3_enabled,
+                enable_stage3=False,  # skip slow LLM judge, use L2R instead
+            )
+            top_reranked = await rerank_l2r(
+                query=understanding.get("rewrite") or query,
+                candidates=stage2_results,
+                query_entities=qe,
+                top_k=settings.final_top_k,
             )
             latency["rerank_ms"] = (time.monotonic() - t0) * 1000
 
@@ -724,9 +796,13 @@ async def chat_v3_react(body: dict[str, Any]):
     """
     Multi-step ReAct chat — explicit Thought→Action→Observation reasoning.
 
+    NOTE: This endpoint now enforces query-type routing. Factual queries are
+    automatically rerouted to the standard pipeline. ReAct is only used for
+    multi-hop, summarization, and analytical queries.
+
     Each loop step: LLM picks next action (search_entity, expand_relation,
-    retrieve_chunks, graph_aware_search, rerank, FINISH). Max 4 steps then
-    synthesize final answer from accumulated chunks.
+    retrieve_chunks, graph_aware_search, rerank, FINISH). Max 6 steps (raised
+    from 4) then synthesize final answer from accumulated chunks.
 
     Returns:
       {
@@ -739,9 +815,9 @@ async def chat_v3_react(body: dict[str, Any]):
         "latency_ms": {total, synthesize}
       }
 
-    Body: {"query": "...", "tenant_id": "default", "max_steps": 4}
+    Body: {"query": "...", "tenant_id": "default", "max_steps": 6}
     """
-    from src.services.react_loop import react_chat as react_chat_fn
+    from src.services.query_router import classify_query, should_use_react
 
     settings = get_settings()
     clients = get_clients()
@@ -749,7 +825,24 @@ async def chat_v3_react(body: dict[str, Any]):
     if not query:
         raise HTTPException(status_code=400, detail="Missing 'query'")
     tenant_id = body.get("tenant_id") or "default"
-    max_steps = int(body.get("max_steps", 4))
+    max_steps = int(body.get("max_steps", 6))
+    force_react = bool(body.get("force_react", False))
+
+    # Routing guard: factual queries should NOT go through ReAct
+    query_type = classify_query(query)
+    use_react = should_use_react(query_type) or force_react
+
+    if not use_react:
+        # Reroute to standard pipeline instead of running ReAct on a simple query
+        return await chat_v3({
+            "query": query,
+            "tenant_id": tenant_id,
+            "access_levels": body.get("access_levels"),
+            "format_filter": body.get("format_filter"),
+            "include_sources": body.get("include_sources", True),
+            "max_retries": int(body.get("max_retries", 1)),
+            "force_react": False,
+        })
 
     result = await react_chat_fn(query, clients, settings, tenant_id, max_steps)
     return result
