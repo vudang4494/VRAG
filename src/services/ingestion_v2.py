@@ -22,6 +22,7 @@ from typing import Any
 from loguru import logger
 
 from src.services.consistency import process_batch_consistency
+from src.services.chunk_quality import filter_chunks_by_quality
 from src.services.format_router import route_and_chunk
 from src.services.kg import (
     extract_entities_and_relations,
@@ -129,13 +130,16 @@ async def ingest_document_v2(
         _stage_t0 = now
         logger.info(f"[V2-timing] {filename}: {stage}={stage_ms[stage]:.0f}ms")
 
-    # 1. Format detection + chunking
+    entity_extractor = getattr(clients, "entity_extractor", None)
+
+    # 1. Format detection + doc-type classification → chunking (Phase 5a+5b)
     fmt, chunk_units = await route_and_chunk(
         content=content,
         filename=filename,
         http_client=clients.http,
         embed_url=settings.ollama_embed_url,
         embed_model=settings.ollama_embed_model,
+        entity_extractor=entity_extractor,
         section_max_chars=settings.section_max_chars,
         paragraph_max_chars=settings.paragraph_max_chars,
         sentence_max_chars=settings.sentence_max_chars,
@@ -254,7 +258,25 @@ async def ingest_document_v2(
     entity_results = await asyncio.gather(*[_bounded_entities(c) for c in chunks])
     _mark("entity_voting")
 
-    # 7. Build Qdrant points + Neo4j writes (parallel)
+    # 6b. Phase 6a: CQC chunk quality filter (after entity extraction so we have entity counts)
+    entity_counts: dict[str, int] = {
+        c["id"]: len(ents) for c, (ents, _) in zip(chunks, entity_results)
+    }
+    chunks, cqc_rejected = filter_chunks_by_quality(
+        chunks, threshold=0.40, entity_counts=entity_counts,
+    )
+    cqc_dropped = len(cqc_rejected)
+    if cqc_dropped:
+        logger.info(f"[V2] {filename}: CQC rejected {cqc_dropped} low-quality chunks")
+        for rc in cqc_rejected[:3]:
+            logger.debug(f"[V2] CQC reject: {rc.get('id')} — {rc.get('quality_reasons', [])[:2]}")
+    # Re-align entity_results with filtered chunks
+    kept_ids = {c["id"] for c in chunks}
+    entity_results = [
+        er for er, c in zip(entity_results, chunks)
+        if c["id"] in kept_ids
+    ]
+    _mark("cqc_filter")
     qdrant_points: list[dict] = []
     for c in chunks:
         payload = {
@@ -328,6 +350,7 @@ async def ingest_document_v2(
         "chunks_total": len(chunk_units),
         "chunks_indexed": chunks_indexed,
         "chunks_dropped_low_quality": dropped,
+        "chunks_dropped_cqc": cqc_dropped,
         "avg_consistency_score": avg_consistency,
         "entities_extracted": entities_extracted,
         "relationships_extracted": relationships_extracted,

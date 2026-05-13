@@ -48,7 +48,8 @@ Các action có sẵn:
 5. rerank {{"chunks_idxs": [0,1,2,...]}}
    → Rerank tập chunks đã thu thập theo relevance.
 6. FINISH
-   → Đã đủ thông tin, dừng để tổng hợp câu trả lời.
+   → Chỉ được FINISH khi ĐÃ THU THẬP ĐƯỢC ÍT NHẤT 4 CHUNKS có liên quan.
+   Nếu chunks_collected < 4, phải tiếp tục bằng graph_aware_search hoặc retrieve_chunks.
 
 Lịch sử các bước đã làm:
 {history}
@@ -184,8 +185,8 @@ class ReActAction:
             added += 1
         return {"chunks_added": added, "total_chunks": len(self.collected_chunks)}
 
-    async def graph_aware_search(self, query: str, limit: int = 10) -> dict:
-        """Vector search using GAEA-refined embeddings."""
+    async def graph_aware_search(self, query: str, limit: int = 15) -> dict:
+        """Vector search using GAEA-refined embeddings (limit raised from 10 → 15)."""
         if not query:
             return {"chunks_added": 0, "message": "empty query"}
         from src.services.embedding import embed_single
@@ -247,6 +248,30 @@ class ReActAction:
         }
 
 
+async def _decide_next_action_retry(
+    query: str,
+    history: list[dict],
+    chunks_collected: int,
+    model: str,
+    retries: int = 1,
+) -> dict[str, Any]:
+    """Retry wrapper for _decide_next_action with limited retries."""
+    import asyncio
+    for attempt in range(retries + 1):
+        result = await _decide_next_action(query, history, chunks_collected, model)
+        action = result.get("action", "").upper()
+        # Only accept FINISH if we have at least 4 chunks (raised from 2)
+        if action == "FINISH" and chunks_collected < 4:
+            if attempt < retries:
+                continue
+            # Last resort: force graph_aware_search
+            result["action"] = "graph_aware_search"
+            result["args"] = {"query": query}
+        else:
+            return result
+    return result
+
+
 # ── Thought decoder ────────────────────────────────────────────────────────────
 
 
@@ -278,19 +303,28 @@ async def _decide_next_action(
         max_tokens=300,
     )
 
-    # Parse JSON
+    # Parse JSON — retry on parse failure instead of silently FINISHing
     if not raw:
-        return {"thought": "(LLM empty)", "action": "FINISH", "args": {}}
+        logger.warning("ReAct: LLM returned empty, retrying step")
+        return await _decide_next_action_retry(query, history, chunks_collected, model, retries=1)
     raw = re.sub(r"```(?:json)?\s*|\s*```$", "", raw).strip()
     match = re.search(r"\{[\s\S]*\}", raw)
     if not match:
-        return {"thought": "(JSON parse fail)", "action": "FINISH", "args": {}}
+        logger.warning("ReAct: JSON not found in LLM response, retrying step")
+        return await _decide_next_action_retry(query, history, chunks_collected, model, retries=1)
     try:
         parsed = json.loads(match.group(0))
     except Exception:
-        return {"thought": "(JSON decode fail)", "action": "FINISH", "args": {}}
+        logger.warning("ReAct: JSON decode failed, retrying step")
+        return await _decide_next_action_retry(query, history, chunks_collected, model, retries=1)
     parsed.setdefault("thought", "")
-    parsed.setdefault("action", "FINISH")
+    # Block FINISH if LLM chose it without enough chunks — force another action (4 chunks minimum)
+    if parsed.get("action", "").upper() == "FINISH" and chunks_collected < 4:
+        logger.info(f"ReAct: FINISH blocked (only {chunks_collected} chunks), forcing graph_aware_search")
+        parsed["action"] = "graph_aware_search"
+        parsed["args"] = {"query": query}
+    else:
+        parsed.setdefault("action", "graph_aware_search")  # safe default instead of FINISH
     parsed.setdefault("args", {})
     return parsed
 
@@ -372,7 +406,9 @@ async def react_chat(
     clients: Any,
     settings: Any,
     tenant_id: str = "default",
-    max_steps: int = 4,
+    max_steps: int = 6,   # increased from 4 — multi-hop needs more iterations for:
+                            # search_entity → expand_relation → retrieve_chunks →
+                            # graph_aware_search → rerank → FINISH (6 steps minimum)
 ) -> dict[str, Any]:
     """Run multi-step ReAct loop, return answer + full trace."""
     started = time.monotonic()
@@ -390,16 +426,28 @@ async def react_chat(
         args = thought_json["args"] or {}
 
         if action_name == "FINISH":
-            history.append({
-                "step": step + 1,
-                "thought": thought_json["thought"],
-                "action": "FINISH",
-                "args": {},
-                "observation_summary": "agent decided to finish",
-                "thought_ms": thought_t * 1000,
-                "action_ms": 0,
-            })
-            break
+            # Hard guard: never FINISH with fewer than 4 chunks collected.
+            # Multi-hop / analytical queries need at least 4 chunks for good synthesis.
+            # Force a final retrieval action before allowing synthesis.
+            if len(actor.collected_chunks) < 4 and step < max_steps - 1:
+                logger.info(
+                    f"ReAct: FINISH rejected (only {len(actor.collected_chunks)} chunks), "
+                    "forcing graph_aware_search before synthesis"
+                )
+                # Re-do the next action as graph_aware_search
+                args = {"query": query}
+                action_name = "graph_aware_search"
+            else:
+                history.append({
+                    "step": step + 1,
+                    "thought": thought_json["thought"],
+                    "action": "FINISH",
+                    "args": {},
+                    "observation_summary": f"agent decided to finish with {len(actor.collected_chunks)} chunks",
+                    "thought_ms": thought_t * 1000,
+                    "action_ms": 0,
+                })
+                break
 
         # Execute action
         t1 = time.monotonic()

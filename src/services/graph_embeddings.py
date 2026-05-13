@@ -95,7 +95,9 @@ async def aggregate_entity_embedding(
     """
     where_t = "AND c.tenant_id = $tid" if tenant_id else ""
     cypher = f"""
-    MATCH (e:Entity {{name: $name}})<-[:CONTAINS_ENTITY]-(c:Chunk)
+    MATCH (e:Entity)
+    WHERE toLower(e.name) = toLower($name) {where_t}
+    MATCH (c:Chunk)-[:CONTAINS_ENTITY]->(e)
     WHERE c.id IS NOT NULL {where_t}
     RETURN c.id AS chunk_id, coalesce(c.consistency_score, 0.7) AS weight
     LIMIT $cap

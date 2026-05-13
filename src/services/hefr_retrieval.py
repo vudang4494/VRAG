@@ -127,20 +127,59 @@ async def hefr_retrieve(
     started = time.monotonic()
 
     # 1. Entity ANN search
+    # Issue: if entity collection has dim mismatch vs query emb, ANN returns empty.
+    # Fix: if query entity names known, skip ANN and use exact-match fallback.
+    ent_hits: list[dict] = []
+    entity_collection_exists = False
+
     try:
-        ent_resp = await clients.qdrant.query_points(
-            collection_name=col_name,
-            query=query_embedding,
-            limit=top_entities,
-            with_payload=True,
-        )
-        ent_hits = [
-            {"name": p.payload.get("name"), "type": p.payload.get("type"), "score": float(p.score)}
-            for p in ent_resp.points
-        ]
-    except Exception as e:
-        logger.warning(f"HEFR entity ANN failed (collection may be missing): {e}")
-        ent_hits = []
+        # Quick existence check
+        await clients.qdrant.get_collection(col_name)
+        entity_collection_exists = True
+    except Exception:
+        entity_collection_exists = False
+
+    if entity_collection_exists and query_embedding:
+        try:
+            ent_resp = await clients.qdrant.query_points(
+                collection_name=col_name,
+                query=query_embedding,
+                limit=top_entities,
+                with_payload=True,
+            )
+            ent_hits = [
+                {"name": p.payload.get("name"), "type": p.payload.get("type"), "score": float(p.score)}
+                for p in ent_resp.points
+            ]
+        except Exception as e:
+            logger.warning(f"HEFR entity ANN failed: {e}")
+            ent_hits = []
+
+    if not ent_hits and query_entity_names:
+        logger.info(f"HEFR: ANN returned empty, falling back to exact entity name lookup: {query_entity_names[:5]}")
+        # Fallback: look up entities by exact name in Neo4j directly
+        try:
+            async with clients.neo4j.session() as s:
+                names_lower = [n.strip().lower() for n in query_entity_names if n.strip()]
+                r = await s.run(
+                    """
+                    UNWIND $names AS qname
+                    MATCH (e:Entity {tenant_id: $tid})
+                    WHERE toLower(e.name) = qname OR toLower(e.name) CONTAINS qname
+                    RETURN e.name AS name, e.type AS type, e.description AS desc
+                    LIMIT $limit
+                    """,
+                    names=names_lower, tid=tenant_id, limit=top_entities,
+                )
+                rows = await r.data()
+            ent_hits = [
+                {"name": row["name"], "type": row.get("type", "OTHER"), "score": 1.0}
+                for row in rows
+            ]
+        except Exception as e:
+            logger.warning(f"HEFR exact entity lookup failed: {e}")
+
+    logger.debug(f"HEFR: top entities: {[(e['name'], e['score']) for e in ent_hits[:5]]}")
 
     # If query entities provided by NER, boost their exact matches
     boosted_entity_names = [e["name"] for e in ent_hits]
@@ -187,5 +226,5 @@ async def hefr_retrieve(
     ]
 
     elapsed = time.monotonic() - started
-    logger.info(f"HEFR: {len(ent_hits)} entities → {len(chunks)} chunks in {elapsed*1000:.0f}ms")
+    logger.info(f"HEFR: {len(ent_hits)} entities (ANN+fallback) → {len(chunks)} chunks in {elapsed*1000:.0f}ms")
     return chunks, ent_hits

@@ -10,9 +10,11 @@ from loguru import logger
 from src.services.chunkers.base import BaseChunker, ChunkUnit
 from src.services.chunkers.chat_chunker import ChatChunker
 from src.services.chunkers.docx_chunker import DocxChunker
+from src.services.chunkers.multi_signal_chunker import MultiSignalChunker
 from src.services.chunkers.pdf_chunker import PDFChunker
 from src.services.chunkers.semantic_chunker import SemanticChunker
 from src.services.chunkers.xlsx_chunker import XlsxChunker
+from src.services.doc_type_classifier import classify_doc_type, get_strategy
 
 
 def detect_format(filename: str, content: bytes | None = None) -> str:
@@ -96,11 +98,37 @@ async def route_and_chunk(
     http_client: httpx.AsyncClient | None = None,
     embed_url: str = "",
     embed_model: str = "bge-m3",
+    entity_extractor: Any = None,
     **chunker_kwargs,
 ) -> tuple[str, list[ChunkUnit]]:
-    """One-call API: detect format → chunk → return (format, chunks)."""
+    """One-call API: detect format → classify doc type → chunk → return (format, chunks).
+
+    For md/txt/html: uses MultiSignalChunker with doc-type-aware parameters.
+    For other formats: uses format-specific chunker.
+    """
     fmt = detect_format(filename, content)
     logger.info(f"Format detected for {filename}: {fmt}")
-    chunker = get_chunker(fmt, http_client, embed_url, embed_model, **chunker_kwargs)
+
+    # Phase 5b: classify doc type for md/txt/html to tune chunking strategy
+    text_preview = content[:8000].decode("utf-8", errors="replace") if isinstance(content, bytes) else str(content)[:8000]
+    doc_type = classify_doc_type(text_preview, filename)
+    logger.info(f"Doc type for {filename}: {doc_type}")
+    strat = get_strategy(doc_type)
+
+    # md/txt/html → Phase 5a MultiSignalChunker with doc-type-aware params
+    if fmt in ("md", "txt", "html"):
+        chunker = MultiSignalChunker(
+            http_client=http_client,
+            embed_url=embed_url,
+            embed_model=embed_model,
+            entity_extractor=entity_extractor,
+            boundary_threshold=strat["boundary_threshold"],
+            section_max_chars=strat["chunk_size"] * 5,
+            paragraph_max_chars=strat["chunk_size"],
+            **chunker_kwargs,
+        )
+    else:
+        chunker = get_chunker(fmt, http_client, embed_url, embed_model, **chunker_kwargs)
+
     chunks = await chunker.chunk(content, filename=filename)
     return fmt, chunks

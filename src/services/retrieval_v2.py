@@ -95,6 +95,7 @@ async def _entity_pivot_path(
     query_text: str,
     tenant_id: str | None,
     top_k: int = 20,
+    temporal_filter: str = "",
 ) -> tuple[list[dict], list[str]]:
     """
     Entity-pivot retrieval — bridge from query to chunks via shared entities.
@@ -119,12 +120,15 @@ async def _entity_pivot_path(
     if not ents:
         return [], []
 
-    # Use unique lowercased names for matching, keep original case for display
+    # Apply the same normalization as ingest-time entity storage (kg.py _sanitize).
+    # "Self-RAG" → "Self_RAG" so Cypher matches the entity node name stored in Neo4j.
+    # The raw GLiNER names are NOT applied to Neo4j during ingest — _sanitize is.
+    from src.services.kg import _sanitize
     seen: dict[str, str] = {}
     for e in ents:
-        key = e.name.strip().lower()
+        key = _sanitize(e.name).strip().lower()
         if key and key not in seen and len(key) >= 2:
-            seen[key] = e.name.strip()
+            seen[key] = _sanitize(e.name)  # keep original-case for display
     if not seen:
         return [], []
     names_lower = list(seen.keys())
@@ -136,10 +140,12 @@ async def _entity_pivot_path(
         params["tid"] = tenant_id
 
     # Match entities: exact case-insensitive OR substring (catches "Leiden" → "Leiden algorithm")
+    # temporal_filter from detect_temporal_intent() gets appended to the Entity MATCH
+    entity_filter = f" AND ({temporal_filter})" if temporal_filter else ""
     cypher = f"""
     UNWIND $names AS qname
     MATCH (e:Entity)
-    WHERE toLower(e.name) = qname OR toLower(e.name) CONTAINS qname
+    WHERE (toLower(e.name) = qname OR toLower(e.name) CONTAINS qname){entity_filter}
     MATCH (c:Chunk)-[:CONTAINS_ENTITY]->(e)
     {where_clause}
     WITH c, count(DISTINCT e) AS matches, collect(DISTINCT e.name) AS matched_names
@@ -374,6 +380,11 @@ async def multi_path_retrieve(
     # Entity-pivot path — always-on when entity_extractor available.
     # Bridges from query→entities→chunks, complements vector cosine.
     # Returns the extracted query entities for later inclusion in context.
+    # Phase 6b: detect temporal intent and filter entity lookup by time range.
+    from src.services.temporal_entities import detect_temporal_intent
+    temporal = detect_temporal_intent(understanding.get("original", ""))
+    if temporal.get("type") != "none":
+        logger.info(f"  temporal intent: {temporal['type']} — filter: {temporal.get('filter_cypher', '')[:80]}")
     entity_pivot_task = None
     query_entities_holder: dict[str, list[str]] = {"entities": []}
     entity_extractor = getattr(clients, "entity_extractor", None)
@@ -383,6 +394,7 @@ async def multi_path_retrieve(
                 clients.neo4j, entity_extractor,
                 understanding.get("original", ""),
                 tenant_id, top_k=top_k_per_path,
+                temporal_filter=temporal.get("filter_cypher", ""),
             )
             query_entities_holder["entities"] = query_ents
             return cands
