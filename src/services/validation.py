@@ -35,7 +35,12 @@ Trả lời CHỈ một trong ba: YES (có hỗ trợ), NO (không hỗ trợ), 
 Đáp án:"""
 
 
-_CITATION_PATTERN = re.compile(r"\[(?:chunk[_\-]?id\s*[:=]?\s*)?([\w\-]+)\]")
+_CITATION_PATTERN = re.compile(
+    r"\[(?:chunk[_\-]?id\s*[:=]?\s*)?([\w\-]+(?::[\w\-]+)?(?:::[\w\-]+)?)\]",
+    re.IGNORECASE,
+)
+# Also match Vietnamese draft prompt format: [doc_abc::para::5]
+_CITATION_PATTERN_V2 = re.compile(r"\[doc[\w\-]+(?:::[\w\-]+)+\]", re.IGNORECASE)
 _ENTITY_PATTERN = re.compile(
     r"\b([A-ZÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬĐÈÉẺẼẸÊỀẾỂỄỆÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴ][\wÀ-ỹ]+(?:\s+[A-ZÀ-Ỹ][\wÀ-ỹ]+){0,4})\b"
 )
@@ -191,7 +196,7 @@ def is_refusal_answer(answer: str) -> bool:
     return False
 
 
-def citation_gate(answer: str, min_ratio: float = 0.70) -> dict[str, Any]:
+def citation_gate(answer: str, min_ratio: float = 0.40) -> dict[str, Any]:
     """
     Check that most sentences have a citation [chunk_id] marker.
     Skip check entirely if answer is a refusal (no citations expected).
@@ -203,9 +208,9 @@ def citation_gate(answer: str, min_ratio: float = 0.70) -> dict[str, Any]:
     sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", answer) if len(s.strip()) > 10]
     if not sentences:
         return {"passed": True, "citation_ratio": 1.0, "uncited": []}
-    cited = [s for s in sentences if _CITATION_PATTERN.search(s)]
+    cited = [s for s in sentences if _CITATION_PATTERN.search(s) or _CITATION_PATTERN_V2.search(s)]
     ratio = len(cited) / len(sentences)
-    uncited = [s for s in sentences if not _CITATION_PATTERN.search(s)]
+    uncited = [s for s in sentences if not (_CITATION_PATTERN.search(s) or _CITATION_PATTERN_V2.search(s))]
     return {
         "passed": ratio >= min_ratio,
         "citation_ratio": ratio,

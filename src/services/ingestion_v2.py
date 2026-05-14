@@ -23,6 +23,7 @@ from loguru import logger
 
 from src.services.consistency import process_batch_consistency
 from src.services.chunk_quality import filter_chunks_by_quality
+from src.services.domain_tagger import tag_chunk
 from src.services.format_router import route_and_chunk
 from src.services.kg import (
     extract_entities_and_relations,
@@ -277,6 +278,19 @@ async def ingest_document_v2(
         if c["id"] in kept_ids
     ]
     _mark("cqc_filter")
+
+    # 7. Domain tagging — tag each chunk with 8-axis semantic distribution
+    for c, (ents, _) in zip(chunks, entity_results):
+        dd = tag_chunk(
+            text=c["text"],
+            entities=ents,
+            filename=filename,
+        )
+        c["_domain_distribution"] = dd.to_dict()
+        dom, score = dd.dominant()
+        c["_domain_primary"] = dom
+        c["_domain_score"] = round(score, 4)
+    _mark("domain_tag")
     qdrant_points: list[dict] = []
     for c in chunks:
         payload = {
@@ -292,6 +306,10 @@ async def ingest_document_v2(
             "department": department,
             "author": author,
             "created_at": started.isoformat(),
+            # Domain tagging (Phase 8: domain-axis reward)
+            "domain_distribution": c.get("_domain_distribution", {}),
+            "domain_primary": c.get("_domain_primary", ""),
+            "domain_score": c.get("_domain_score", 0.0),
             **(c.get("metadata") or {}),
             **(extra_payload or {}),
         }

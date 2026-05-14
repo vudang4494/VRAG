@@ -38,56 +38,68 @@ async def ollama_chat(
     timeout: float | None = None,
     think: bool = False,
     keep_alive: int | str = -1,
+    _retries: int = 3,
 ) -> str:
     """Send a chat request via Ollama native /api/chat. Returns content string.
 
-    Returns empty string on any failure (caller should handle).
-
-    Falls back to `message.thinking` if `message.content` is empty
-    (some Qwen3 builds still emit thinking even with think:false).
+    Retries up to _retries times on connection errors with exponential backoff.
+    Returns empty string on final failure (caller should handle).
     """
-    from src.config import get_settings
-    from src.clients import get_clients
+    import asyncio as _aio
+    from src.config import get_settings as _get_settings
+    from src.clients import get_clients as _get_clients
 
-    settings = get_settings()
-    clients = get_clients()
+    settings = _get_settings()
+    clients = _get_clients()
 
-    model = model or settings.ollama_model
-    timeout = timeout or settings.request_timeout_s
+    last_error = ""
+    for attempt in range(_retries):
+        try:
+            body = {
+                "model": model or settings.ollama_model,
+                "messages": messages,
+                "stream": False,
+                "think": think,
+                "keep_alive": keep_alive,
+                "options": {
+                    "temperature": temperature,
+                    "num_predict": max_tokens,
+                },
+            }
+            resp = await clients.http.post(
+                f"{settings.ollama_base_url}/api/chat",
+                json=body,
+                timeout=timeout or settings.request_timeout_s,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            msg = data.get("message") or {}
+            content = (msg.get("content") or "").strip()
+            if not content:
+                content = (msg.get("thinking") or "").strip()
+                if content:
+                    logger.debug(f"ollama_chat: empty content, used thinking fallback ({len(content)} chars)")
+            return content
+        except httpx.HTTPStatusError as e:
+            last_error = f"HTTP {e.response.status_code}: {e}"
+            logger.warning(f"ollama_chat attempt {attempt+1}/{_retries} failed: {last_error}")
+        except httpx.ConnectError as e:
+            last_error = f"ConnectError: {e}"
+            logger.warning(f"ollama_chat attempt {attempt+1}/{_retries} failed: {last_error}")
+        except httpx.RemoteProtocolError as e:
+            last_error = f"RemoteProtocolError: {e}"
+            logger.warning(f"ollama_chat attempt {attempt+1}/{_retries} failed: {last_error}")
+        except Exception as e:
+            last_error = str(e)
+            logger.warning(f"ollama_chat attempt {attempt+1}/{_retries} failed: {last_error}")
 
-    body = {
-        "model": model,
-        "messages": messages,
-        "stream": False,
-        "think": think,
-        "keep_alive": keep_alive,
-        "options": {
-            "temperature": temperature,
-            "num_predict": max_tokens,
-        },
-    }
+        if attempt < _retries - 1:
+            wait = 2 ** attempt
+            logger.info(f"ollama_chat: retrying in {wait}s...")
+            await _aio.sleep(wait)
 
-    try:
-        resp = await clients.http.post(
-            f"{settings.ollama_base_url}/api/chat",
-            json=body,
-            timeout=timeout,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-    except Exception as e:
-        logger.warning(f"ollama_chat HTTP failure ({model}): {e}")
-        return ""
-
-    msg = data.get("message") or {}
-    content = (msg.get("content") or "").strip()
-    if not content:
-        # Qwen3 quirk: even with think:false, content may be empty for some prompts.
-        # Surface the thinking text rather than returning nothing — it's still useful.
-        content = (msg.get("thinking") or "").strip()
-        if content:
-            logger.debug(f"ollama_chat: empty content, used thinking fallback ({len(content)} chars)")
-    return content
+    logger.error(f"ollama_chat: all {_retries} attempts failed. Last error: {last_error}")
+    return ""
 
 
 async def ollama_chat_stream(

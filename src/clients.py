@@ -169,6 +169,13 @@ async def init_clients() -> Clients:
     # Pre-load at startup so memory is committed early and predictable.
     # If we lazy-load inside an ingest request, model load can OOM under
     # concurrent memory pressure from qdrant/neo4j/embedding clients.
+    #
+    # HOWEVER: eager-loading GLiNER (168M params ≈ 700MB RAM) consumes a chunk
+    # of the 6GB container limit on every startup even when no ingest happens.
+    # With M4 24GB host RAM, 6GB container + GLiNER + httpx buffers is tight.
+    # FIXED: lazy-load — model is loaded on first extract() call, not at startup.
+    # The first ingest call pays the load cost; subsequent calls reuse the cached model.
+    clients.entity_extractor = None
     try:
         from src.services.entity_extractor import create_entity_extractor
         clients.entity_extractor = create_entity_extractor(
@@ -179,15 +186,11 @@ async def init_clients() -> Clients:
             relation_model=settings.ollama_model,
             extract_relations=settings.entity_relations_enabled,
         )
-        # Force eager load of underlying model (GLiNER) to commit memory up front.
-        try:
-            ner = getattr(clients.entity_extractor, "ner", None)
-            if ner is not None and hasattr(ner, "_load"):
-                import asyncio as _aio
-                await _aio.to_thread(ner._load)
-        except Exception as _e:
-            import logging as _lg
-            _lg.getLogger(__name__).warning(f"Entity model eager-load skipped: {_e}")
+        # Lazy-load: only load model into memory when first needed.
+        # Don't call ner._load() here — let FastAPI handle requests immediately
+        # without waiting for GLiNER to load first.
+        # Model loads on first extract() call inside ingest_document_v2().
+        logger.info("Entity extractor initialized (lazy-load mode — model loads on first use)")
     except Exception as e:
         import logging
         logging.getLogger(__name__).warning(f"Entity extractor init failed: {e}")

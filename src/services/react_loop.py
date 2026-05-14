@@ -51,6 +51,11 @@ Các action có sẵn:
    → Chỉ được FINISH khi ĐÃ THU THẬP ĐƯỢC ÍT NHẤT 4 CHUNKS có liên quan.
    Nếu chunks_collected < 4, phải tiếp tục bằng graph_aware_search hoặc retrieve_chunks.
 
+CRITICAL RULE: Nếu bạn gọi search_entity hoặc expand_relation mà trả về 0 kết quả,
+BẮT BUỘC phải gọi retrieve_chunks (dùng entity names từ câu hỏi gốc)
+hoặc graph_aware_search (dùng câu hỏi gốc) TRƯỚC KHI ĐƯỢC PHÉP gọi FINISH.
+Từ chối trả lời (FINISH khi không đủ chunks) là lựa chọn CUỐI CÙNG.
+
 Lịch sử các bước đã làm:
 {history}
 
@@ -70,13 +75,13 @@ Câu hỏi gốc: {query}
 Lịch sử trace (cho thấy reasoning của agent):
 {trace}
 
-Các chunks tham khảo (chunk_id ở đầu):
+Các chunks tham khảo:
 {context}
 
 QUY TẮC:
-- Trả lời tiếng Việt, 2-5 câu
-- MỖI câu kèm [chunk_id] ở cuối
-- CHỈ dùng thông tin có trong chunks tham khảo
+- Trả lời tiếng Việt, 3-7 câu
+- Nếu câu nào có thể trích dẫn được, kèm [chunk_id] ở cuối
+- Bạn được phép tổng hợp và diễn giải dựa trên ý nghĩa ngữ cảnh, miễn là không bịa đặt sự thật mới
 - Nếu chunks không đủ, viết "Tôi không có đủ thông tin chắc chắn"
 
 Câu trả lời:"""

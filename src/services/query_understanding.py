@@ -163,12 +163,11 @@ async def understand_query(
     selected = [all_tasks[0]] + all_tasks[1:1 + max(_n - 1, 0)]
     tasks = dict(selected)
 
+    gathered = asyncio.gather(*tasks.values(), return_exceptions=True)
     try:
-        results = await asyncio.wait_for(
-            asyncio.gather(*tasks.values(), return_exceptions=True),
-            timeout=timeout,
-        )
+        results = await asyncio.wait_for(gathered, timeout=timeout)
     except asyncio.TimeoutError:
+        gathered.cancel()
         logger.warning(f"Query understanding timeout for: {query[:80]}")
         results = [None] * len(tasks)
 

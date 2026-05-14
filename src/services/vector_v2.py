@@ -135,6 +135,9 @@ async def search_single_view(
             "score": float(r.score),
             "retrieval_path": f"vector:{view}",
             "metadata": payload,
+            # Phase 8: domain distribution for reward scoring
+            "domain_distribution": payload.get("domain_distribution", {}),
+            "domain_primary": payload.get("domain_primary", ""),
         })
     return out
 
@@ -185,6 +188,8 @@ async def search_multi_view_rrf(
             "score": float(r.score),
             "retrieval_path": "vector:multi_rrf",
             "metadata": payload,
+            "domain_distribution": payload.get("domain_distribution", {}),
+            "domain_primary": payload.get("domain_primary", ""),
         })
     return out
 
@@ -225,6 +230,8 @@ async def search_sparse(
             "score": float(r.score),
             "retrieval_path": "sparse:bm25",
             "metadata": payload,
+            "domain_distribution": payload.get("domain_distribution", {}),
+            "domain_primary": payload.get("domain_primary", ""),
         })
     return out
 

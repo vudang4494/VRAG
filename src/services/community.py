@@ -63,6 +63,8 @@ async def fetch_entity_graph(
 ) -> tuple[list[dict], list[tuple[str, str, float]]]:
     """
     Pull entities + RELATES_TO edges from Neo4j.
+    Falls back to co-occurrence edges (entities sharing a chunk) if no RELATES_TO edges exist.
+
     Returns (entities, edges) where edge is (source, target, weight).
     """
     where_tenant = "WHERE e.tenant_id = $tid" if tenant_id else ""
@@ -94,6 +96,27 @@ async def fetch_entity_graph(
             **params,
         )
         edges = [(row["src"], row["tgt"], float(row["weight"])) for row in await edge_result.data()]
+
+        # If no RELATES_TO edges, build co-occurrence edges from CONTAINS_ENTITY
+        if not edges:
+            logger.info("No RELATES_TO edges — building co-occurrence graph from CONTAINS_ENTITY")
+            co_occur_result = await s.run(
+                """
+                MATCH (c:Chunk)-[:CONTAINS_ENTITY]->(e1:Entity)
+                WITH c, collect(e1.name) AS ents1
+                WHERE size(ents1) > 1
+                UNWIND ents1 AS e1_name
+                UNWIND ents1 AS e2_name
+                WITH e1_name, e2_name, c
+                WHERE e1_name < e2_name
+                WITH e1_name AS src, e2_name AS tgt, count(DISTINCT c) AS shared_chunks
+                ORDER BY shared_chunks DESC
+                LIMIT 5000
+                RETURN src, tgt, toFloat(shared_chunks) / 10.0 AS weight
+                """,
+            )
+            edges = [(row["src"], row["tgt"], float(row["weight"])) for row in await co_occur_result.data()]
+            logger.info(f"Built {len(edges)} co-occurrence edges from CONTAINS_ENTITY")
 
     return entities, edges
 

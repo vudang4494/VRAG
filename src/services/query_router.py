@@ -51,15 +51,33 @@ _MULTI_HOP_PATTERNS = [
     r"liệt kê",
     r"(?i)các kỹ thuật.*cải thiện",
     r"(?i)đóng góp chính",
+    r"(?i)phương pháp huấn luyện",
     # "Which paper/doc mentions X" — needs graph walk
     r"paper nào",
     r"bài báo nào",
     r"doc.*nào",
     r"document.*nào",
-    # Definition-style questions about RAG/graph/AI concepts — require KG context
-    r"(?i)\w+(là|gì|cái gì|định nghĩa)",  # "X là gì", "X là cái gì"
-    # Any query explicitly about GraphRAG, knowledge graph, community — by nature multi-hop
     r"(?i)(graphrag|knowledge graph|leiden|community detection|đồ thị tri thức)",
+    # Explicit multi-hop question structures (X và Y cùng/tất cả đều)
+    r"(?i)(X và Y|[A-ZÀ-Ỹ]\w+ và [A-ZÀ-Ỹ]\w+) (đều|dùng|cùng|liên quan)",
+    # General multi-hop signals (more permissive)
+    r"(?i)(đều|mọi người|cùng) (dùng|sử dụng|có liên quan)",
+    # Pattern: "X và Y" — two entities in same sentence often means cross-doc
+    r"\w+\s+\w+\s+và\s+\w+",
+    # "hoạt động thông qua" — operational/mechanism questions
+    r"hoạt động thông qua",
+    r"thông qua việc",
+    # "sự khác biệt" or "khác biệt" alone
+    r"sự khác biệt",
+    # "cái gì" after mentioning two things
+    r"gì$",
+    # "đều là" — multiple things with shared property
+    r"đều là",
+    # "liên quan" — relationship questions
+    r"liên quan",
+    # "công trình" — research papers
+    r"công trình",
+    r"tác giả",
 ]
 
 _SUMMARIZATION_PATTERNS = [

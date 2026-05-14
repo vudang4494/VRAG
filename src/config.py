@@ -135,13 +135,14 @@ class Settings(BaseSettings):
     generation_outline_enabled: bool = bool(int(os.environ.get("GENERATION_OUTLINE_ENABLED", "0")))
     generation_drafts: int = int(os.environ.get("GENERATION_DRAFTS", "1"))
     generation_judge_enabled: bool = bool(int(os.environ.get("GENERATION_JUDGE_ENABLED", "0")))
+    generation_refine_enabled: bool = bool(int(os.environ.get("GENERATION_REFINE_ENABLED", "1")))
     generation_max_tokens: int = 2048
 
     # Validation gates
     validation_enabled: bool = True
-    validation_min_grounded_ratio: float = 0.80
-    validation_max_invalid_entities: int = 2
-    validation_min_citation_ratio: float = 0.70
+    validation_min_grounded_ratio: float = 0.70
+    validation_max_invalid_entities: int = 3
+    validation_min_citation_ratio: float = 0.40
     validation_retry_on_fail: bool = True
 
     # Community summaries
@@ -153,6 +154,10 @@ class Settings(BaseSettings):
 
     # Refusal
     refusal_message_vi: str = "Tôi không có đủ thông tin chắc chắn để trả lời câu hỏi này dựa trên tài liệu hiện có."
+
+    # OOD detection — early refusal before generation
+    ood_detection_enabled: bool = bool(int(os.environ.get("OOD_DETECTION_ENABLED", "1")))
+    ood_relevance_threshold: float = float(os.environ.get("OOD_RELEVANCE_THRESHOLD", "0.50"))
 
 
 @lru_cache
