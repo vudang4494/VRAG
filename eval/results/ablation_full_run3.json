@@ -1,0 +1,951 @@
+{
+  "benchmark": "eval/datasets/vi_benchmark_v1.json",
+  "tenant": "eval",
+  "configs_tested": [
+    "C2_v3_chat",
+    "C3_v3_chat_with_gaea",
+    "C4_v3_react",
+    "C5_hefr_only",
+    "C6_smart_router",
+    "C7_hefr_entity_pivot"
+  ],
+  "queries_total": 30,
+  "summary_per_config": {
+    "C6_smart_router": {
+      "n": 30,
+      "p50_latency_ms": 82419.88270898582,
+      "avg_doc_recall": 0.6294444444444445,
+      "avg_kw_hit": 0.538888888888889,
+      "refusal_accuracy": 0.9333333333333333,
+      "kw_breakdown": {
+        "literal": 0.483,
+        "semantic": 0.0,
+        "missed": 0.517
+      }
+    }
+  },
+  "results_per_query": {
+    "C2_v3_chat": [],
+    "C3_v3_chat_with_gaea": [],
+    "C4_v3_react": [],
+    "C5_hefr_only": [],
+    "C6_smart_router": [
+      {
+        "q_id": "f01",
+        "category": "factual_local",
+        "latency_ms": 71207.23350002663,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.3333333333333333,
+        "kw_breakdown": [
+          {
+            "keyword": "graph",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "retrieval",
+            "hit_type": "missed",
+            "similarity": null
+          },
+          {
+            "keyword": "Microsoft",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "GraphRAG là một phương pháp RAG dựa trên đồ thị, giúp giải quyết các câu hỏi tổng hợp trên toàn bộ văn bản lớn bằng cách xây dựng đồ thị tri thức từ các thực thể và mối quan hệ trong dữ liệu.\n\nHệ thốn",
+        "error": null,
+        "routing": {
+          "query_type": "multi_hop",
+          "react_used": true,
+          "reason": "ReAct loop (multi_hop query — cross-doc reasoning)",
+          "steps_used": 3,
+          "chunks_examined": 6
+        }
+      },
+      {
+        "q_id": "f02",
+        "category": "factual_local",
+        "latency_ms": 105268.15062499372,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.6666666666666666,
+        "kw_breakdown": [
+          {
+            "keyword": "100",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "ngôn ngữ",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "multilingual",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "BGE-M3 (hay còn gọi là M3-Embedding) hỗ trợ đa ngôn ngữ với khả năng xử lý hơn 100 ngôn ngữ trên thế giới [doc_dfef883033c9083a::paragraph::4]. Được thiết kế để học một không gian ngữ nghĩa chung cho ",
+        "error": null,
+        "routing": {
+          "query_type": "factual",
+          "react_used": false,
+          "reason": "Standard retrieval (factual query — single-doc lookup)"
+        }
+      },
+      {
+        "q_id": "f03",
+        "category": "factual_local",
+        "latency_ms": 67561.22366699856,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 1.0,
+        "kw_breakdown": [
+          {
+            "keyword": "Louvain",
+            "hit_type": "literal",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Thuật toán Leiden được cải tiến dựa trên thuật toán **Louvain**, nhằm khắc phục nhược điểm khiến Louvain tạo ra các cộng đồng bị ngắt kết nối hoặc kém liên kết.\n\nLeiden bổ sung thêm giai đoạn tinh chỉ",
+        "error": null,
+        "routing": {
+          "query_type": "multi_hop",
+          "react_used": true,
+          "reason": "ReAct loop (multi_hop query — cross-doc reasoning)",
+          "steps_used": 3,
+          "chunks_examined": 8
+        }
+      },
+      {
+        "q_id": "f04",
+        "category": "factual_local",
+        "latency_ms": 138510.65412498428,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.5,
+        "kw_breakdown": [
+          {
+            "keyword": "late interaction",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "MaxSim",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "ColBERT vận hành dựa trên cơ chế \"late interaction\" (tương tác muộn) nhằm ước tính độ liên quan giữa truy vấn và tài liệu. Trong phương pháp này, truy vấn và tài liệu được mã hóa độc lập thành hai tập",
+        "error": null,
+        "routing": {
+          "query_type": "factual",
+          "react_used": false,
+          "reason": "Standard retrieval (factual query — single-doc lookup)"
+        }
+      },
+      {
+        "q_id": "f05",
+        "category": "factual_local",
+        "latency_ms": 69271.76654199138,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.5,
+        "kw_breakdown": [
+          {
+            "keyword": "protein",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "structure",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "AlphaFold dự đoán cấu trúc không gian ba chiều của protein dựa trên trình tự axit amin của chúng với độ chính xác nguyên tử [chunk_id=6]. Hệ thống này được thiết kế bằng các kỹ thuật học sâu, sử dụng ",
+        "error": null,
+        "routing": {
+          "query_type": "factual",
+          "react_used": false,
+          "reason": "Standard retrieval (factual query — single-doc lookup)"
+        }
+      },
+      {
+        "q_id": "f06",
+        "category": "factual_local",
+        "latency_ms": 66007.7769169875,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.6666666666666666,
+        "kw_breakdown": [
+          {
+            "keyword": "self",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "reflection",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "critic",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Self-RAG khác RAG truyền thống ở chỗ nó không lấy số lượng tài liệu cố định mà thực hiện việc tìm kiếm theo yêu cầu (on-demand) dựa trên phản xạ tự thân của mô hình. [doc_288d8a35c06dc6c5::paragraph::",
+        "error": null,
+        "routing": {
+          "query_type": "multi_hop",
+          "react_used": true,
+          "reason": "ReAct loop (multi_hop query — cross-doc reasoning)",
+          "steps_used": 4,
+          "chunks_examined": 12
+        }
+      },
+      {
+        "q_id": "f07",
+        "category": "factual_local",
+        "latency_ms": 102441.30454200786,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 1.0,
+        "kw_breakdown": [
+          {
+            "keyword": "faithfulness",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "relevance",
+            "hit_type": "literal",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "RAGAS đánh giá các hệ thống Retrieval Augmented Generation dựa trên ba chiều chất lượng chính: sự trung thành (faithfulness), sự liên quan của câu trả lời (answer relevance) và sự liên quan của ngữ cả",
+        "error": null,
+        "routing": {
+          "query_type": "factual",
+          "react_used": false,
+          "reason": "Standard retrieval (factual query — single-doc lookup)"
+        }
+      },
+      {
+        "q_id": "f08",
+        "category": "factual_local",
+        "latency_ms": 49858.77104199608,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 1.0,
+        "kw_breakdown": [
+          {
+            "keyword": "Hypothetical",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "Document",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "Embedding",
+            "hit_type": "literal",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "HyDE là viết tắt của Hypothetical Document Embeddings [doc_b076fc4b93d7c7c9::paragraph::1].",
+        "error": null,
+        "routing": {
+          "query_type": "factual",
+          "react_used": false,
+          "reason": "Standard retrieval (factual query — single-doc lookup)"
+        }
+      },
+      {
+        "q_id": "m01",
+        "category": "multi_hop",
+        "latency_ms": 88331.04458299931,
+        "docs_found": 1,
+        "docs_expected": 3,
+        "kw_hit_ratio": 0.3333333333333333,
+        "kw_breakdown": [
+          {
+            "keyword": "Leiden",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "community",
+            "hit_type": "missed",
+            "similarity": null
+          },
+          {
+            "keyword": "clustering",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "GraphRAG sử dụng các thuật toán phân cụm cộng đồng có tính chất mô-đun cao để chia đồ thị thành các cộng đồng lồng nhau, cụ thể là **Louvain** và **Leiden**.\n\nQuy trình này cho phép phân chia đồ thị t",
+        "error": null,
+        "routing": {
+          "query_type": "multi_hop",
+          "react_used": true,
+          "reason": "ReAct loop (multi_hop query — cross-doc reasoning)",
+          "steps_used": 3,
+          "chunks_examined": 6
+        }
+      },
+      {
+        "q_id": "m02",
+        "category": "multi_hop",
+        "latency_ms": 70953.1636669999,
+        "docs_found": 1,
+        "docs_expected": 3,
+        "kw_hit_ratio": 0.5,
+        "kw_breakdown": [
+          {
+            "keyword": "embedding",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "summarization",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "GraphSAGE là một khung tổng quát để tạo vector biểu diễn (embeddings) cho các nút mới bằng cách tổng hợp thông tin từ lân cận, trong khi GraphRAG là một phương pháp xử lý thông tin dựa trên đồ thị để ",
+        "error": null,
+        "routing": {
+          "query_type": "multi_hop",
+          "react_used": true,
+          "reason": "ReAct loop (multi_hop query — cross-doc reasoning)",
+          "steps_used": 4,
+          "chunks_examined": 8
+        }
+      },
+      {
+        "q_id": "m03",
+        "category": "multi_hop",
+        "latency_ms": 75632.92708300287,
+        "docs_found": 2,
+        "docs_expected": 3,
+        "kw_hit_ratio": 0.0,
+        "kw_breakdown": [
+          {
+            "keyword": "evaluation",
+            "hit_type": "missed",
+            "similarity": null
+          },
+          {
+            "keyword": "faithfulness",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Self-RAG và RAGAS đều là các phương pháp đánh giá hệ thống RAG nhưng có vai trò và mục tiêu khác nhau. Self-RAG tập trung vào việc cải thiện chất lượng và độ chính xác của mô hình bằng cách tự sinh ra",
+        "error": null,
+        "routing": {
+          "query_type": "multi_hop",
+          "react_used": true,
+          "reason": "ReAct loop (multi_hop query — cross-doc reasoning)",
+          "steps_used": 4,
+          "chunks_examined": 8
+        }
+      },
+      {
+        "q_id": "m04",
+        "category": "multi_hop",
+        "latency_ms": 79160.57862498565,
+        "docs_found": 2,
+        "docs_expected": 3,
+        "kw_hit_ratio": 1.0,
+        "kw_breakdown": [
+          {
+            "keyword": "contrastive",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "training",
+            "hit_type": "literal",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Cả BGE-M3 và E5 đều sử dụng phương pháp huấn luyện hai giai đoạn, bao gồm tiền huấn luyện tương phản (contrastive pre-training) và tinh chỉnh có giám sát (supervised fine-tuning) [doc_16affd4bf7c39552",
+        "error": null,
+        "routing": {
+          "query_type": "multi_hop",
+          "react_used": true,
+          "reason": "ReAct loop (multi_hop query — cross-doc reasoning)",
+          "steps_used": 4,
+          "chunks_examined": 8
+        }
+      },
+      {
+        "q_id": "c01",
+        "category": "comparison",
+        "latency_ms": 185470.3427500208,
+        "docs_found": 2,
+        "docs_expected": 4,
+        "kw_hit_ratio": 0.0,
+        "kw_breakdown": [
+          {
+            "keyword": "dense retrieval",
+            "hit_type": "missed",
+            "similarity": null
+          },
+          {
+            "keyword": "embedding",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "ColBERT áp dụng kiến trúc tương tác muộn (late interaction), sử dụng hai bộ mã hóa BERT độc lập để mô phỏng các tương tác tinh tế giữa truy vấn và tài liệu, giúp đạt hiệu quả cạnh tranh với các mô hìn",
+        "error": null,
+        "routing": {
+          "query_type": "factual",
+          "react_used": false,
+          "reason": "Standard retrieval (factual query — single-doc lookup)"
+        }
+      },
+      {
+        "q_id": "c02",
+        "category": "comparison",
+        "latency_ms": 96070.80608300748,
+        "docs_found": 2,
+        "docs_expected": 3,
+        "kw_hit_ratio": 0.5,
+        "kw_breakdown": [
+          {
+            "keyword": "graph",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "hypothetical",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "GraphRAG và HyDE là hai phương pháp cải thiện RAG khác nhau: GraphRAG tập trung vào việc xây dựng đồ thị tri thức để giải quyết các câu hỏi tổng hợp trên toàn bộ văn bản, trong khi HyDE cải thiện khả ",
+        "error": null,
+        "routing": {
+          "query_type": "multi_hop",
+          "react_used": true,
+          "reason": "ReAct loop (multi_hop query — cross-doc reasoning)",
+          "steps_used": 4,
+          "chunks_examined": 8
+        }
+      },
+      {
+        "q_id": "c03",
+        "category": "comparison",
+        "latency_ms": 137777.85633399617,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.3333333333333333,
+        "kw_breakdown": [
+          {
+            "keyword": "Leiden",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "guaranteed",
+            "hit_type": "missed",
+            "similarity": null
+          },
+          {
+            "keyword": "connected",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Dựa trên các tài liệu đã thu thập, thuật toán **Leiden** được đánh giá là tốt hơn thuật toán Louvain vì những lý do sau:\n\n1.  **Đảm bảo tính liên kết:** Leiden khắc phục nhược điểm nghiêm trọng của Lo",
+        "error": null,
+        "routing": {
+          "query_type": "multi_hop",
+          "react_used": true,
+          "reason": "ReAct loop (multi_hop query — cross-doc reasoning)",
+          "steps_used": 4,
+          "chunks_examined": 8
+        }
+      },
+      {
+        "q_id": "s01",
+        "category": "summarization",
+        "latency_ms": 97254.44212500588,
+        "docs_found": 2,
+        "docs_expected": 5,
+        "kw_hit_ratio": 0.5,
+        "kw_breakdown": [
+          {
+            "keyword": "RAG",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "improvement",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Các kỹ thuật chính cải thiện RAG bao gồm việc huấn luyện mô hình tự phản ánh (Self-RAG) để tự động hóa việc truy xuất và phê bình nội dung thông qua các token đặc biệt, giúp giảm thiểu ảo giác [doc_28",
+        "error": null,
+        "routing": {
+          "query_type": "multi_hop",
+          "react_used": true,
+          "reason": "ReAct loop (multi_hop query — cross-doc reasoning)",
+          "steps_used": 3,
+          "chunks_examined": 8
+        }
+      },
+      {
+        "q_id": "s02",
+        "category": "summarization",
+        "latency_ms": 15249.400417000288,
+        "docs_found": 0,
+        "docs_expected": 4,
+        "kw_hit_ratio": 0.0,
+        "kw_breakdown": [
+          {
+            "keyword": "embedding",
+            "hit_type": "missed",
+            "similarity": null
+          },
+          {
+            "keyword": "dense",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": true,
+        "expect_refusal": false,
+        "refusal_correct": false,
+        "answer_excerpt": "Tôi không có đủ thông tin chắc chắn để trả lời câu hỏi này dựa trên tài liệu hiện có.",
+        "error": null,
+        "routing": {
+          "query_type": "factual",
+          "react_used": false,
+          "reason": "Standard retrieval (factual query — single-doc lookup)"
+        }
+      },
+      {
+        "q_id": "s03",
+        "category": "summarization",
+        "latency_ms": 82419.88270898582,
+        "docs_found": 1,
+        "docs_expected": 4,
+        "kw_hit_ratio": 1.0,
+        "kw_breakdown": [
+          {
+            "keyword": "graph",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "knowledge",
+            "hit_type": "literal",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Các đóng góp chính của nghiên cứu về Knowledge Graph trong RAG (đặc biệt là GraphRAG) bao gồm việc sử dụng LLM để trích xuất dữ liệu thành đồ thị, phân cấp các cộng đồng thực thể và tạo tóm tắt tập tr",
+        "error": null,
+        "routing": {
+          "query_type": "multi_hop",
+          "react_used": true,
+          "reason": "ReAct loop (multi_hop query — cross-doc reasoning)",
+          "steps_used": 4,
+          "chunks_examined": 8
+        }
+      },
+      {
+        "q_id": "a01",
+        "category": "analytical",
+        "latency_ms": 97312.64970899792,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.3333333333333333,
+        "kw_breakdown": [
+          {
+            "keyword": "community",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "summarization",
+            "hit_type": "missed",
+            "similarity": null
+          },
+          {
+            "keyword": "global",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "GraphRAG cần phát hiện cộng đồng (community detection) để chia dữ liệu thành các nhóm các nút liên kết chặt chẽ, giúp hệ thống tổ chức thông tin có cấu trúc rõ ràng hơn.\n\nTrong quy trình của GraphRAG,",
+        "error": null,
+        "routing": {
+          "query_type": "multi_hop",
+          "react_used": true,
+          "reason": "ReAct loop (multi_hop query — cross-doc reasoning)",
+          "steps_used": 4,
+          "chunks_examined": 8
+        }
+      },
+      {
+        "q_id": "a02",
+        "category": "analytical",
+        "latency_ms": 137044.20787500567,
+        "docs_found": 2,
+        "docs_expected": 3,
+        "kw_hit_ratio": 0.5,
+        "kw_breakdown": [
+          {
+            "keyword": "contrastive",
+            "hit_type": "missed",
+            "similarity": null
+          },
+          {
+            "keyword": "negative",
+            "hit_type": "literal",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Học tập tương phản đóng vai trò then chốt trong việc nâng cao khả năng tổng quát hóa của các mô hình embedding văn bản thông qua việc tận dụng các tín hiệu giám sát yếu từ bộ dữ liệu quy mô lớn như CC",
+        "error": null,
+        "routing": {
+          "query_type": "factual",
+          "react_used": false,
+          "reason": "Standard retrieval (factual query — single-doc lookup)"
+        }
+      },
+      {
+        "q_id": "a03",
+        "category": "analytical",
+        "latency_ms": 108166.82591600693,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.0,
+        "kw_breakdown": [
+          {
+            "keyword": "reflection",
+            "hit_type": "missed",
+            "similarity": null
+          },
+          {
+            "keyword": "retrieval decision",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "RAG truyền thống thường gặp phải các vấn đề về trích dẫn không chính xác và thiếu tính linh hoạt, do việc lấy thông tin một cách máy móc mà không phân biệt được thời điểm cần truy xuất hay tính liên q",
+        "error": null,
+        "routing": {
+          "query_type": "factual",
+          "react_used": false,
+          "reason": "Standard retrieval (factual query — single-doc lookup)"
+        }
+      },
+      {
+        "q_id": "o01",
+        "category": "out_of_domain",
+        "latency_ms": 8065.140624996275,
+        "docs_found": 0,
+        "docs_expected": 1,
+        "kw_hit_ratio": 1.0,
+        "kw_breakdown": [],
+        "refused": true,
+        "expect_refusal": true,
+        "refusal_correct": true,
+        "answer_excerpt": "Tôi không có đủ thông tin chắc chắn để trả lời câu hỏi này dựa trên tài liệu hiện có.",
+        "error": null,
+        "routing": {
+          "query_type": "factual",
+          "react_used": false,
+          "reason": "Standard retrieval (factual query — single-doc lookup)"
+        }
+      },
+      {
+        "q_id": "o02",
+        "category": "out_of_domain",
+        "latency_ms": 7767.523666989291,
+        "docs_found": 0,
+        "docs_expected": 1,
+        "kw_hit_ratio": 1.0,
+        "kw_breakdown": [],
+        "refused": true,
+        "expect_refusal": true,
+        "refusal_correct": true,
+        "answer_excerpt": "Tôi không có đủ thông tin chắc chắn để trả lời câu hỏi này dựa trên tài liệu hiện có.",
+        "error": null,
+        "routing": {
+          "query_type": "factual",
+          "react_used": false,
+          "reason": "Standard retrieval (factual query — single-doc lookup)"
+        }
+      },
+      {
+        "q_id": "o03",
+        "category": "out_of_domain",
+        "latency_ms": 30132.31733397697,
+        "docs_found": 0,
+        "docs_expected": 1,
+        "kw_hit_ratio": 1.0,
+        "kw_breakdown": [],
+        "refused": true,
+        "expect_refusal": true,
+        "refusal_correct": true,
+        "answer_excerpt": "Tôi không có đủ thông tin chắc chắn để trả lời câu hỏi này dựa trên tài liệu hiện có.",
+        "error": null,
+        "routing": {
+          "query_type": "out_of_domain",
+          "react_used": false,
+          "reason": "Standard retrieval (out_of_domain query — single-doc lookup)"
+        }
+      },
+      {
+        "q_id": "e01",
+        "category": "entity_pivot",
+        "latency_ms": 121286.50795901194,
+        "docs_found": 2,
+        "docs_expected": 5,
+        "kw_hit_ratio": 1.0,
+        "kw_breakdown": [
+          {
+            "keyword": "BM25",
+            "hit_type": "literal",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Dựa trên các tài liệu đã thu thập, **BM25** được coi là một **baseline tiêu chuẩn** (điểm tham chiếu cơ bản) trong lĩnh vực truy xuất văn bản, thường được sử dụng để so sánh hiệu suất của các mô hình ",
+        "error": null,
+        "routing": {
+          "query_type": "multi_hop",
+          "react_used": true,
+          "reason": "ReAct loop (multi_hop query — cross-doc reasoning)",
+          "steps_used": 4,
+          "chunks_examined": 8
+        }
+      },
+      {
+        "q_id": "e02",
+        "category": "entity_pivot",
+        "latency_ms": 218111.46958300378,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.0,
+        "kw_breakdown": [
+          {
+            "keyword": "Microsoft",
+            "hit_type": "missed",
+            "similarity": null
+          },
+          {
+            "keyword": "GraphRAG",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": true,
+        "expect_refusal": false,
+        "refusal_correct": false,
+        "answer_excerpt": "Tôi không có đủ thông tin chắc chắn để trả lời câu hỏi này dựa trên tài liệu hiện có.",
+        "error": null,
+        "routing": {
+          "query_type": "factual",
+          "react_used": false,
+          "reason": "Standard retrieval (factual query — single-doc lookup)"
+        }
+      },
+      {
+        "q_id": "e03",
+        "category": "entity_pivot",
+        "latency_ms": 62823.87391701923,
+        "docs_found": 0,
+        "docs_expected": 1,
+        "kw_hit_ratio": 1.0,
+        "kw_breakdown": [
+          {
+            "keyword": "Traag",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "Leiden",
+            "hit_type": "literal",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Paper của Traag và cộng sự là \"Leiden, Traag et al., 2019\", được đề cập trong ngữ cảnh phân tích tính chất mô-đun của đồ thị. [doc_347d1bdf63c206f3::paragraph::9]",
+        "error": null,
+        "routing": {
+          "query_type": "factual",
+          "react_used": false,
+          "reason": "Standard retrieval (factual query — single-doc lookup)"
+        }
+      },
+      {
+        "q_id": "v01",
+        "category": "vietnamese_complex",
+        "latency_ms": 52836.27499997965,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.5,
+        "kw_breakdown": [
+          {
+            "keyword": "entity",
+            "hit_type": "missed",
+            "similarity": null
+          },
+          {
+            "keyword": "graph",
+            "hit_type": "literal",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Phương pháp GraphRAG xây dựng đồ thị tri thức thông qua việc sử dụng mô hình ngôn ngữ lớn (LLM) để trích xuất các thực thể chính từ văn bản gốc, biến chúng thành các nút (nodes) trong đồ thị, đồng thờ",
+        "error": null,
+        "routing": {
+          "query_type": "multi_hop",
+          "react_used": true,
+          "reason": "ReAct loop (multi_hop query — cross-doc reasoning)",
+          "steps_used": 4,
+          "chunks_examined": 6
+        }
+      },
+      {
+        "q_id": "v02",
+        "category": "vietnamese_complex",
+        "latency_ms": 59105.10233300738,
+        "docs_found": 2,
+        "docs_expected": 3,
+        "kw_hit_ratio": 0.0,
+        "kw_breakdown": [
+          {
+            "keyword": "evaluation",
+            "hit_type": "missed",
+            "similarity": null
+          },
+          {
+            "keyword": "metric",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Để đảm bảo chất lượng, hệ thống đánh giá RAG cần đo lường ba khía cạnh cốt lõi: độ trung thành (faithfulness), sự liên quan của câu trả lời (answer relevance) và sự liên quan của ngữ cảnh (context rel",
+        "error": null,
+        "routing": {
+          "query_type": "factual",
+          "react_used": false,
+          "reason": "Standard retrieval (factual query — single-doc lookup)"
+        }
+      },
+      {
+        "q_id": "v03",
+        "category": "vietnamese_complex",
+        "latency_ms": 146101.24916699715,
+        "docs_found": 1,
+        "docs_expected": 3,
+        "kw_hit_ratio": 0.0,
+        "kw_breakdown": [
+          {
+            "keyword": "multilingual",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Các phương pháp embedding đa ngôn ngữ hiện tại thường bị giới hạn bởi việc chỉ hỗ trợ tiếng Anh hoặc tập trung vào một chức năng truy xuất duy nhất [doc_dfef883033c9083a::paragraph::4]. Trong khi đó, ",
+        "error": null,
+        "routing": {
+          "query_type": "factual",
+          "react_used": false,
+          "reason": "Standard retrieval (factual query — single-doc lookup)"
+        }
+      }
+    ],
+    "C7_hefr_entity_pivot": []
+  }
+}

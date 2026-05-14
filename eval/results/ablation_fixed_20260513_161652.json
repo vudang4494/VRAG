@@ -1,0 +1,560 @@
+{
+  "benchmark": "eval/datasets/vi_benchmark_subset6.json",
+  "tenant": "eval",
+  "configs_tested": [
+    "C2_v3_chat",
+    "C3_v3_chat_with_gaea",
+    "C4_v3_react",
+    "C5_hefr_only",
+    "C6_smart_router",
+    "C7_hefr_entity_pivot"
+  ],
+  "queries_total": 6,
+  "summary_per_config": {
+    "C2_v3_chat": {
+      "n": 6,
+      "p50_latency_ms": 39218.666500004474,
+      "avg_doc_recall": 1.0,
+      "avg_kw_hit": 0.611111111111111,
+      "refusal_accuracy": 1.0,
+      "kw_breakdown": {
+        "literal": 0.571,
+        "semantic": 0.0,
+        "missed": 0.429
+      }
+    },
+    "C3_v3_chat_with_gaea": {
+      "n": 6,
+      "p50_latency_ms": 36401.399124995805,
+      "avg_doc_recall": 0.8333333333333334,
+      "avg_kw_hit": 0.5,
+      "refusal_accuracy": 0.8333333333333334,
+      "kw_breakdown": {
+        "literal": 0.429,
+        "semantic": 0.0,
+        "missed": 0.571
+      }
+    },
+    "C4_v3_react": {
+      "n": 6,
+      "p50_latency_ms": 37669.371333991876,
+      "avg_doc_recall": 1.0,
+      "avg_kw_hit": 0.611111111111111,
+      "refusal_accuracy": 1.0,
+      "kw_breakdown": {
+        "literal": 0.571,
+        "semantic": 0.0,
+        "missed": 0.429
+      }
+    }
+  },
+  "results_per_query": {
+    "C2_v3_chat": [
+      {
+        "q_id": "f01",
+        "category": "factual_local",
+        "latency_ms": 32319.431042007636,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.3333333333333333,
+        "kw_breakdown": [
+          {
+            "keyword": "graph",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "retrieval",
+            "hit_type": "missed",
+            "similarity": null
+          },
+          {
+            "keyword": "Microsoft",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "GraphRAG là một phương pháp RAG dựa trên đồ thị, sử dụng LLM để xây dựng đồ thị tri thức từ văn bản và phân chia nó thành các cộng đồng có cấu trúc phân cấp.\n\n[doc_347d1bdf63c206f3::paragraph::5]\nHệ t",
+        "error": null,
+        "routing": null
+      },
+      {
+        "q_id": "f02",
+        "category": "factual_local",
+        "latency_ms": 39505.554083007155,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.6666666666666666,
+        "kw_breakdown": [
+          {
+            "keyword": "100",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "ngôn ngữ",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "multilingual",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "BGE-M3 hỗ trợ hơn 100 ngôn ngữ [doc_dfef883033c9083a::paragraph::4].\nMô hình này có khả năng đa ngôn ngữ (multi-linguality) với hơn 100 ngôn ngữ thế giới [doc_dfef883033c9083a::paragraph::33].\nBGE-M3 ",
+        "error": null,
+        "routing": null
+      },
+      {
+        "q_id": "f03",
+        "category": "factual_local",
+        "latency_ms": 39218.666500004474,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 1.0,
+        "kw_breakdown": [
+          {
+            "keyword": "Louvain",
+            "hit_type": "literal",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Thuật toán Leiden được cải tiến dựa trên các hạn chế của thuật toán Louvain, cụ thể là khả năng tạo ra các cộng đồng bị ngắt kết nối hoặc kém liên kết. [doc_f17ca4d672ff244c::paragraph::21]\nLeiden khắ",
+        "error": null,
+        "routing": null
+      },
+      {
+        "q_id": "f04",
+        "category": "factual_local",
+        "latency_ms": 36088.38612498948,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.5,
+        "kw_breakdown": [
+          {
+            "keyword": "late interaction",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "MaxSim",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "ColBERT sử dụng cơ chế tương tác muộn (late interaction) để tính toán độ liên quan giữa truy vấn và tài liệu. [doc_3aa86f1174a6503c::paragraph::6]\nCơ chế này mã độc lập truy vấn và tài liệu thành các ",
+        "error": null,
+        "routing": null
+      },
+      {
+        "q_id": "f05",
+        "category": "factual_local",
+        "latency_ms": 35215.71366698481,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.5,
+        "kw_breakdown": [
+          {
+            "keyword": "protein",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "structure",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "AlphaFold 2 dự đoán cấu trúc protein từ trình tự axit amin với độ chính xác nguyên tử [doc_6d7ed752ee8056ac::paragraph::6].\nHệ thống này sử dụng kỹ thuật học sâu để nhận diện các mẫu trong trình tự pr",
+        "error": null,
+        "routing": null
+      },
+      {
+        "q_id": "f06",
+        "category": "factual_local",
+        "latency_ms": 44375.24966598721,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.6666666666666666,
+        "kw_breakdown": [
+          {
+            "keyword": "self",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "reflection",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "critic",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Self-RAG khác RAG truyền thống ở chỗ nó thực hiện việc truy xuất dữ liệu theo yêu cầu (on-demand) thay vì lấy số lượng tài liệu cố định mỗi lần, đồng thời tự đánh giá chất lượng đầu ra của mình. [doc_",
+        "error": null,
+        "routing": null
+      }
+    ],
+    "C3_v3_chat_with_gaea": [
+      {
+        "q_id": "f01",
+        "category": "factual_local",
+        "latency_ms": 32081.357749993913,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.3333333333333333,
+        "kw_breakdown": [
+          {
+            "keyword": "graph",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "retrieval",
+            "hit_type": "missed",
+            "similarity": null
+          },
+          {
+            "keyword": "Microsoft",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "GraphRAG là một phương pháp RAG dựa trên đồ thị, sử dụng LLM để xây dựng đồ thị tri thức và chia nó thành các cộng đồng có cấu trúc để tạo tóm tắt toàn cục, giúp cải thiện đáng kể tính bao quát và đa ",
+        "error": null,
+        "routing": null
+      },
+      {
+        "q_id": "f02",
+        "category": "factual_local",
+        "latency_ms": 39213.79949999391,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.6666666666666666,
+        "kw_breakdown": [
+          {
+            "keyword": "100",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "ngôn ngữ",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "multilingual",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "BGE-M3 hỗ trợ hơn 100 ngôn ngữ [doc_dfef883033c9083a::paragraph::4].\nM3-Embedding có khả năng đa ngôn ngữ (multi-linguality) với hơn 100 ngôn ngữ thế giới [doc_dfef883033c9083a::paragraph::33].\nNó học",
+        "error": null,
+        "routing": null
+      },
+      {
+        "q_id": "f03",
+        "category": "factual_local",
+        "latency_ms": 39964.006041991524,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 1.0,
+        "kw_breakdown": [
+          {
+            "keyword": "Louvain",
+            "hit_type": "literal",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Thuật toán Leiden được cải tiến dựa trên thuật toán Louvain để khắc phục các lỗi như cộng đồng bị ngắt kết nối hoặc kém chất lượng. [doc_f17ca4d672ff244c::paragraph::2]\nLeiden giải quyết vấn đề này bằ",
+        "error": null,
+        "routing": null
+      },
+      {
+        "q_id": "f04",
+        "category": "factual_local",
+        "latency_ms": 36401.399124995805,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.5,
+        "kw_breakdown": [
+          {
+            "keyword": "late interaction",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "MaxSim",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "ColBERT sử dụng cơ chế tương tác muộn (late interaction) để ước tính độ liên quan giữa truy vấn và tài liệu [doc_3aa86f1174a6503c::paragraph::6].\nTrong cơ chế này, truy vấn và tài liệu được mã hóa độc",
+        "error": null,
+        "routing": null
+      },
+      {
+        "q_id": "f05",
+        "category": "factual_local",
+        "latency_ms": 34282.02975000022,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.5,
+        "kw_breakdown": [
+          {
+            "keyword": "protein",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "structure",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "AlphaFold 2 dự đoán cấu trúc protein từ trình tự axit amin với độ chính xác nguyên tử [doc_6d7ed752ee8056ac::paragraph::6].\nHệ thống này sử dụng kỹ thuật học sâu để nhận diện các mẫu trong trình tự pr",
+        "error": null,
+        "routing": null
+      },
+      {
+        "q_id": "f06",
+        "category": "factual_local",
+        "latency_ms": 20470.51158300019,
+        "docs_found": 0,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.0,
+        "kw_breakdown": [
+          {
+            "keyword": "self",
+            "hit_type": "missed",
+            "similarity": null
+          },
+          {
+            "keyword": "reflection",
+            "hit_type": "missed",
+            "similarity": null
+          },
+          {
+            "keyword": "critic",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": true,
+        "expect_refusal": false,
+        "refusal_correct": false,
+        "answer_excerpt": "Tôi không có đủ thông tin chắc chắn để trả lời câu hỏi này.",
+        "error": null,
+        "routing": null
+      }
+    ],
+    "C4_v3_react": [
+      {
+        "q_id": "f01",
+        "category": "factual_local",
+        "latency_ms": 29865.722374990582,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.3333333333333333,
+        "kw_breakdown": [
+          {
+            "keyword": "graph",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "retrieval",
+            "hit_type": "missed",
+            "similarity": null
+          },
+          {
+            "keyword": "Microsoft",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "GraphRAG là một phương pháp RAG dựa trên đồ thị, sử dụng LLM để xây dựng đồ thị tri thức từ văn bản và tạo các tóm tắt theo cấu trúc phân cấp để trả lời các câu hỏi toàn cục. [doc_347d1bdf63c206f3::pa",
+        "error": null,
+        "routing": null
+      },
+      {
+        "q_id": "f02",
+        "category": "factual_local",
+        "latency_ms": 37669.371333991876,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.6666666666666666,
+        "kw_breakdown": [
+          {
+            "keyword": "100",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "ngôn ngữ",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "multilingual",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "BGE-M3 hỗ trợ hơn 100 ngôn ngữ trên thế giới. [doc_dfef883033c9083a::paragraph::4]\nNó có khả năng xử lý đa ngôn ngữ để thực hiện tìm kiếm trong cùng một ngôn ngữ và tìm kiếm liên ngôn ngữ. [doc_dfef88",
+        "error": null,
+        "routing": null
+      },
+      {
+        "q_id": "f03",
+        "category": "factual_local",
+        "latency_ms": 41577.54537501023,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 1.0,
+        "kw_breakdown": [
+          {
+            "keyword": "Louvain",
+            "hit_type": "literal",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Thuật toán Leiden được phát triển để khắc phục các hạn chế của thuật toán Louvain, đặc biệt là vấn đề tạo ra các cộng đồng bị ngắt kết nối. [doc_f17ca4d672ff244c::paragraph::2]\nLeiden cải tiến bằng cá",
+        "error": null,
+        "routing": null
+      },
+      {
+        "q_id": "f04",
+        "category": "factual_local",
+        "latency_ms": 37437.362666998524,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.5,
+        "kw_breakdown": [
+          {
+            "keyword": "late interaction",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "MaxSim",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "ColBERT sử dụng cơ chế \"late interaction\" (tương tác muộn) để mã hóa độc lập query và document trước khi tính toán độ tương đồng chi tiết. [doc_3aa86f1174a6503c::paragraph::1]\nNó cho phép tận dụng biể",
+        "error": null,
+        "routing": null
+      },
+      {
+        "q_id": "f05",
+        "category": "factual_local",
+        "latency_ms": 23750.485583994305,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.5,
+        "kw_breakdown": [
+          {
+            "keyword": "protein",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "structure",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "AlphaFold 2 dự đoán cấu trúc không gian của protein từ trình tự axit amin với độ chính xác nguyên tử [doc_6d7ed752ee8056ac::paragraph::6]. Ngoài ra, mô hình còn cung cấp các ước tính độ tin cậy cho từ",
+        "error": null,
+        "routing": null
+      },
+      {
+        "q_id": "f06",
+        "category": "factual_local",
+        "latency_ms": 40095.11891697184,
+        "docs_found": 1,
+        "docs_expected": 1,
+        "kw_hit_ratio": 0.6666666666666666,
+        "kw_breakdown": [
+          {
+            "keyword": "self",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "reflection",
+            "hit_type": "literal",
+            "similarity": null
+          },
+          {
+            "keyword": "critic",
+            "hit_type": "missed",
+            "similarity": null
+          }
+        ],
+        "refused": false,
+        "expect_refusal": false,
+        "refusal_correct": true,
+        "answer_excerpt": "Self-RAG khác RAG truyền thống ở chỗ nó thực hiện việc truy xuất dữ liệu theo yêu cầu (on-demand) thay vì lấy một số lượng tài liệu cố định mỗi lần, đồng thời tự đánh giá chất lượng đầu ra của mình. [",
+        "error": null,
+        "routing": null
+      }
+    ],
+    "C5_hefr_only": [],
+    "C6_smart_router": [],
+    "C7_hefr_entity_pivot": []
+  }
+}
