@@ -2,7 +2,6 @@
   <h1>Enterprise Local GraphRAG Stack v3.0</h1>
   <p><i>A production-ready Hybrid GraphRAG system that runs 100% locally on Apple Silicon.</i></p>
   <br/>
-  <img src="./architecture.png" alt="Enterprise RAG Architecture" width="800" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
 </div>
 
 <br/>
@@ -21,15 +20,45 @@ This system is not just another vector database wrapper. It's a highly sophistic
 
 Read the comprehensive architectural deep dive in our [Technical Wiki](./ARCHITECTURE_WIKI.md).
 
-```text
-Query → Heuristic Router → Parallel Query Understanding (6 reformulations)
-      → 9-path Hybrid Retrieval (Vector + Graph + Community + BM25)
-      → Weighted RRF Fusion (Heuristic Custom Tuning)
-      → Mixed-Signal OOD Detection (Cosine + Lexical Overlap)
-      → Standard Path OR ReAct Graph Traversal Loop
-      → 3-stage Reranking (Cross-encoder → Semantic → LLM Judge)
-      → Triple Validation Gates (Hallucination / Entity / Citation)
-      → Answer Generation
+```mermaid
+flowchart TD
+    %% Define Styles
+    classDef user fill:#2d3436,stroke:#74b9ff,stroke-width:2px,color:#fff
+    classDef router fill:#0984e3,stroke:#74b9ff,stroke-width:2px,color:#fff
+    classDef engine fill:#6c5ce7,stroke:#a29bfe,stroke-width:2px,color:#fff
+    classDef retrieve fill:#00b894,stroke:#55efc4,stroke-width:2px,color:#fff
+    classDef db fill:#e17055,stroke:#fab1a0,stroke-width:2px,color:#fff
+    classDef gate fill:#d63031,stroke:#ff7675,stroke-width:2px,color:#fff
+
+    Q(["User Query"]) ::: user --> R["Heuristic Router"] ::: router
+    R --> QU["Query Understanding<br/>6 Reformulations"] ::: engine
+    
+    QU --> MP{"Multi-Path Retrieval"} ::: retrieve
+    MP -->|"5 Dense Views + BM25"| QDB[("Qdrant Vector DB")] ::: db
+    MP -->|"Graph & Community"| NDB[("Neo4j Graph DB")] ::: db
+    
+    QDB --> RRF["Weighted RRF Fusion"] ::: engine
+    NDB --> RRF
+    
+    RRF --> OOD["OOD Detection"] ::: gate
+    
+    OOD -->|"In-Domain"| Path{"Logic Path"} ::: router
+    OOD -->|"Out of Domain"| Refuse(["Refuse to Answer"]) ::: user
+    
+    Path -->|"Complex/Multi-hop"| ReAct["ReAct Graph Traversal"] ::: engine
+    Path -->|"Factual/Simple"| Standard["Standard Path"] ::: engine
+    
+    ReAct -.-> NDB
+    
+    ReAct --> RR["3-Stage Reranking"] ::: engine
+    Standard --> RR
+    
+    RR --> VG{"3 Validation Gates"} ::: gate
+    VG -->|"Hallucination Check"| Pass
+    VG -->|"Entity Verification"| Pass
+    VG -->|"Citation Ratio"| Pass
+    
+    Pass --> Ans(["Final Answer"]) ::: user
 ```
 
 ## 🛠️ Quick Start
