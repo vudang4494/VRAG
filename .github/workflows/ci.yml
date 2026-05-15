@@ -24,11 +24,11 @@ jobs:
           cache-dependency-glob: "**/*.py"
 
       - name: Ruff check
-        run: uv run --with "ruff<0.9" ruff check . --target-version py311
+        run: uvx ruff check . --target-version py311
         continue-on-error: true
 
       - name: Ruff format check
-        run: uv run --with "ruff<0.9" ruff format --check --target-version py311 .
+        run: uvx ruff format --check --target-version py311 .
 
   # ── Type check ─────────────────────────────────────────────────────────────
   typecheck:
