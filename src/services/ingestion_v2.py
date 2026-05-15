@@ -26,6 +26,7 @@ from src.services.consistency import process_batch_consistency
 from src.services.domain_tagger import tag_chunk
 from src.services.format_router import route_and_chunk
 from src.services.kg import (
+    canonicalize_entities,
     extract_entities_and_relations,
     link_semantic_chunks,
     upsert_chunk_and_entities,
@@ -281,6 +282,27 @@ async def ingest_document_v2(
 
     entity_results = await asyncio.gather(*[_bounded_entities(c) for c in chunks])
     _mark("entity_voting")
+
+    # Layer 2.2: canonicalize all entities across chunks (runs after parallel extraction)
+    all_entities = [ent for ents, _ in entity_results for ent in ents]
+    if all_entities:
+        canonical_map: dict[str, str] = {}
+        try:
+            canonicalized = await canonicalize_entities(clients.neo4j, all_entities, tenant_id)
+            for orig, canon in zip(all_entities, canonicalized, strict=False):
+                if orig.get("name") != canon.get("canonical_name"):
+                    canonical_map[orig.get("name", "")] = canon.get(
+                        "canonical_name", orig.get("name", "")
+                    )
+        except Exception as e:
+            logger.debug(f"Canonicalization batch failed: {e}")
+        # Apply canonical names to entity_results
+        if canonical_map:
+            for i in range(len(entity_results)):
+                ents, rels = entity_results[i]
+                ents = [{**e, "name": canonical_map.get(e["name"], e["name"])} for e in ents]
+                entity_results[i] = (ents, rels)
+            logger.info(f"Entity canonicalization: {len(canonical_map)} entity variant(s) resolved")
 
     # 6b. Phase 6a: CQC chunk quality filter (after entity extraction so we have entity counts)
     entity_counts: dict[str, int] = {

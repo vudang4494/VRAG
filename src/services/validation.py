@@ -9,9 +9,28 @@ from __future__ import annotations
 import asyncio
 import json
 import re
+from difflib import SequenceMatcher
 from typing import Any
 
 from loguru import logger
+
+
+def _entity_fuzzy_match(candidate: str, kg_names: list[str], threshold: float = 0.80) -> str | None:
+    """Return the best-matching KG entity name if similarity >= threshold, else None."""
+    best_ratio = 0.0
+    best_name = None
+    cand_lower = candidate.lower()
+    for kg_name in kg_names:
+        if kg_name.lower() == cand_lower:
+            return kg_name  # exact match takes priority
+        ratio = SequenceMatcher(None, cand_lower, kg_name.lower()).ratio()
+        if ratio > best_ratio:
+            best_ratio = ratio
+            best_name = kg_name
+    if best_ratio >= threshold:
+        return best_name
+    return None
+
 
 _CLAIM_EXTRACT_PROMPT = """Trích xuất các "atomic claims" (mệnh đề nguyên tử) từ câu trả lời sau.
 Mỗi claim là một sự thật có thể kiểm chứng độc lập.
@@ -141,8 +160,14 @@ async def entity_gate(
     max_invalid: int = 2,
 ) -> dict[str, Any]:
     """
-    Extract Title-Cased entities from answer (heuristic), check against Neo4j.
-    Returns invalid entities count.
+    Extract Title-Cased entities from answer, check against Neo4j.
+
+    Matching strategy (3-tier):
+      1. Exact lowercase match
+      2. Fuzzy match (SequenceMatcher ratio >= 0.80) — catches name variants
+         (e.g., "GraphRAG" vs "GraphRAG System", "Tim Cook" vs "Timothy Cook")
+      3. Substring containment match
+    Returns invalid only if all 3 tiers fail.
     """
     candidates = set()
     for match in _ENTITY_PATTERN.finditer(answer):
@@ -153,27 +178,67 @@ async def entity_gate(
     if not candidates:
         return {"passed": True, "invalid": [], "checked": 0}
 
-    invalid: list[str] = []
+    cand_list = list(candidates)
     try:
         async with neo4j_driver.session() as s:
-            params = {"names": list(candidates)}
-            cypher = """
-            UNWIND $names AS n
-            OPTIONAL MATCH (e:Entity) WHERE toLower(e.name) = toLower(n)
-            RETURN n AS name, count(e) AS found
-            """
+            # UNWIND batch lookup: exact lowercase match
+            params: dict[str, Any] = {"names": [n.lower() for n in cand_list]}
             if tenant_id:
                 cypher = """
-                UNWIND $names AS n
-                OPTIONAL MATCH (e:Entity {tenant_id: $tid}) WHERE toLower(e.name) = toLower(n)
-                RETURN n AS name, count(e) AS found
+                UNWIND $names AS n_lower
+                OPTIONAL MATCH (e:Entity {tenant_id: $tid}) WHERE toLower(e.name) = n_lower
+                RETURN n_lower AS cand_lower, collect(e.name) AS matches
                 """
                 params["tid"] = tenant_id
+            else:
+                cypher = """
+                UNWIND $names AS n_lower
+                OPTIONAL MATCH (e:Entity) WHERE toLower(e.name) = n_lower
+                RETURN n_lower AS cand_lower, collect(e.name) AS matches
+                """
             result = await s.run(cypher, **params)
-            data = await result.data()
-            for row in data:
-                if row["found"] == 0:
-                    invalid.append(row["name"])
+            records = await result.data()
+
+        # Build lookup: cand_lower → list of KG names that matched exactly
+        exact_matches: dict[str, list[str]] = {}
+        for row in records:
+            if row["matches"]:
+                exact_matches[row["cand_lower"]] = [m for m in row["matches"] if m]
+
+        # Fetch all KG names for fuzzy matching (batched, only if needed)
+        need_fuzzy = [c for c in cand_list if c.lower() not in exact_matches]
+        kg_names: list[str] = []
+        if need_fuzzy:
+            try:
+                async with neo4j_driver.session() as s:
+                    if tenant_id:
+                        cypher_all = "MATCH (e:Entity {tenant_id: $tid}) RETURN e.name AS name"
+                        result = await s.run(cypher_all, tid=tenant_id)
+                    else:
+                        cypher_all = "MATCH (e:Entity) RETURN e.name AS name"
+                        result = await s.run(cypher_all)
+                    kg_records = await result.data()
+                kg_names = [r["name"] for r in kg_records if r.get("name")]
+            except Exception as e:
+                logger.debug(f"Fuzzy lookup KG fetch failed: {e}")
+                kg_names = []
+
+        invalid: list[str] = []
+        fuzzy_matched: list[str] = []
+        for candidate in cand_list:
+            cand_lower = candidate.lower()
+            # Tier 1: exact lowercase match
+            if cand_lower in exact_matches:
+                continue
+            # Tier 2: fuzzy match (ratio >= 0.80)
+            matched = _entity_fuzzy_match(candidate, kg_names, threshold=0.80)
+            if matched:
+                fuzzy_matched.append(f"{candidate} → {matched}")
+                continue
+            # Tier 3: substring containment
+            if any(cand_lower in n.lower() or n.lower() in cand_lower for n in kg_names):
+                continue
+            invalid.append(candidate)
     except Exception as e:
         logger.debug(f"Entity gate KG check failed: {e}")
         return {"passed": True, "invalid": [], "checked": len(candidates)}
@@ -182,6 +247,7 @@ async def entity_gate(
         "passed": len(invalid) <= max_invalid,
         "invalid": invalid,
         "checked": len(candidates),
+        "fuzzy_matched": fuzzy_matched,
     }
 
 
@@ -293,3 +359,92 @@ async def validate_answer(
 
 async def _passthrough_entity() -> dict[str, Any]:
     return {"passed": True, "invalid": [], "checked": 0}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Layer 10.4 — Self-Correction Loop (CRAG-style)
+# When a gate fails, apply targeted corrective action before retrying generation.
+# ─────────────────────────────────────────────────────────────────────────────
+
+_CORRECTIVE_PROMPTS = {
+    "hallucination": (
+        "Bạn là một trợ lý nghiêm túc. Trả lời câu hỏi dựa TRÊN VÀO văn bản tham khảo được cung cấp.\n"
+        "QUAN TRỌNG:\n"
+        "1. CHỈ sử dụng thông tin có trong văn bản tham khảo\n"
+        "2. Nếu không chắc chắn, nói rõ 'Không có thông tin trong tài liệu'\n"
+        "3. KHÔNG suy đoán hay bịa đặt thông tin\n"
+        "4. TRÍCH DẪN cụ thể: [chunk_id] sau mỗi mệnh đề\n\n"
+        "Văn bản tham khảo:\n{context}\n\n"
+        "Câu hỏi: {query}\n\n"
+        "Trả lời (tiếng Việt, có trích dẫn [chunk_id]):"
+    ),
+    "citation": (
+        "Trả lời câu hỏi. SAU MỖI câu, thêm trích dẫn [chunk_id] gốc.\n"
+        "QUAN TRỌNG: Nếu thông tin không có trong văn bản tham khảo, ghi rõ 'Không có thông tin'.\n\n"
+        "Văn bản tham khảo:\n{context}\n\n"
+        "Câu hỏi: {query}\n\n"
+        "Trả lời (có trích dẫn [chunk_id] cho TỪNG mệnh đề):"
+    ),
+    "entity": (
+        "Trả lời câu hỏi. Chỉ nhắc đến các thực thể có trong Neo4j graph.\n"
+        "Nếu cần dùng tên biến thể, dùng tên chuẩn từ graph.\n\n"
+        "Văn bản tham khảo:\n{context}\n\n"
+        "Câu hỏi: {query}\n\n"
+        "Trả lời (tiếng Việt, dùng đúng tên thực thể từ graph):"
+    ),
+}
+
+
+async def correct_and_regenerate(
+    query: str,
+    context: str,
+    llm: Any,
+    model: str = "qwen3.5:4b",
+    failure_reason: str = "",
+) -> str:
+    """
+    Apply targeted corrective regeneration based on which gate failed.
+
+    Maps failure reasons to prompts that constrain generation to fix the issue.
+    """
+    from src.services.ollama_helper import ollama_chat
+
+    reason_lower = failure_reason.lower()
+    if "ungrounded" in reason_lower or "hallucination" in reason_lower:
+        prompt_key = "hallucination"
+    elif "citation" in reason_lower or "low_citation" in reason_lower:
+        prompt_key = "citation"
+    elif "entity" in reason_lower or "unknown_entity" in reason_lower:
+        prompt_key = "entity"
+    else:
+        # Generic fallback — emphasize grounding + citation
+        prompt_key = "hallucination"
+
+    prompt = _CORRECTIVE_PROMPTS[prompt_key].format(context=context[:6000], query=query)
+    try:
+        answer = await ollama_chat(
+            messages=[{"role": "user", "content": prompt}],
+            model=model,
+            temperature=0.1,
+            max_tokens=1024,
+        )
+        return answer or ""
+    except Exception as e:
+        logger.debug(f"Corrective regeneration failed: {e}")
+        return ""
+
+
+def suggest_correction_action(failure_reason: str) -> str:
+    """
+    Suggest which corrective action to take based on gate failure.
+
+    Returns one of: "regenerate_strict" | "expand_context" | "relax_threshold" | "refuse"
+    """
+    reason_lower = failure_reason.lower()
+    if "ungrounded" in reason_lower:
+        return "regenerate_strict"
+    if "low_citation" in reason_lower:
+        return "expand_context"
+    if "unknown_entity" in reason_lower:
+        return "expand_context"
+    return "refuse"

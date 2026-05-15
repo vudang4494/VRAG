@@ -1,4 +1,19 @@
-"""Base chunker contract — all format chunkers inherit from this."""
+"""Base chunker contract — all format chunkers inherit from this.
+
+## Layer 1.1 — Chunk Context Generation (Anthropic Contextual Retrieval)
+
+After hierarchical chunking, each chunk is standalone (no document context).
+Anthropic Contextual Retrieval (2024) shows prepending 50-100 token context to each chunk
+before embedding reduces retrieval failure by 35-49%.
+
+Strategy: Generate a "context sentence" per chunk that answers:
+  "In what document/section is this chunk found, and what is its purpose?"
+
+This context is prepended to the chunk text before embedding, improving retrieval precision
+without changing the chunk itself.
+
+Pattern is orthogonal with Late Chunking (Jina 2024) — they can be combined.
+"""
 
 from __future__ import annotations
 
@@ -95,3 +110,68 @@ class BaseChunker(ABC):
         if buf:
             packed.append(joiner.join(buf))
         return packed
+
+
+_CONTEXT_PROMPT = """Generate a 1-sentence context description for the following chunk
+from a document. This context helps retrieve the correct chunk later.
+
+The context should answer: "In which document and section does this appear, and what is it about?"
+
+Format: Return ONLY the context sentence, no explanation.
+
+Example: "In the GraphRAG paper, the Methods section on entity extraction, this paragraph discusses ..."
+
+Document: {doc_name}
+Section: {section}
+Chunk: {chunk_text[:200]}
+
+Context:"""
+
+
+async def generate_chunk_context(
+    chunk_text: str,
+    doc_name: str = "document",
+    section: str = "section",
+    llm: Any = None,
+    model: str = "qwen3.5:4b",
+    max_context_tokens: int = 100,
+) -> str:
+    """
+    Generate contextual context for a chunk (Anthropic Contextual Retrieval pattern).
+
+    Args:
+        chunk_text: The chunk text to generate context for
+        doc_name: Document filename/title
+        section: Section or heading name
+        llm: LLM client (if None, returns template-based context)
+        model: LLM model name
+        max_context_tokens: Approximate max tokens for context (default 100 ≈ 50-80 words)
+
+    Returns:
+        Context string to prepend to chunk text before embedding
+    """
+    if llm is None:
+        # Fallback: simple template-based context (no LLM call)
+        return f"[Document: {doc_name} | Section: {section}] {chunk_text[:200]}"
+
+    from src.services.ollama_helper import ollama_chat
+
+    try:
+        prompt = _CONTEXT_PROMPT.format(
+            doc_name=doc_name,
+            section=section,
+            chunk_text=chunk_text,
+        )
+        context = await ollama_chat(
+            messages=[{"role": "user", "content": prompt}],
+            model=model,
+            temperature=0.1,
+            max_tokens=max_context_tokens,
+        )
+        if context and context.strip():
+            return context.strip()
+    except Exception:
+        pass
+
+    # Fallback on error
+    return f"[Document: {doc_name} | Section: {section}]"

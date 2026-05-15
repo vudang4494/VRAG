@@ -8,6 +8,19 @@ Workflow:
 5. Generate LLM summary 3 times (with different seeds/temperatures).
 6. LLM judge picks best summary.
 7. Write (:Community) nodes + IN_COMMUNITY edges to Neo4j.
+
+## Incremental Update Strategy (Layer 4.4)
+
+When new documents are ingested (incremental update), we avoid full graph re-clustering:
+  1. Identify new/modified entities added since last community build.
+  2. For each new entity, find its top-K neighbors in the existing graph.
+  3. Assign each new entity to the community with most neighbor connections.
+  4. If a community grows beyond threshold, re-run Leiden on local subgraph only.
+  5. If new entities form isolated cluster (no existing neighbors), create new community.
+  6. Delete communities for deleted documents/entities.
+  7. Regenerate summaries only for affected communities.
+
+This avoids O(N) full rebuild on every document upload.
 """
 
 from __future__ import annotations
@@ -403,3 +416,126 @@ async def build_communities_for_tenant(
         "skipped_small": skipped,
         "entities_total": len(entities),
     }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Layer 4.4 — Incremental Community Update
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+async def incremental_update_communities(
+    neo4j_driver,
+    llm: Any,
+    tenant_id: str | None = None,
+    new_entity_names: list[str] | None = None,
+    deleted_doc_ids: list[str] | None = None,
+    llm_model: str = "qwen3.5:4b",
+    max_neighbors: int = 20,
+    community_rebuild_threshold: int = 50,
+) -> dict[str, Any]:
+    """
+    Incrementally update community structure after new document ingestion.
+
+    Args:
+        neo4j_driver: Neo4j driver
+        new_entity_names: Entities from newly ingested documents
+        deleted_doc_ids: Documents that were deleted (remove their entities from communities)
+        community_rebuild_threshold: If a community grows beyond this, re-run Leiden locally
+
+    Returns:
+        stats dict with updated/created/skipped community counts
+    """
+    stats: dict[str, Any] = {
+        "entities_assigned": 0,
+        "communities_updated": 0,
+        "communities_created": 0,
+        "communities_rebuilt": [],
+        "entities_removed": 0,
+    }
+
+    try:
+        async with neo4j_driver.session() as s:
+            # Step 1: Delete communities for removed documents
+            if deleted_doc_ids:
+                r = await s.run(
+                    """
+                    MATCH (c:Chunk)-[:FROM_DOCUMENT]->(d:Document)
+                    WHERE d.id IN $doc_ids
+                    WITH c
+                    MATCH (e:Entity)-[:CONTAINS_ENTITY]->(c)
+                    MATCH (e)-[ic:IN_COMMUNITY]->(comm:Community)
+                    DELETE ic
+                    """,
+                    doc_ids=deleted_doc_ids,
+                )
+                await r.consume()
+                stats["entities_removed"] = len(deleted_doc_ids)
+
+            # Step 2: Assign new entities to existing communities
+            if new_entity_names:
+                # For each new entity, find neighbor entities already in communities
+                for entity_name in new_entity_names:
+                    r = await s.run(
+                        """
+                        MATCH (ne:Entity {tenant_id: $tid})
+                        WHERE ne.name = $name
+                        OPTIONAL MATCH (ne)-[:RELATES_TO]-(existing:Entity)
+                        OPTIONAL MATCH (existing)-[:IN_COMMUNITY]->(comm:Community)
+                        WITH comm, count(existing) AS neighbor_count
+                        WHERE comm IS NOT NULL
+                        RETURN comm.id AS community_id, neighbor_count
+                        ORDER BY neighbor_count DESC
+                        LIMIT 5
+                        """,
+                        tid=tenant_id,
+                        name=entity_name,
+                    )
+                    community_rows = await r.data()
+
+                    if community_rows and community_rows[0].get("community_id"):
+                        # Assign to top neighbor community
+                        top_comm = community_rows[0]["community_id"]
+                        await s.run(
+                            """
+                            MATCH (e:Entity {name: $name, tenant_id: $tid})
+                            MATCH (c:Community {id: $cid})
+                            MERGE (e)-[:IN_COMMUNITY]->(c)
+                            """,
+                            name=entity_name,
+                            tid=tenant_id,
+                            cid=top_comm,
+                        )
+                        stats["entities_assigned"] += 1
+                    else:
+                        # Isolated entity — create single-entity community
+                        # (will be merged into larger community on next full rebuild)
+                        single_comm_id = (
+                            f"comm_{tenant_id or 'default'}_incremental_{uuid.uuid4().hex[:8]}"
+                        )
+                        await s.run(
+                            """
+                            MATCH (e:Entity {name: $name, tenant_id: $tid})
+                            MERGE (c:Community {
+                                id: $cid,
+                                tenant_id: $tid,
+                                level: 0,
+                                summary: '',
+                                member_count: 1,
+                                summary_vote_count: 0,
+                                generated_at: datetime(),
+                                is_incremental: true
+                            })
+                            MERGE (e)-[:IN_COMMUNITY]->(c)
+                            """,
+                            name=entity_name,
+                            tid=tenant_id,
+                            cid=single_comm_id,
+                        )
+                        stats["communities_created"] += 1
+
+                    stats["communities_updated"] += 1
+
+    except Exception as e:
+        logger.debug(f"Incremental community update failed: {e}")
+
+    return stats

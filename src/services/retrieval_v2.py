@@ -9,6 +9,33 @@ Pipeline:
   + community search (if intent matches)
   ─► weighted RRF fusion
   ─► return top candidates for reranking
+
+## RRF Fusion Algorithm (Layer 7)
+
+RRF Score Formula (per candidate chunk):
+  RRF_score = (path_weight × consistency_factor × level_factor × domain_reward) / (k + rank)
+
+Where:
+  path_weight         = reformulation_weight(kind) — hand-tuned boost per retrieval path
+  consistency_factor  = 1.2 if consistency_score >= 0.85, 1.0 if >= 0.60, else 0.8
+  level_factor         = sentence:0.8, paragraph:1.0, section:1.1, document:0.7
+  domain_reward       = 1.0 + cosine(chunk_domain, query_domain) × scale (Phase 8)
+  k                   = 60 (fixed, Cormack 2009)
+  rank                = position in this path's ranked list (1-indexed)
+
+Path weights (hand-tuned):
+  entity_pivot: 1.5  (highest — graph-entity match is most precise signal)
+  hyde:         1.3  (hypothetical doc captures intent well)
+  community:    1.2  (global context boosts coverage)
+  rewrite:      1.1  (paraphrase captures query intent)
+  decompose:    1.1  (sub-queries cover facets)
+  original:     1.0  (baseline)
+  keywords:     0.9  (keyword-only less reliable)
+  graph:        1.0  (co-occurrence is weak signal alone)
+  step_back:    0.8  (abstract query may be too general)
+
+Multiplicative interaction of 4 multipliers: risk of score distortion if any multiplier
+is wrong. For production: consider learning weights via LambdaMART (Phase X).
 """
 
 from __future__ import annotations

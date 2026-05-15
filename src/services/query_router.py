@@ -1,16 +1,26 @@
 """Query type classifier for intelligent routing between retrieval strategies.
 
-Simple heuristic classifier (no LLM call needed) categorizes queries into:
-  - factual: single-entity, single-doc, definition, lookup
-  - multi_hop: cross-doc, comparison, requires reasoning over multiple sources
-  - summarization: aggregate, overview, "tổng hợp", "tóm tắt"
-  - analytical: why/how causal questions
-  - out_of_domain: clearly not in corpus
+## Algorithm: Rule-Based Priority Classifier
 
-These categories drive which retrieval pipeline is used:
-  - factual → standard retrieval (fast, low-refusal)
-  - multi_hop / summarization / analytical → ReAct loop (better cross-doc reasoning)
-  - out_of_domain → short-circuit with refusal
+1. **Out-of-domain guard** (highest priority): if query matches any `_OUT_OF_DOMAIN_PATTERNS` regex → immediate refusal
+2. **Multi-hop** (high priority): if matches any `_MULTI_HOP_PATTERNS` regex → ReAct loop (cross-doc reasoning)
+3. **Summarization**: if matches `_SUMMARIZATION_PATTERNS` → ReAct loop (aggregate)
+4. **Analytical** (lowest): if matches `_ANALYTICAL_PATTERNS` → ReAct loop (causal/why questions)
+5. **Default**: factual → standard retrieval (single-doc, fast)
+
+Why rule-based instead of LLM-as-classifier:
+  - Zero latency (no LLM call per query)
+  - Deterministic, reproducible
+  - Easy to audit which pattern triggered which route
+  - Trade-off: hard to cover all Vietnamese/English surface forms
+
+Trade-offs per approach:
+  Rule-based (current): Fast, auditable, requires pattern maintenance
+  LLM classifier (Phase X): More coverage, but +200-500ms latency + cost
+  Trained classifier (Phase X): Best accuracy, needs labeled training data
+
+Priority order is CRITICAL: patterns are checked in exact sequence above.
+More specific patterns should appear before general ones within each group.
 
 Usage:
     from src.services.query_router import classify_query, should_use_react

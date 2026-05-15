@@ -40,14 +40,20 @@ Các action có sẵn:
 1. search_entity {{"name": "<tên entity>"}}
    → Tìm entity trong KG, trả về entity nodes + neighbors gần.
 2. expand_relation {{"entity": "<tên>"}}
-   → Lấy các entity related (1-hop) qua RELATES_TO.
+   → Lấy các entity related (1-hop) qua typed RELATES_TO edges.
 3. retrieve_chunks {{"entities": ["<tên1>", "<tên2>"]}}
    → Chunks chứa CONTAINS_ENTITY tới những entities này.
 4. graph_aware_search {{"query": "<text>"}}
    → Vector search trên refined embeddings, surface semantic-related chunks.
-5. rerank {{"chunks_idxs": [0,1,2,...]}}
+5. expand_community {{"entity": "<tên>"}}
+   → Tìm community membership của entity + summary. Hữu ích cho multi-hop queries.
+6. count_entities {{"entity_type": "<PERSON|ORG|LOC|..."}}
+   → Đếm số entities theo type. Dùng cho aggregation queries.
+7. verify_fact {{"claim": "<mệnh đề cần kiểm tra>"}}
+   → Kiểm tra claim có support từ KG không. Dùng trước khi đưa vào câu trả lời.
+8. rerank {{"top_n": 8}}
    → Rerank tập chunks đã thu thập theo relevance.
-6. FINISH
+9. FINISH
    → Chỉ được FINISH khi ĐÃ THU THẬP ĐƯỢC ÍT NHẤT 4 CHUNKS có liên quan.
    Nếu chunks_collected < 4, phải tiếp tục bằng graph_aware_search hoặc retrieve_chunks.
 
@@ -55,6 +61,9 @@ CRITICAL RULE: Nếu bạn gọi search_entity hoặc expand_relation mà trả 
 BẮT BUỘC phải gọi retrieve_chunks (dùng entity names từ câu hỏi gốc)
 hoặc graph_aware_search (dùng câu hỏi gốc) TRƯỚC KHI ĐƯỢC PHÉP gọi FINISH.
 Từ chối trả lời (FINISH khi không đủ chunks) là lựa chọn CUỐI CÙNG.
+
+SUGGESTION: Với multi-hop queries, dùng expand_community trước để lấy global context,
+sau đó search_entity + expand_relation để lấy local details.
 
 Lịch sử các bước đã làm:
 {history}
@@ -139,7 +148,9 @@ class ReActAction:
         MATCH (e:Entity {tenant_id: $tid})
         WHERE toLower(e.name) = toLower($name) OR toLower(e.name) CONTAINS toLower($name)
         OPTIONAL MATCH (e)-[r:RELATES_TO]-(other:Entity)
-        RETURN e.name AS source, other.name AS related, type(r) AS rel_type, r.description AS desc
+        RETURN e.name AS source, other.name AS related,
+               coalesce(r.rel_type, 'RELATES_TO') AS rel_type,
+               r.description AS desc
         LIMIT 30
         """
         async with self.clients.neo4j.session() as s:
@@ -273,6 +284,127 @@ class ReActAction:
         return {
             "reranked": len(ranked),
             "top_scores": [round(c.get("stage2_score", 0), 3) for c in ranked[:3]],
+        }
+
+    async def expand_community(self, entity: str) -> dict:
+        """Find which community an entity belongs to + return community summary.
+
+        Enables the agent to access community-level global context in multi-hop queries.
+        """
+        if not entity:
+            return {"communities": [], "message": "no entity provided"}
+        cypher = """
+        MATCH (e:Entity {tenant_id: $tid})
+        WHERE toLower(e.name) = toLower($name) OR toLower(e.name) CONTAINS toLower($name)
+        MATCH (e)-[:IN_COMMUNITY]->(c:Community)
+        RETURN c.id AS community_id, c.summary AS summary,
+               c.level AS level, c.member_count AS member_count
+        LIMIT 5
+        """
+        try:
+            async with self.clients.neo4j.session() as s:
+                r = await s.run(cypher, name=entity, tid=self.tenant_id)
+                rows = await r.data()
+        except Exception as e:
+            logger.debug(f"expand_community failed: {e}")
+            return {"communities": [], "message": str(e)}
+
+        communities = [
+            {
+                "id": row["community_id"],
+                "summary": (row.get("summary") or "")[:300],
+                "level": row.get("level", 0),
+                "member_count": row.get("member_count", 0),
+            }
+            for row in rows
+            if row.get("community_id")
+        ]
+        return {"communities": communities, "count": len(communities)}
+
+    async def count_entities(self, entity_type: str | None = None) -> dict:
+        """Count entities in KG, optionally filtered by type.
+
+        Useful for aggregation queries: "How many papers discuss X?"
+        """
+        try:
+            async with self.clients.neo4j.session() as s:
+                if entity_type:
+                    cypher = """
+                    MATCH (e:Entity {tenant_id: $tid})
+                    WHERE e.type = $etype
+                    RETURN count(e) AS total, collect(e.name)[..20] AS samples
+                    """
+                    r = await s.run(cypher, tid=self.tenant_id, etype=entity_type)
+                else:
+                    cypher = """
+                    MATCH (e:Entity {tenant_id: $tid})
+                    RETURN count(e) AS total
+                    """
+                    r = await s.run(cypher, tid=self.tenant_id)
+                rows = await r.data()
+        except Exception as e:
+            logger.debug(f"count_entities failed: {e}")
+            return {"total": 0, "samples": [], "message": str(e)}
+
+        if not rows:
+            return {"total": 0, "samples": []}
+        row = rows[0]
+        return {
+            "total": row.get("total", 0),
+            "samples": row.get("samples", [])[:10],
+        }
+
+    async def verify_fact(self, claim: str) -> dict:
+        """Check if a specific claim is supported by KG entities/chunks.
+
+        Pre-answer verification: instead of guessing, the agent can verify
+        a specific claim before including it in the final answer.
+        """
+        if not claim or len(claim.strip()) < 5:
+            return {"supported": False, "evidence": [], "message": "claim too short"}
+        # Extract potential entity names from claim (simple heuristic)
+        words = claim.split()
+        entity_candidates = [w for w in words if w[0].isupper() and len(w) > 2]
+        if not entity_candidates:
+            return {"supported": False, "evidence": [], "message": "no entities in claim"}
+
+        # Check if these entities exist in KG
+        try:
+            async with self.clients.neo4j.session() as s:
+                cypher = """
+                UNWIND $names AS n
+                MATCH (e:Entity {tenant_id: $tid})
+                WHERE toLower(e.name) = toLower(n) OR toLower(e.name) CONTAINS toLower(n)
+                RETURN e.name AS name, e.type AS type, e.description AS desc
+                LIMIT 10
+                """
+                r = await s.run(
+                    cypher,
+                    names=entity_candidates[:5],
+                    tid=self.tenant_id,
+                )
+                rows = await r.data()
+        except Exception as e:
+            logger.debug(f"verify_fact failed: {e}")
+            return {"supported": False, "evidence": [], "message": str(e)}
+
+        if not rows:
+            return {"supported": False, "evidence": [], "message": "no KG evidence"}
+
+        evidence = [
+            {
+                "entity": row["name"],
+                "type": row.get("type"),
+                "description": (row.get("desc") or "")[:200],
+            }
+            for row in rows
+        ]
+        # If at least half of the entity candidates are found in KG, consider supported
+        support_ratio = len(rows) / max(len(entity_candidates[:5]), 1)
+        return {
+            "supported": support_ratio >= 0.5,
+            "support_ratio": round(support_ratio, 2),
+            "evidence": evidence,
         }
 
 
@@ -506,8 +638,14 @@ async def react_chat(
                 result = await actor.retrieve_chunks(ents)
             elif action_name == "graph_aware_search":
                 result = await actor.graph_aware_search(args.get("query", query))
+            elif action_name == "expand_community":
+                result = await actor.expand_community(args.get("entity", ""))
+            elif action_name == "count_entities":
+                result = await actor.count_entities(args.get("entity_type"))
+            elif action_name == "verify_fact":
+                result = await actor.verify_fact(args.get("claim", ""))
             elif action_name == "rerank":
-                result = await actor.rerank(query)
+                result = await actor.rerank(query, top_n=args.get("top_n", 8))
             else:
                 result = {"error": f"unknown action: {action_name}"}
         except Exception as e:

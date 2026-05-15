@@ -193,11 +193,14 @@ USER QUERY
 │  Only for: multi_hop | summarization | analytical          │
 │  max_steps = 6                                             │
 │                                                             │
-│  Actions:                                                   │
-│   search_entity     → Neo4j exact/fuzzy match              │
-│   expand_relation   → 1-hop RELATES_TO traversal           │
-│   retrieve_chunks   → Neo4j: CONTAINS_ENTITY → chunks      │
+│  Actions (9 total):                                          │
+│   search_entity      → Neo4j exact/fuzzy match            │
+│   expand_relation    → 1-hop RELATES_TO (typed via rel_type property)│
+│   retrieve_chunks    → Neo4j: CONTAINS_ENTITY → chunks     │
 │   graph_aware_search→ Qdrant: GAEA refined embeddings      │
+│   expand_community  → Neo4j: IN_COMMUNITY → community summaries│
+│   count_entities     → Neo4j: count by type (aggregation)  │
+│   verify_fact       → KG cross-check a claim before answering│
 │   rerank            → rerank_stages stage 2               │
 │   FINISH            → synthesis (chunks ≥ 4 required)      │
 │                                                             │
@@ -235,20 +238,27 @@ USER QUERY
 │    → extract_atomic_claims (LLM)                           │
 │    → verify_claim per claim (LLM, concurrent=4)            │
 │    → grounded_ratio = (YES + 0.5×PARTIAL) / total         │
-│    → PASS if ratio ≥ 0.70 (configurable)                  │
+│    → PASS if ratio ≥ 0.70 (configurable, enterprise ≥ 0.90)│
 │                                                             │
-│  Gate 2: Entity (entity_gate)                              │
-│    → extract Title-Cased entities from answer (regex)      │
-│    → check against Neo4j: Entity nodes                     │
-│    → PASS if invalid ≤ 2 (configurable)                   │
+│  Gate 2: Entity (entity_gate) — 3-tier fuzzy matching    │
+│    → extract Title-Cased entities from answer (regex)       │
+│    → Tier 1: exact lowercase match against Neo4j           │
+│    → Tier 2: Levenshtein similarity ≥ 0.80 (same type)     │
+│    → Tier 3: substring containment match                  │
+│    → PASS if invalid ≤ 2 (configurable)                     │
+│    → Records fuzzy_matched variants for debugging          │
 │                                                             │
 │  Gate 3: Citation (citation_gate)                          │
-│    → find [chunk_id] markers in answer                    │
-│    → PASS if cited_sentences / total ≥ 0.40              │
+│    → find [chunk_id] markers in answer                     │
+│    → PASS if cited_sentences / total ≥ 0.40               │
 │    → Skip if refusal answer detected                       │
 │                                                             │
 │  Combined: PASS = all 3 gates pass                         │
-│  On fail: retry with broader retrieval OR refuse           │
+│  On fail: Layer 10.4 self-correction loop:               │
+│    → Attempt 0: corrective regeneration (stricter prompt)   │
+│    → Attempt 1+: broader retrieval + regenerate           │
+│    → Attempt N+1: refuse with refusal_message              │
+│  Max retries configurable (default: 0 = no correction)    │
 └──────────────────────┬────────────────────────────────────┘
                        │
                        ▼
@@ -297,12 +307,18 @@ USER QUERY
 
 ```
 (Chunk)-[:CONTAINS_ENTITY]->(Entity)
-(Entity)-[:RELATES_TO {confidence, description}]->(Entity)
+(Entity)-[:RELATES_TO {rel_type, confidence, description, vote_count}]->(Entity)
+(Entity)-[:ALIAS_OF]->(Entity)       -- canonicalization: variant → canonical form
 (Entity)-[:IN_COMMUNITY {level}]->(Community)
 (Community)-[:SUB_COMMUNITY_OF]->(Community)
 (Chunk)-[:SIMILAR_TO]->(Chunk)
 (Chunk)-[:FROM_DOCUMENT]->(Document)
 ```
+
+Note: `rel_type` property stores the relationship type (USES, PROPOSED_BY, CITES, etc.)
+extracted by LLM. The edge label remains `RELATES_TO` (Neo4j constraint).
+`ALIAS_OF` edges are created by Layer 2.2 canonicalization when Levenshtein similarity
+between entity names >= 0.85.
 
 ### Entity Voting (3-pass)
 
@@ -488,8 +504,8 @@ src/services/
 ├── cross_doc.py            # Cross-document entity linking
 │
 ├── # ── Reasoning ──
-├── react_loop.py           # ReAct loop (6 actions, max 6 steps)
-├── community.py           # Leiden/Louvain + Community summaries
+├── react_loop.py           # ReAct loop (9 actions, max 6 steps)
+├── community.py           # Leiden/Louvain + Community summaries + incremental update
 │
 ├── # ── Generation ──
 ├── validation.py           # 3 validation gates (hallucination/entity/citation)

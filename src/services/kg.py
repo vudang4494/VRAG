@@ -1,7 +1,23 @@
-"""Knowledge graph service — entity extraction, Neo4j storage and retrieval."""
+"""Knowledge graph service — entity extraction, Neo4j storage and retrieval.
+
+## Entity Canonicalization Strategy
+
+After GLiNER extracts entities from a chunk, canonicalize_entities runs a 3-tier
+disambiguation pass before writing to Neo4j:
+
+  1. Exact match: name already exists in KG → use existing canonical
+  2. Levenshtein similarity >= 0.85 (same type): → create ALIAS_OF edge
+  3. No match: → write as new Entity
+
+The canonical form is the one with highest existing confidence or earliest insertion.
+
+This prevents fragmented graphs where "Apple Inc.", "Apple", "AAPL" become 3 separate
+entities, breaking entity-pivot traversal and community detection.
+"""
 
 import json
 import re
+from difflib import SequenceMatcher
 from typing import Any
 
 import httpx
@@ -32,6 +48,117 @@ Tra loi CHI bang JSON (khong co giai thich gi them):
 Van ban:
 {text}
 """
+
+
+def _levenshtein_ratio(a: str, b: str) -> float:
+    """Return SequenceMatcher ratio (0.0-1.0) for string similarity."""
+    return SequenceMatcher(None, a.lower(), b.lower()).ratio()
+
+
+async def canonicalize_entities(
+    driver,
+    entities: list[dict],
+    tenant_id: str,
+) -> list[dict]:
+    """
+    Resolve entity name variants to canonical forms via 3-tier strategy.
+
+    Returns entities with canonical_name added (may differ from input name).
+    Creates ALIAS_OF edges in Neo4j for non-exact variants.
+
+    Tier 1 — Exact match: name already exists in KG → use existing canonical
+    Tier 2 — Levenshtein >= 0.85 + same type → create ALIAS_OF edge
+    Tier 3 — No match → write as new canonical entity
+    """
+    from difflib import SequenceMatcher
+
+    if not entities:
+        return []
+
+    canonical_entities: list[dict] = []
+    aliases_created = 0
+
+    try:
+        async with driver.session() as s:
+            for entity in entities:
+                name = _sanitize(entity.get("name", ""))
+                if not name:
+                    continue
+                etype = entity.get("type", "OTHER")
+
+                # Tier 1: exact match
+                r = await s.run(
+                    """
+                    MATCH (e:Entity {name: $name, tenant_id: $tid})
+                    RETURN e.name AS canonical_name, e.type AS canonical_type,
+                           e.confidence AS confidence, e.tenant_id AS tenant_id
+                    LIMIT 1
+                    """,
+                    name=name,
+                    tid=tenant_id,
+                )
+                rows = await r.data()
+                if rows:
+                    canonical_entities.append(
+                        {**entity, "canonical_name": rows[0]["canonical_name"]}
+                    )
+                    continue
+
+                # Tier 2: Levenshtein similarity >= 0.85 (same type)
+                r = await s.run(
+                    """
+                    MATCH (e:Entity {tenant_id: $tid})
+                    WHERE e.type = $etype
+                    RETURN e.name AS canonical_name, e.type AS canonical_type,
+                           e.confidence AS confidence
+                    """,
+                    tid=tenant_id,
+                    etype=etype,
+                )
+                candidates = await r.data()
+                best_ratio = 0.0
+                best_canonical = None
+                for cand in candidates:
+                    ratio = SequenceMatcher(
+                        None, name.lower(), cand["canonical_name"].lower()
+                    ).ratio()
+                    if ratio > best_ratio:
+                        best_ratio = ratio
+                        best_canonical = cand
+
+                if best_canonical and best_ratio >= 0.85:
+                    # Create ALIAS_OF edge
+                    await s.run(
+                        """
+                        MATCH (alias:Entity {name: $name, tenant_id: $tid})
+                        MATCH (canon:Entity {name: $canon, tenant_id: $tid})
+                        MERGE (alias)-[:ALIAS_OF]->(canon)
+                        """,
+                        name=name,
+                        tid=tenant_id,
+                        canon=best_canonical["canonical_name"],
+                    )
+                    aliases_created += 1
+                    canonical_entities.append(
+                        {**entity, "canonical_name": best_canonical["canonical_name"]}
+                    )
+                    continue
+
+                # Tier 3: new entity — canonical_name = name
+                canonical_entities.append({**entity, "canonical_name": name})
+
+    except Exception as e:
+        logger.debug(f"Canonicalization failed: {e}")
+        # Fallback: return as-is
+        for entity in entities:
+            name = _sanitize(entity.get("name", ""))
+            if name:
+                canonical_entities.append({**entity, "canonical_name": name})
+
+    if aliases_created > 0:
+        logger.info(f"Entity canonicalization: {aliases_created} alias(es) resolved")
+
+    return canonical_entities
 
 
 async def extract_entities_and_relations(
@@ -205,6 +332,7 @@ async def upsert_chunk_and_entities(
             desc = rel.get("description", "")[:500]
             confidence = float(rel.get("confidence", 1.0))
             vote_count = int(rel.get("vote_count", 1))
+            rel_type = rel.get("type", "RELATES_TO")[:50]
             await s.run(
                 """
                 MERGE (s:Entity {name: $src})
@@ -212,13 +340,15 @@ async def upsert_chunk_and_entities(
                 MERGE (s)-[r:RELATES_TO]->(t)
                 SET r.description = $desc,
                     r.confidence = $confidence,
-                    r.vote_count = $vote_count
+                    r.vote_count = $vote_count,
+                    r.rel_type = $rel_type
                 """,
                 src=src,
                 tgt=tgt,
                 desc=desc,
                 confidence=confidence,
                 vote_count=vote_count,
+                rel_type=rel_type,
             )
 
         logger.debug(

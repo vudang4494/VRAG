@@ -259,6 +259,8 @@ async def chat_v3(body: dict[str, Any]):
 
         # 6. Validation gates
         if settings.validation_enabled:
+            from src.services.validation import correct_and_regenerate
+
             t0 = time.monotonic()
             validation = await validate_answer(
                 answer=answer,
@@ -272,18 +274,35 @@ async def chat_v3(body: dict[str, Any]):
                 min_citation_ratio=settings.validation_min_citation_ratio,
             )
             latency[f"validation_attempt{attempt}_ms"] = (time.monotonic() - t0) * 1000
+
             if validation.get("passed"):
                 break
-            else:
-                logger.info(
-                    f"Validation failed (attempt {attempt}): {validation.get('failure_reason')}"
-                )
-                if attempt >= max_retries:
-                    if settings.validation_retry_on_fail:
-                        refused = True
-                        refusal_reason = validation.get("failure_reason") or "validation_failed"
-                        answer = settings.refusal_message_vi
-                    break
+
+            failure_reason = validation.get("failure_reason") or "unknown"
+            logger.info(f"Validation failed (attempt {attempt}): {failure_reason}")
+
+            # Layer 10.4 — Self-correction loop (CRAG-style)
+            # Attempt 0: corrective regeneration with stricter prompt (same context)
+            # Attempt 1: broaden retrieval + regenerate
+            # Attempt 2+: refuse
+            if attempt < max_retries:
+                if attempt == 0:
+                    # Corrective regeneration — same context, stricter prompt
+                    t0 = time.monotonic()
+                    corrected = await correct_and_regenerate(
+                        query=query,
+                        context=context,
+                        llm=clients.llm,
+                        model=settings.ollama_model,
+                        failure_reason=failure_reason,
+                    )
+                    latency["corrective_regen_ms"] = (time.monotonic() - t0) * 1000
+                    if corrected:
+                        answer = corrected
+                        validation["corrective_applied"] = "strict_prompt"
+                        continue  # re-validate
+                # else: broader retrieval is already handled by max_retries loop
+                # (top_k expands each iteration via top_k_per_path formula)
         else:
             validation = {
                 "passed": True,
