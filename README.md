@@ -24,40 +24,64 @@ Read the comprehensive architectural deep dive in our [Technical Wiki](./ARCHITE
 flowchart TD
     %% Nodes
     User((User / Browser))
+    Nginx["Nginx Reverse Proxy"]
+    Langfuse["Langfuse<br/>(Observability & Tracing)"]
+    Grafana["Prometheus + Grafana<br/>(Metrics)"]
     
-    Nginx["Nginx Reverse Proxy<br/>(Rate Limiting & Routing)"]
+    API["FastAPI Orchestrator<br/>(RAG API v3.0)"]
+    Router{"Heuristic Router<br/>(Query Type)"}
+    Understand["Query Understanding<br/>(6 Reformulations)"]
     
-    WebUI["Open WebUI<br/>(Chat Interface)"]
-    Gradio["Gradio Dashboard<br/>(Visualizer & Stats)"]
-    API["RAG API<br/>(FastAPI Orchestrator)"]
+    Retrieve{"9-Path Hybrid Retrieval"}
+    RRF["Weighted RRF Fusion"]
+    OOD{"Mixed-Signal<br/>OOD Detection"}
+    ReAct["ReAct Agent Loop<br/>(Max 6 Steps)"]
+    Standard["Standard Generation"]
+    Rerank["3-Stage Reranking<br/>(Cross-encoder -> LLM)"]
+    Validate{"Triple Validation Gates<br/>(Hallucination/Entity/Citation)"}
     
-    Redis[("Redis<br/>Semantic Cache")]
-    Qdrant[("Qdrant<br/>Vector Database")]
-    Ollama["Ollama (Host)<br/>Metal GPU Accelerated"]
-    Postgres[("PostgreSQL<br/>App State")]
-    Neo4j[("Neo4j<br/>Knowledge Graph")]
-    Prometheus["Prometheus + Grafana<br/>(Metrics)"]
-    Langfuse["Langfuse<br/>(Tracing)"]
+    Redis[("Redis<br/>(Semantic Cache)")]
+    Qdrant[("Qdrant<br/>(5 Vectors + BM25)")]
+    Neo4j[("Neo4j<br/>(Knowledge Graph)")]
+    Ollama["Ollama (Host)<br/>(Metal GPU Accelerated)"]
     
     %% Edges
-    User -- "HTTP Requests" --> Nginx
+    User -- "Query" --> Nginx
+    Nginx --> API
+    Nginx -. "Port 3000" .-> Langfuse
+    Nginx -. "Port 3001" .-> Grafana
     
-    Nginx -- "Port 80" --> WebUI
-    Nginx -- "Port 7860" --> Gradio
-    Nginx -- "Port 8800" --> API
-    Nginx -- "Port 3000" --> Langfuse
+    API -- "1. Cache Check" --> Redis
+    API -- "2. Route" --> Router
     
-    WebUI -- "Chat API" --> API
-    Gradio -- "Stats/Graph" --> API
+    Router -->|"In-Domain"| Understand
+    Router -->|"Out of Domain"| Reject(["Refusal"])
     
-    API -- "Check Cache" --> Redis
-    API -- "2. Vector Search" --> Qdrant
-    API -- "1. Generate Embedding" --> Ollama
-    API -- "4. LLM Generation" --> Ollama
-    API -- "State Tracking" --> Postgres
-    API -- "3. Graph Traversal" --> Neo4j
-    API -. "Metrics" .-> Prometheus
-    API -. "Tracing/Logs" .-> Langfuse
+    Understand -- "Reformulations" --> Retrieve
+    
+    Retrieve -- "Vector Views" --> Qdrant
+    Retrieve -- "Graph/Community" --> Neo4j
+    
+    Qdrant --> RRF
+    Neo4j --> RRF
+    RRF --> OOD
+    
+    OOD -->|"Multi-hop/Complex"| ReAct
+    OOD -->|"Factual/Simple"| Standard
+    
+    ReAct -- "Traverse & Search" --> Neo4j
+    ReAct -- "Embeddings/LLM" --> Ollama
+    Standard -- "LLM Prompt" --> Ollama
+    
+    ReAct --> Rerank
+    Standard --> Rerank
+    
+    Rerank --> Validate
+    Validate -->|"Pass"| Answer(["Final Answer"])
+    Validate -->|"Fail"| Reject
+    
+    API -. "Traces" .-> Langfuse
+    API -. "Metrics" .-> Grafana
     
     %% Styling
     classDef blue fill:#0984e3,stroke:#74b9ff,stroke-width:2px,color:#fff
@@ -67,12 +91,12 @@ flowchart TD
     classDef pink fill:#e84393,stroke:#fd79a8,stroke-width:2px,color:#fff
     classDef gray fill:#636e72,stroke:#b2bec3,stroke-width:2px,color:#fff
     
-    class User blue
+    class User,Answer,Reject blue
     class Nginx orange
-    class WebUI,Gradio,API green
-    class Redis,Qdrant,Postgres,Neo4j purple
+    class API,Router,Understand,Retrieve,RRF,OOD,ReAct,Standard,Rerank,Validate green
+    class Redis,Qdrant,Neo4j purple
     class Ollama pink
-    class Prometheus,Langfuse gray
+    class Langfuse,Grafana gray
 ```
 
 ## 🛠️ Quick Start
