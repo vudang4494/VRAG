@@ -22,43 +22,57 @@ Read the comprehensive architectural deep dive in our [Technical Wiki](./ARCHITE
 
 ```mermaid
 flowchart TD
-    %% Define Styles
-    classDef user fill:#2d3436,stroke:#74b9ff,stroke-width:2px,color:#fff
-    classDef router fill:#0984e3,stroke:#74b9ff,stroke-width:2px,color:#fff
-    classDef engine fill:#6c5ce7,stroke:#a29bfe,stroke-width:2px,color:#fff
-    classDef retrieve fill:#00b894,stroke:#55efc4,stroke-width:2px,color:#fff
-    classDef db fill:#e17055,stroke:#fab1a0,stroke-width:2px,color:#fff
-    classDef gate fill:#d63031,stroke:#ff7675,stroke-width:2px,color:#fff
-
-    Q(["User Query"]) ::: user --> R["Heuristic Router"] ::: router
-    R --> QU["Query Understanding<br/>6 Reformulations"] ::: engine
+    %% Nodes
+    User((User / Browser))
     
-    QU --> MP{"Multi-Path Retrieval"} ::: retrieve
-    MP -->|"5 Dense Views + BM25"| QDB[("Qdrant Vector DB")] ::: db
-    MP -->|"Graph & Community"| NDB[("Neo4j Graph DB")] ::: db
+    Nginx["Nginx Reverse Proxy<br/>(Rate Limiting & Routing)"]
     
-    QDB --> RRF["Weighted RRF Fusion"] ::: engine
-    NDB --> RRF
+    WebUI["Open WebUI<br/>(Chat Interface)"]
+    Gradio["Gradio Dashboard<br/>(Visualizer & Stats)"]
+    API["RAG API<br/>(FastAPI Orchestrator)"]
     
-    RRF --> OOD["OOD Detection"] ::: gate
+    Redis[("Redis<br/>Semantic Cache")]
+    Qdrant[("Qdrant<br/>Vector Database")]
+    Ollama["Ollama (Host)<br/>Metal GPU Accelerated"]
+    Postgres[("PostgreSQL<br/>App State")]
+    Neo4j[("Neo4j<br/>Knowledge Graph")]
+    Prometheus["Prometheus + Grafana<br/>(Metrics)"]
+    Langfuse["Langfuse<br/>(Tracing)"]
     
-    OOD -->|"In-Domain"| Path{"Logic Path"} ::: router
-    OOD -->|"Out of Domain"| Refuse(["Refuse to Answer"]) ::: user
+    %% Edges
+    User -- "HTTP Requests" --> Nginx
     
-    Path -->|"Complex/Multi-hop"| ReAct["ReAct Graph Traversal"] ::: engine
-    Path -->|"Factual/Simple"| Standard["Standard Path"] ::: engine
+    Nginx -- "Port 80" --> WebUI
+    Nginx -- "Port 7860" --> Gradio
+    Nginx -- "Port 8800" --> API
+    Nginx -- "Port 3000" --> Langfuse
     
-    ReAct -.-> NDB
+    WebUI -- "Chat API" --> API
+    Gradio -- "Stats/Graph" --> API
     
-    ReAct --> RR["3-Stage Reranking"] ::: engine
-    Standard --> RR
+    API -- "Check Cache" --> Redis
+    API -- "2. Vector Search" --> Qdrant
+    API -- "1. Generate Embedding" --> Ollama
+    API -- "4. LLM Generation" --> Ollama
+    API -- "State Tracking" --> Postgres
+    API -- "3. Graph Traversal" --> Neo4j
+    API -. "Metrics" .-> Prometheus
+    API -. "Tracing/Logs" .-> Langfuse
     
-    RR --> VG{"3 Validation Gates"} ::: gate
-    VG -->|"Hallucination Check"| Pass
-    VG -->|"Entity Verification"| Pass
-    VG -->|"Citation Ratio"| Pass
+    %% Styling
+    classDef blue fill:#0984e3,stroke:#74b9ff,stroke-width:2px,color:#fff
+    classDef orange fill:#e17055,stroke:#fab1a0,stroke-width:2px,color:#fff
+    classDef green fill:#00b894,stroke:#55efc4,stroke-width:2px,color:#fff
+    classDef purple fill:#6c5ce7,stroke:#a29bfe,stroke-width:2px,color:#fff
+    classDef pink fill:#e84393,stroke:#fd79a8,stroke-width:2px,color:#fff
+    classDef gray fill:#636e72,stroke:#b2bec3,stroke-width:2px,color:#fff
     
-    Pass --> Ans(["Final Answer"]) ::: user
+    class User blue
+    class Nginx orange
+    class WebUI,Gradio,API green
+    class Redis,Qdrant,Postgres,Neo4j purple
+    class Ollama pink
+    class Prometheus,Langfuse gray
 ```
 
 ## 🛠️ Quick Start
