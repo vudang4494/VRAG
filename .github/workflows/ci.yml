@@ -23,15 +23,12 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "**/*.py"
 
-      - name: Install ruff
-        run: uv pip install ruff==0.9.0 --quiet
-
       - name: Ruff check
-        run: ruff check . --target-version py311
+        run: uv run --with ruff==0.9.0 ruff check . --target-version py311
         continue-on-error: true
 
       - name: Ruff format check
-        run: ruff format --check --target-version py311 .
+        run: uv run --with ruff==0.9.0 ruff format --check --target-version py311 .
 
   # ── Type check ─────────────────────────────────────────────────────────────
   typecheck:
@@ -45,12 +42,10 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "**/*.py"
 
-      - name: Install dependencies
-        run: uv pip install --system mypy types-requests types-redis pydantic pydantic-settings
-
       - name: Type check critical modules
         run: |
-          mypy api/routes_v3.py \
+          uv run --with mypy types-requests types-redis pydantic pydantic-settings \
+            mypy api/routes_v3.py \
                src/services/retrieval_v2.py \
                src/services/ingestion_v2.py \
                src/services/rerank_l2r.py \
@@ -72,14 +67,15 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "**/*.py"
 
-      - name: Install test dependencies
-        run: uv pip install --system pytest pytest-asyncio httpx
-
       - name: Collect tests
-        run: python3 -m pytest tests/ --collect-only 2>&1 || true
+        run: |
+          uv run --with pytest pytest-asyncio httpx \
+            python3 -m pytest tests/ --collect-only 2>&1 || true
 
       - name: Run tests
-        run: python3 -m pytest tests/ -v --tb=short 2>&1 || true
+        run: |
+          uv run --with pytest pytest-asyncio httpx \
+            python3 -m pytest tests/ -v --tb=short 2>&1 || true
         continue-on-error: true
 
   # ── Smoke test ──────────────────────────────────────────────────────────────
@@ -135,6 +131,5 @@ jobs:
 
       - name: Audit dependencies
         run: |
-          uv pip install --system pip-audit
-          pip-audit --requirement=api/requirements.txt 2>&1 || true
+          uv run --with pip-audit pip-audit --requirement=api/requirements.txt 2>&1 || true
         continue-on-error: true
