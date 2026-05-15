@@ -280,7 +280,8 @@ async def _community_path(
         embeds = await embed_batch(
             http, embed_url, embed_model, summaries, batch_size=16, timeout=60.0
         )
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Community path: embed batch failed: {e}")
         return []
 
     scored = [
@@ -348,8 +349,8 @@ def weighted_rrf(
                         dm_reward = 1.0 + domain_reward(
                             chunk_domain, query_domain, scale=domain_scale
                         )
-                    except Exception:
-                        dm_reward = 1.0
+                    except Exception as e:
+                        logger.debug(f"Domain reward computation failed for chunk {cid}: {e}")
 
             base = path_weight / (k + rank)
             contribution = base * cs_factor * lvl_factor * dm_reward

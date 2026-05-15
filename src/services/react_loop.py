@@ -534,8 +534,8 @@ async def react_chat(
     if actor.collected_chunks and not any(h["action"] == "rerank" for h in history):
         try:
             await actor.rerank(query)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Rerank before synthesis failed: {e}")
     answer = await _synthesize_answer(query, actor.collected_chunks, history, settings.ollama_model)
     synth_t = time.monotonic() - t2
 

@@ -12,7 +12,8 @@ Checks:
 
 Usage:
   python3 scripts/verify_graph.py --tenant default
-  python3 scripts/verify_graph.py --http http://localhost:7474 --password ...
+  # Reads NEO4J_PASSWORD from .env automatically.
+  # Or: NEO4J_PASSWORD=... python3 scripts/verify_graph.py --tenant eval
 
 Reads NEO4J_PASSWORD from env or .env if not provided.
 """

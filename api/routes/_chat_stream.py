@@ -242,8 +242,8 @@ async def chat_v3_stream(body: dict[str, Any]):
                     grounded_ratio=validation.get("grounded_ratio", 0.0),
                     stage_latencies_ms=latency,
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Metrics recording failed: {e}")
 
         except Exception as e:
             logger.exception("Streaming chat failed")

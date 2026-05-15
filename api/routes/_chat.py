@@ -304,7 +304,8 @@ async def chat_v3(body: dict[str, Any]):
             grounded_ratio=validation.get("grounded_ratio", 0.0),
             stage_latencies_ms=latency,
         )
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Metrics recording failed: {e}")
         pass
 
     return {

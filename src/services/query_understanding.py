@@ -75,7 +75,7 @@ Loại:"""
 
 
 async def _llm_text(llm: Any, model: str, prompt: str, max_tokens: int = 200) -> str:
-    """Phase 0a fix — Ollama native to bypass Qwen3 thinking-mode content loss."""
+    """Use Ollama native chat to avoid Qwen3 thinking-mode content loss."""
     from src.services.ollama_helper import ollama_chat
 
     return await ollama_chat(

@@ -273,8 +273,8 @@ async def generate_consistent_summary(
             idx = int(match.group(0)) - 1
             if 0 <= idx < len(summaries):
                 return (summaries[idx], len(summaries))
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"Consensus-vote failed: {e}")
     return (summaries[0], len(summaries))
 
 

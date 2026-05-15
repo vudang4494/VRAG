@@ -97,8 +97,8 @@ class AuditLogger:
             with open(log_file, "a") as f:
                 for record in records:
                     f.write(json.dumps(record) + "\n")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Audit file write failed: {e}")
 
     async def _write_to_postgres(self, records: list[dict[str, Any]]) -> None:
         try:
@@ -113,8 +113,8 @@ class AuditLogger:
                 pipe.lpush(key, json.dumps(record))
                 pipe.ltrim(key, 0, 999)
             await pipe.execute()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Audit postgres write failed: {e}")
 
     async def _write_to_redis(self, records: list[dict[str, Any]]) -> None:
         try:
@@ -129,8 +129,8 @@ class AuditLogger:
                 pipe.lpush(key, json.dumps(record))
                 pipe.ltrim(key, 0, 999)
             await pipe.execute()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Audit redis write failed: {e}")
 
     async def get_recent_events(
         self,
@@ -148,7 +148,8 @@ class AuditLogger:
             if tenant_id:
                 events = [e for e in events if e.get("tenant_id") == tenant_id]
             return events
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Audit get_recent_events failed: {e}")
             return []
 
     def log_chat(

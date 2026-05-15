@@ -40,7 +40,8 @@ async def ensure_entity_collection(qdrant_client, tenant_id: str, dim: int = 102
     try:
         await qdrant_client.get_collection(col_name)
         return col_name
-    except Exception:
+    except Exception as e:
+        logger.debug(f"HEFR collection check failed: {e}")
         pass  # not found, create
 
     await qdrant_client.create_collection(
@@ -56,7 +57,7 @@ async def ensure_entity_collection(qdrant_client, tenant_id: str, dim: int = 102
                 field_schema=qm.PayloadSchemaType.KEYWORD,
             )
         except Exception:
-            pass
+            pass  # index may already exist, idempotent
     logger.info(f"HEFR: created entity collection {col_name}")
     return col_name
 

@@ -40,13 +40,18 @@ class SemanticCache:
         key = self._cache_key(embedding, top_k)
         try:
             data = await self.redis.get(key)
-            if data:
-                import json
+        except Exception as e:
+            logger.debug(f"Cache get failed: {e}")
+            return None
+        if not data:
+            return None
+        try:
+            import json
 
-                return json.loads(data)
-        except Exception:
-            pass
-        return None
+            return json.loads(data)
+        except Exception as e:
+            logger.debug(f"Cache get: JSON decode failed: {e}")
+            return None
 
     async def set(self, embedding: list[float], top_k: int, results: list[dict]) -> None:
         key = self._cache_key(embedding, top_k)
@@ -54,8 +59,8 @@ class SemanticCache:
             import json
 
             await self.redis.setex(key, self.ttl, json.dumps(results))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Cache set failed: {e}")
 
     async def clear(self) -> None:
         try:
@@ -64,8 +69,8 @@ class SemanticCache:
                 keys.append(key)
             if keys:
                 await self.redis.delete(*keys)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Cache clear failed: {e}")
 
 
 class Clients:

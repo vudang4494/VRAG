@@ -3,6 +3,7 @@
 from typing import Any
 
 from fastapi import APIRouter
+from loguru import logger
 
 from src.config import get_settings
 
@@ -81,8 +82,8 @@ async def health_v3_deep():
     try:
         metrics_get = __import__("src.metrics", fromlist=["get_metrics"]).get_metrics
         v2_metrics = metrics_get().get_v2_metrics()
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"V2 metrics fetch failed: {e}")
 
     return {
         "status": "ok" if all([qdrant_ok, neo4j_ok, ollama_ok]) else "degraded",
