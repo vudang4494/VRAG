@@ -14,6 +14,7 @@ Usage:
   # Dry-run: show how many entities per tenant but don't build
   python3 scripts/community_worker.py --all --dry-run
 """
+
 from __future__ import annotations
 
 import argparse
@@ -37,7 +38,15 @@ async def list_tenants(client: httpx.AsyncClient, api: str) -> list[str]:
     return ["default"]
 
 
-async def build_one(client: httpx.AsyncClient, api: str, tenant: str, levels: int, resolution: float, min_size: int, vote_passes: int) -> dict:
+async def build_one(
+    client: httpx.AsyncClient,
+    api: str,
+    tenant: str,
+    levels: int,
+    resolution: float,
+    min_size: int,
+    vote_passes: int,
+) -> dict:
     resp = await client.post(
         f"{api}/api/v3/community/build",
         json={
@@ -73,8 +82,13 @@ async def main_async(args):
             t0 = time.monotonic()
             try:
                 stats = await build_one(
-                    client, args.api, tid,
-                    args.levels, args.resolution, args.min_size, args.vote_passes,
+                    client,
+                    args.api,
+                    tid,
+                    args.levels,
+                    args.resolution,
+                    args.min_size,
+                    args.vote_passes,
                 )
                 elapsed = time.monotonic() - t0
                 print(f"  Communities found:    {stats.get('communities')}")

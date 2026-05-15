@@ -1,5 +1,6 @@
 """Admin endpoints — /gaea/refine, /hefr/populate, /hefr/retrieve,
 /cross_doc/build, /community/build, /rerank/l2r/test."""
+
 import time
 from typing import Any
 
@@ -10,6 +11,7 @@ router = APIRouter()
 
 
 # ── GAEA ──────────────────────────────────────────────────────────────────────
+
 
 @router.post("/gaea/refine", tags=["v3"])
 async def gaea_refine(body: dict[str, Any]):
@@ -51,6 +53,7 @@ async def gaea_refine(body: dict[str, Any]):
 
 
 # ── HEFR ──────────────────────────────────────────────────────────────────────
+
 
 @router.post("/hefr/populate", tags=["v3"])
 async def hefr_populate(body: dict[str, Any]):
@@ -107,7 +110,11 @@ async def hefr_retrieve_endpoint(body: dict[str, Any]):
             pass
 
     chunks, entities = await hefr_retrieve(
-        q_vec, q_entities, clients, settings, tenant_id,
+        q_vec,
+        q_entities,
+        clients,
+        settings,
+        tenant_id,
         top_entities=int(body.get("top_entities", 20)),
         top_chunks=int(body.get("top_chunks", 30)),
     )
@@ -120,6 +127,7 @@ async def hefr_retrieve_endpoint(body: dict[str, Any]):
 
 
 # ── Cross-doc ─────────────────────────────────────────────────────────────────
+
 
 @router.post("/cross_doc/build", tags=["v3"])
 async def cross_doc_build(body: dict[str, Any]):
@@ -155,6 +163,7 @@ async def cross_doc_build(body: dict[str, Any]):
 
 
 # ── Community ─────────────────────────────────────────────────────────────────
+
 
 @router.post("/community/build", tags=["v3"])
 async def community_build(body: dict[str, Any]):
@@ -192,6 +201,7 @@ async def community_build(body: dict[str, Any]):
 
 # ── Rerank L2R test ───────────────────────────────────────────────────────────
 
+
 @router.post("/rerank/l2r/test", tags=["v3"])
 async def rerank_l2r_test(body: dict[str, Any]):
     """Test L2R rerank standalone. Body: {query, tenant_id, top_k}."""
@@ -214,7 +224,10 @@ async def rerank_l2r_test(body: dict[str, Any]):
         timeout=settings.query_understanding_timeout_s,
     )
     candidates = await multi_path_retrieve(
-        understanding, clients, tenant_id=tenant_id, final_top_k=30,
+        understanding,
+        clients,
+        tenant_id=tenant_id,
+        final_top_k=30,
     )
     qe = candidates[0].get("_query_entities", []) if candidates else []
 

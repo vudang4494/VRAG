@@ -19,6 +19,7 @@ Entity embeddings already computed by Phase 1 GAEA's
   1. Pushes entity embeddings to separate Qdrant collection
   2. Provides hefr_retrieve() orchestrator
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -34,6 +35,7 @@ ENTITY_COLLECTION_TEMPLATE = "entities_{tenant}"
 async def ensure_entity_collection(qdrant_client, tenant_id: str, dim: int = 1024):
     """Create the per-tenant entity collection if missing."""
     from qdrant_client import models as qm
+
     col_name = ENTITY_COLLECTION_TEMPLATE.format(tenant=tenant_id)
     try:
         await qdrant_client.get_collection(col_name)
@@ -49,7 +51,8 @@ async def ensure_entity_collection(qdrant_client, tenant_id: str, dim: int = 102
     for field in ("name", "type"):
         try:
             await qdrant_client.create_payload_index(
-                collection_name=col_name, field_name=field,
+                collection_name=col_name,
+                field_name=field,
                 field_schema=qm.PayloadSchemaType.KEYWORD,
             )
         except Exception:
@@ -90,7 +93,11 @@ async def populate_entity_collection(
         nonlocal skipped
         async with sem:
             emb = await aggregate_entity_embedding(
-                ent["name"], neo4j_driver, qdrant_client, chunk_collection, tenant_id,
+                ent["name"],
+                neo4j_driver,
+                qdrant_client,
+                chunk_collection,
+                tenant_id,
             )
             if emb is None:
                 skipped += 1
@@ -99,7 +106,11 @@ async def populate_entity_collection(
             return qm.PointStruct(
                 id=ent_id,
                 vector=emb.tolist(),
-                payload={"name": ent["name"], "type": ent.get("type", "OTHER"), "tenant_id": tenant_id},
+                payload={
+                    "name": ent["name"],
+                    "type": ent.get("type", "OTHER"),
+                    "tenant_id": tenant_id,
+                },
             )
 
     results = await asyncio.gather(*[_one(e) for e in entities])
@@ -108,9 +119,14 @@ async def populate_entity_collection(
     if points:
         # Batch upsert
         for i in range(0, len(points), batch_size):
-            await qdrant_client.upsert(collection_name=col_name, points=points[i:i+batch_size])
+            await qdrant_client.upsert(collection_name=col_name, points=points[i : i + batch_size])
 
-    return {"collection": col_name, "entities_upserted": len(points), "skipped": skipped, "total": len(entities)}
+    return {
+        "collection": col_name,
+        "entities_upserted": len(points),
+        "skipped": skipped,
+        "total": len(entities),
+    }
 
 
 async def hefr_retrieve(
@@ -148,7 +164,11 @@ async def hefr_retrieve(
                 with_payload=True,
             )
             ent_hits = [
-                {"name": p.payload.get("name"), "type": p.payload.get("type"), "score": float(p.score)}
+                {
+                    "name": p.payload.get("name"),
+                    "type": p.payload.get("type"),
+                    "score": float(p.score),
+                }
                 for p in ent_resp.points
             ]
         except Exception as e:
@@ -156,7 +176,9 @@ async def hefr_retrieve(
             ent_hits = []
 
     if not ent_hits and query_entity_names:
-        logger.info(f"HEFR: ANN returned empty, falling back to exact entity name lookup: {query_entity_names[:5]}")
+        logger.info(
+            f"HEFR: ANN returned empty, falling back to exact entity name lookup: {query_entity_names[:5]}"
+        )
         # Fallback: look up entities by exact name in Neo4j directly
         try:
             async with clients.neo4j.session() as s:
@@ -169,7 +191,9 @@ async def hefr_retrieve(
                     RETURN e.name AS name, e.type AS type, e.description AS desc
                     LIMIT $limit
                     """,
-                    names=names_lower, tid=tenant_id, limit=top_entities,
+                    names=names_lower,
+                    tid=tenant_id,
+                    limit=top_entities,
                 )
                 rows = await r.data()
             ent_hits = [
@@ -226,5 +250,7 @@ async def hefr_retrieve(
     ]
 
     elapsed = time.monotonic() - started
-    logger.info(f"HEFR: {len(ent_hits)} entities (ANN+fallback) → {len(chunks)} chunks in {elapsed*1000:.0f}ms")
+    logger.info(
+        f"HEFR: {len(ent_hits)} entities (ANN+fallback) → {len(chunks)} chunks in {elapsed * 1000:.0f}ms"
+    )
     return chunks, ent_hits

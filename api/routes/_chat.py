@@ -1,4 +1,5 @@
 """Main chat endpoint — /chat (non-streaming, quality-first)."""
+
 import re
 import time
 import uuid
@@ -46,6 +47,7 @@ async def chat_v3(body: dict[str, Any]):
 
     # Smart routing: classify query type
     from src.services.query_router import classify_query, describe_routing, should_use_react
+
     query_type = classify_query(query)
     use_react = should_use_react(query_type) or force_react
     routing_reason = describe_routing(query_type, use_react)
@@ -53,11 +55,13 @@ async def chat_v3(body: dict[str, Any]):
 
     # ReAct: delegate to react endpoint
     if use_react:
-        react_chat_fn = __import__(
-            "src.services.react_loop", fromlist=["react_chat"]
-        ).react_chat
+        react_chat_fn = __import__("src.services.react_loop", fromlist=["react_chat"]).react_chat
         react_result = await react_chat_fn(
-            query, clients, settings, tenant_id, max_react_steps,
+            query,
+            clients,
+            settings,
+            tenant_id,
+            max_react_steps,
         )
         total_ms = (time.monotonic() - started_total) * 1000
         latency["total_ms"] = total_ms
@@ -92,7 +96,9 @@ async def chat_v3(body: dict[str, Any]):
     # 1. Query understanding
     t0 = time.monotonic()
     understanding = await understand_query(
-        query, clients.llm, model=settings.ollama_model,
+        query,
+        clients.llm,
+        model=settings.ollama_model,
         timeout=settings.query_understanding_timeout_s,
     )
     latency["query_understanding_ms"] = (time.monotonic() - t0) * 1000
@@ -187,23 +193,29 @@ async def chat_v3(body: dict[str, Any]):
         # 5. Generation: outline → drafts → judge
         t0 = time.monotonic()
         import asyncio
+
         outline = ""
         if settings.generation_outline_enabled:
             outline = await llm_complete(
                 settings.ollama_model,
                 OUTLINE_PROMPT.format(query=query, context=context),
-                max_tokens=300, temperature=0.2,
+                max_tokens=300,
+                temperature=0.2,
             )
 
-        drafts = await asyncio.gather(*[
-            llm_complete(
-                settings.ollama_model,
-                DRAFT_PROMPT.format(query=query, outline=outline or "(no outline)", context=context),
-                max_tokens=settings.generation_max_tokens,
-                temperature=0.2 + i * 0.15,
-            )
-            for i in range(settings.generation_drafts)
-        ])
+        drafts = await asyncio.gather(
+            *[
+                llm_complete(
+                    settings.ollama_model,
+                    DRAFT_PROMPT.format(
+                        query=query, outline=outline or "(no outline)", context=context
+                    ),
+                    max_tokens=settings.generation_max_tokens,
+                    temperature=0.2 + i * 0.15,
+                )
+                for i in range(settings.generation_drafts)
+            ]
+        )
         drafts = [d for d in drafts if d]
         if not drafts:
             refused = True
@@ -220,7 +232,8 @@ async def chat_v3(body: dict[str, Any]):
                     d2=drafts[1] if len(drafts) > 1 else "(không có)",
                     d3=drafts[2] if len(drafts) > 2 else "(không có)",
                 ),
-                max_tokens=10, temperature=0.1,
+                max_tokens=10,
+                temperature=0.1,
             )
             match = re.search(r"\d", verdict)
             best_idx = int(match.group(0)) - 1 if match else 0
@@ -235,7 +248,8 @@ async def chat_v3(body: dict[str, Any]):
             refined = await llm_complete(
                 settings.ollama_model,
                 REFINE_PROMPT.format(query=query, context=context, draft=answer),
-                max_tokens=settings.generation_max_tokens, temperature=0.2,
+                max_tokens=settings.generation_max_tokens,
+                temperature=0.2,
             )
             latency[f"refinement_attempt{attempt}_ms"] = (time.monotonic() - t0_refine) * 1000
             if refined.strip():
@@ -261,7 +275,9 @@ async def chat_v3(body: dict[str, Any]):
             if validation.get("passed"):
                 break
             else:
-                logger.info(f"Validation failed (attempt {attempt}): {validation.get('failure_reason')}")
+                logger.info(
+                    f"Validation failed (attempt {attempt}): {validation.get('failure_reason')}"
+                )
                 if attempt >= max_retries:
                     if settings.validation_retry_on_fail:
                         refused = True
@@ -269,7 +285,12 @@ async def chat_v3(body: dict[str, Any]):
                         answer = settings.refusal_message_vi
                     break
         else:
-            validation = {"passed": True, "grounded_ratio": 1.0, "confidence": 1.0, "failure_reason": None}
+            validation = {
+                "passed": True,
+                "grounded_ratio": 1.0,
+                "confidence": 1.0,
+                "failure_reason": None,
+            }
             break
 
     total_ms = (time.monotonic() - started_total) * 1000

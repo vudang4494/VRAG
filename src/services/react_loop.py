@@ -22,6 +22,7 @@ Why this beats vanilla LLM-as-decision-maker: small LLMs hallucinate when given
 massive context. ReAct breaks task into small steps, each with focused context.
 Each action result is concrete (Cypher rows, vector hits) — LLM just routes.
 """
+
 from __future__ import annotations
 
 import json
@@ -119,7 +120,12 @@ class ReActAction:
             r = await s.run(cypher, name=name, tid=self.tenant_id)
             rows = await r.data()
         results = [
-            {"name": row["name"], "type": row["type"], "description": (row.get("desc") or "")[:200], "confidence": row.get("conf")}
+            {
+                "name": row["name"],
+                "type": row["type"],
+                "description": (row.get("desc") or "")[:200],
+                "confidence": row.get("conf"),
+            }
             for row in rows
         ]
         for r in results:
@@ -142,8 +148,13 @@ class ReActAction:
             rows = await r.data()
         # Filter out None related (entity had no relations)
         related = [
-            {"name": row["related"], "via": row["rel_type"], "description": (row.get("desc") or "")[:150]}
-            for row in rows if row.get("related")
+            {
+                "name": row["related"],
+                "via": row["rel_type"],
+                "description": (row.get("desc") or "")[:150],
+            }
+            for row in rows
+            if row.get("related")
         ]
         for r in related:
             self.discovered_entities.add(r["name"])
@@ -177,16 +188,18 @@ class ReActAction:
             if cid in self.seen_chunk_ids:
                 continue
             self.seen_chunk_ids.add(cid)
-            self.collected_chunks.append({
-                "chunk_id": cid,
-                "text": row["text"],
-                "source": row["source"],
-                "format": row.get("format"),
-                "chunk_level": row.get("chunk_level"),
-                "score": float(row["match_count"]) / max(len(entities), 1),
-                "retrieval_path": "react:entity_pivot",
-                "match_count": row["match_count"],
-            })
+            self.collected_chunks.append(
+                {
+                    "chunk_id": cid,
+                    "text": row["text"],
+                    "source": row["source"],
+                    "format": row.get("format"),
+                    "chunk_level": row.get("chunk_level"),
+                    "score": float(row["match_count"]) / max(len(entities), 1),
+                    "retrieval_path": "react:entity_pivot",
+                    "match_count": row["match_count"],
+                }
+            )
             added += 1
         return {"chunks_added": added, "total_chunks": len(self.collected_chunks)}
 
@@ -211,13 +224,21 @@ class ReActAction:
         flt = build_tenant_filter(tenant_id=self.tenant_id)
         # Try graph_aware first; fall back to dense if graph_aware not present.
         results = await search_single_view(
-            self.clients.qdrant, self.settings.qdrant_collection,
-            q_vec, view="graph_aware", limit=limit, filter_=flt,
+            self.clients.qdrant,
+            self.settings.qdrant_collection,
+            q_vec,
+            view="graph_aware",
+            limit=limit,
+            filter_=flt,
         )
         if not results:
             results = await search_single_view(
-                self.clients.qdrant, self.settings.qdrant_collection,
-                q_vec, view="dense", limit=limit, filter_=flt,
+                self.clients.qdrant,
+                self.settings.qdrant_collection,
+                q_vec,
+                view="dense",
+                limit=limit,
+                filter_=flt,
             )
 
         added = 0
@@ -226,10 +247,12 @@ class ReActAction:
             if cid in self.seen_chunk_ids:
                 continue
             self.seen_chunk_ids.add(cid)
-            self.collected_chunks.append({
-                **r,
-                "retrieval_path": "react:graph_aware",
-            })
+            self.collected_chunks.append(
+                {
+                    **r,
+                    "retrieval_path": "react:graph_aware",
+                }
+            )
             added += 1
         return {"chunks_added": added, "total_chunks": len(self.collected_chunks)}
 
@@ -240,7 +263,8 @@ class ReActAction:
         from src.services.rerank_stages import rerank_stage2
 
         ranked = await rerank_stage2(
-            query, self.collected_chunks,
+            query,
+            self.collected_chunks,
             self.clients.http,
             self.settings.ollama_embed_url,
             self.settings.ollama_embed_model,
@@ -262,6 +286,7 @@ async def _decide_next_action_retry(
 ) -> dict[str, Any]:
     """Retry wrapper for _decide_next_action with limited retries."""
     import asyncio
+
     for attempt in range(retries + 1):
         result = await _decide_next_action(query, history, chunks_collected, model)
         action = result.get("action", "").upper()
@@ -289,11 +314,14 @@ async def _decide_next_action(
     """LLM picks next action. Returns dict with 'thought', 'action', 'args'."""
     from src.services.ollama_helper import ollama_chat
 
-    history_str = "\n".join(
-        f"  Bước {i+1}: thought={h['thought'][:100]}, action={h['action']}, args={h.get('args')}, "
-        f"observation={h.get('observation_summary', '')[:200]}"
-        for i, h in enumerate(history)
-    ) or "  (chưa có bước nào)"
+    history_str = (
+        "\n".join(
+            f"  Bước {i + 1}: thought={h['thought'][:100]}, action={h['action']}, args={h.get('args')}, "
+            f"observation={h.get('observation_summary', '')[:200]}"
+            for i, h in enumerate(history)
+        )
+        or "  (chưa có bước nào)"
+    )
 
     prompt = _THOUGHT_PROMPT.format(
         query=query,
@@ -325,7 +353,9 @@ async def _decide_next_action(
     parsed.setdefault("thought", "")
     # Block FINISH if LLM chose it without enough chunks — force another action (4 chunks minimum)
     if parsed.get("action", "").upper() == "FINISH" and chunks_collected < 4:
-        logger.info(f"ReAct: FINISH blocked (only {chunks_collected} chunks), forcing graph_aware_search")
+        logger.info(
+            f"ReAct: FINISH blocked (only {chunks_collected} chunks), forcing graph_aware_search"
+        )
         parsed["action"] = "graph_aware_search"
         parsed["args"] = {"query": query}
     else:
@@ -351,8 +381,8 @@ def _format_trace(history: list[dict]) -> str:
     lines = []
     for i, h in enumerate(history):
         lines.append(
-            f"Bước {i+1}: [{h['action']}] "
-            f"{h['thought'][:100]} → {h.get('observation_summary','')[:100]}"
+            f"Bước {i + 1}: [{h['action']}] "
+            f"{h['thought'][:100]} → {h.get('observation_summary', '')[:100]}"
         )
     return "\n".join(lines)
 
@@ -365,6 +395,7 @@ async def _synthesize_answer(
     max_tokens: int = 600,
 ) -> str:
     from src.services.ollama_helper import ollama_chat
+
     if not chunks:
         return "Tôi không có đủ thông tin chắc chắn để trả lời câu hỏi này."
 
@@ -373,12 +404,15 @@ async def _synthesize_answer(
         trace=_format_trace(history),
         context=_format_context(chunks),
     )
-    return await ollama_chat(
-        messages=[{"role": "user", "content": prompt}],
-        model=model,
-        temperature=0.2,
-        max_tokens=max_tokens,
-    ) or "Tôi không có đủ thông tin chắc chắn."
+    return (
+        await ollama_chat(
+            messages=[{"role": "user", "content": prompt}],
+            model=model,
+            temperature=0.2,
+            max_tokens=max_tokens,
+        )
+        or "Tôi không có đủ thông tin chắc chắn."
+    )
 
 
 def _observation_summary(action: str, result: dict) -> str:
@@ -395,11 +429,11 @@ def _observation_summary(action: str, result: dict) -> str:
             return "no related entities"
         return f"{len(rel)} related: {', '.join(r['name'] for r in rel[:5])}"
     if action == "retrieve_chunks":
-        return f"added {result.get('chunks_added',0)} new chunks (total {result.get('total_chunks',0)})"
+        return f"added {result.get('chunks_added', 0)} new chunks (total {result.get('total_chunks', 0)})"
     if action == "graph_aware_search":
-        return f"added {result.get('chunks_added',0)} chunks via vector search"
+        return f"added {result.get('chunks_added', 0)} chunks via vector search"
     if action == "rerank":
-        return f"reranked {result.get('reranked',0)}, top scores {result.get('top_scores',[])}"
+        return f"reranked {result.get('reranked', 0)}, top scores {result.get('top_scores', [])}"
     return str(result)[:200]
 
 
@@ -411,9 +445,9 @@ async def react_chat(
     clients: Any,
     settings: Any,
     tenant_id: str = "default",
-    max_steps: int = 6,   # increased from 4 — multi-hop needs more iterations for:
-                            # search_entity → expand_relation → retrieve_chunks →
-                            # graph_aware_search → rerank → FINISH (6 steps minimum)
+    max_steps: int = 6,  # increased from 4 — multi-hop needs more iterations for:
+    # search_entity → expand_relation → retrieve_chunks →
+    # graph_aware_search → rerank → FINISH (6 steps minimum)
 ) -> dict[str, Any]:
     """Run multi-step ReAct loop, return answer + full trace."""
     started = time.monotonic()
@@ -424,7 +458,10 @@ async def react_chat(
     for step in range(max_steps):
         t0 = time.monotonic()
         thought_json = await _decide_next_action(
-            query, history, len(actor.collected_chunks), settings.ollama_model,
+            query,
+            history,
+            len(actor.collected_chunks),
+            settings.ollama_model,
         )
         thought_t = time.monotonic() - t0
         action_name = thought_json["action"]
@@ -443,15 +480,17 @@ async def react_chat(
                 args = {"query": query}
                 action_name = "graph_aware_search"
             else:
-                history.append({
-                    "step": step + 1,
-                    "thought": thought_json["thought"],
-                    "action": "FINISH",
-                    "args": {},
-                    "observation_summary": f"agent decided to finish with {len(actor.collected_chunks)} chunks",
-                    "thought_ms": thought_t * 1000,
-                    "action_ms": 0,
-                })
+                history.append(
+                    {
+                        "step": step + 1,
+                        "thought": thought_json["thought"],
+                        "action": "FINISH",
+                        "args": {},
+                        "observation_summary": f"agent decided to finish with {len(actor.collected_chunks)} chunks",
+                        "thought_ms": thought_t * 1000,
+                        "action_ms": 0,
+                    }
+                )
                 break
 
         # Execute action
@@ -477,15 +516,17 @@ async def react_chat(
             result = {"error": str(e)[:200]}
         action_t = time.monotonic() - t1
 
-        history.append({
-            "step": step + 1,
-            "thought": thought_json["thought"],
-            "action": action_name,
-            "args": args,
-            "observation_summary": _observation_summary(action_name, result),
-            "thought_ms": thought_t * 1000,
-            "action_ms": action_t * 1000,
-        })
+        history.append(
+            {
+                "step": step + 1,
+                "thought": thought_json["thought"],
+                "action": action_name,
+                "args": args,
+                "observation_summary": _observation_summary(action_name, result),
+                "thought_ms": thought_t * 1000,
+                "action_ms": action_t * 1000,
+            }
+        )
 
     # Final synthesize
     t2 = time.monotonic()

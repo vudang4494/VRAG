@@ -8,6 +8,7 @@ Features:
   - Source management and sync status
   - Performance metrics and charts
 """
+
 import asyncio
 import json
 import os
@@ -22,6 +23,7 @@ import numpy as np
 
 # Graph visualization
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -61,6 +63,7 @@ DEFAULT_API_KEY = ""  # Set to your API key
 # Helpers
 # =============================================================================
 
+
 def get_headers(api_key: str | None = None) -> dict:
     key = api_key or DEFAULT_API_KEY
     if key:
@@ -85,6 +88,7 @@ async def apost(url: str, json: dict, headers: dict | None = None) -> dict:
 # =============================================================================
 # Neo4j Graph Visualization
 # =============================================================================
+
 
 async def fetch_graph_data(
     tenant_id: str = DEFAULT_TENANT,
@@ -116,9 +120,15 @@ async def fetch_graph_data(
 
         data = {
             "statements": [
-                {"statement": query_entities, "parameters": {"tenant_id": tenant_id, "limit": max_entities}},
+                {
+                    "statement": query_entities,
+                    "parameters": {"tenant_id": tenant_id, "limit": max_entities},
+                },
                 {"statement": query_rels, "parameters": {"limit": max_relationships}},
-                {"statement": query_chunks, "parameters": {"tenant_id": tenant_id, "limit": max_chunks}},
+                {
+                    "statement": query_chunks,
+                    "parameters": {"tenant_id": tenant_id, "limit": max_chunks},
+                },
             ]
         }
 
@@ -222,7 +232,9 @@ def build_graph_image(
     if show_labels:
         labels = {n: n[:20] for n in G.nodes()}
         nx.draw_networkx_labels(
-            G, pos, labels,
+            G,
+            pos,
+            labels,
             font_size=7,
             font_color="white",
             ax=ax,
@@ -234,12 +246,20 @@ def build_graph_image(
         if etype in [G.nodes[n].get("type", "OTHER") for n in G.nodes()]
     ]
     if legend_patches:
-        ax.legend(handles=legend_patches, loc="upper left", fontsize=8, labelcolor="white",
-                  facecolor="#161B22", edgecolor="#30363D")
+        ax.legend(
+            handles=legend_patches,
+            loc="upper left",
+            fontsize=8,
+            labelcolor="white",
+            facecolor="#161B22",
+            edgecolor="#30363D",
+        )
 
     ax.set_title(
         f"Knowledge Graph — {len(G.nodes())} entities, {len(G.edges())} relationships",
-        color="white", fontsize=14, pad=20,
+        color="white",
+        fontsize=14,
+        pad=20,
     )
     ax.axis("off")
     plt.tight_layout()
@@ -271,10 +291,8 @@ async def chat_with_rag(
 
     payload = {
         "model": model,
-        "messages": [
-            {"role": m["role"], "content": m["content"]}
-            for m in CHAT_HISTORY
-        ] + [{"role": "user", "content": message}],
+        "messages": [{"role": m["role"], "content": m["content"]} for m in CHAT_HISTORY]
+        + [{"role": "user", "content": message}],
         "temperature": temperature,
         "max_tokens": max_tokens,
         "include_sources": include_sources,
@@ -307,7 +325,7 @@ async def chat_with_rag(
         history_tuples = []
         for i in range(0, len(CHAT_HISTORY), 2):
             u_msg = CHAT_HISTORY[i]["content"]
-            a_msg = CHAT_HISTORY[i+1]["content"] if i+1 < len(CHAT_HISTORY) else None
+            a_msg = CHAT_HISTORY[i + 1]["content"] if i + 1 < len(CHAT_HISTORY) else None
             history_tuples.append((u_msg, a_msg))
 
         yield history_tuples, "", f"[{retrieval_time:.0f}ms retrieval]"
@@ -324,6 +342,7 @@ def clear_chat():
 # =============================================================================
 # Document Browser
 # =============================================================================
+
 
 async def fetch_documents(api_key: str, tenant_id: str, page: int = 1):
     """Fetch documents list."""
@@ -354,14 +373,21 @@ async def fetch_stats(tenant_id: str = DEFAULT_TENANT):
 
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
-            r = await client.get(f"{NEO4J_URL}/db/neo4j/tx/commit", json={
-                "statements": [
-                    {"statement": "MATCH (d:Document) RETURN count(d) as doc_count"},
-                    {"statement": "MATCH (c:Chunk) RETURN count(c) as chunk_count"},
-                    {"statement": "MATCH (e:Entity) RETURN count(e) as entity_count"},
-                    {"statement": "CALL db.labels() YIELD label RETURN collect(label) as labels"},
-                ],
-            }, headers={"Content-Type": "application/json"}, auth=("neo4j", ""))
+            r = await client.get(
+                f"{NEO4J_URL}/db/neo4j/tx/commit",
+                json={
+                    "statements": [
+                        {"statement": "MATCH (d:Document) RETURN count(d) as doc_count"},
+                        {"statement": "MATCH (c:Chunk) RETURN count(c) as chunk_count"},
+                        {"statement": "MATCH (e:Entity) RETURN count(e) as entity_count"},
+                        {
+                            "statement": "CALL db.labels() YIELD label RETURN collect(label) as labels"
+                        },
+                    ],
+                },
+                headers={"Content-Type": "application/json"},
+                auth=("neo4j", ""),
+            )
             if r.status_code == 200:
                 data = r.json().get("results", [])
                 if data:
@@ -421,6 +447,7 @@ def make_stats_cards(stats: dict) -> list:
 # Gradio Interface
 # =============================================================================
 
+
 async def graph_tab(
     tenant_id: str,
     max_entities: int,
@@ -439,8 +466,7 @@ async def graph_tab(
         f"**Graph Summary:** {len(data.get('entities', []))} entities, "
         f"{len(data.get('relationships', []))} relationships, "
         f"{len(data.get('chunks', []))} chunks\n\n"
-        f"**Entity Types:** "
-        + ", ".join(f"`{e['type']}`" for e in data.get("entities", [])[:20])
+        f"**Entity Types:** " + ", ".join(f"`{e['type']}`" for e in data.get("entities", [])[:20])
     )
     return img_path, summary
 
@@ -450,15 +476,20 @@ async def sources_tab(api_key: str):
     headers = get_headers(api_key)
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
-            r = await client.get(f"{API_BASE}/api/v2/sources", params={"tenant_id": DEFAULT_TENANT}, headers=headers)
+            r = await client.get(
+                f"{API_BASE}/api/v2/sources", params={"tenant_id": DEFAULT_TENANT}, headers=headers
+            )
         if r.status_code == 200:
             sources = r.json()
             if not sources:
                 return "No sources configured. Create one via API or the document upload tab."
             return "\n".join(
                 f"**{s['name']}** (`{s['source_type']}`) — {s['status']}"
-                + (f"\n  Last sync: {s.get('last_sync_at', 'Never')}"
-                   if s.get('last_sync_at') else "")
+                + (
+                    f"\n  Last sync: {s.get('last_sync_at', 'Never')}"
+                    if s.get("last_sync_at")
+                    else ""
+                )
                 + f"\n  Docs: {s.get('document_count', 0)}"
                 for s in sources
             )
@@ -478,13 +509,48 @@ async def plugins_tab():
 
     if not plugins:
         plugins = [
-            {"name": "file", "version": "1.0.0", "capabilities": ["file", "url"], "types": ["pdf", "docx", "txt"]},
-            {"name": "webpage", "version": "1.0.0", "capabilities": ["crawl", "url"], "types": ["html", "webpage"]},
-            {"name": "github", "version": "1.0.0", "capabilities": ["sync", "scheduled"], "types": ["github"]},
-            {"name": "database", "version": "1.0.0", "capabilities": ["query", "scheduled"], "types": ["sql"]},
-            {"name": "api", "version": "1.0.0", "capabilities": ["scheduled", "webhook"], "types": ["rest", "api"]},
-            {"name": "email", "version": "1.0.0", "capabilities": ["scheduled"], "types": ["email", "gmail"]},
-            {"name": "arxiv", "version": "1.0.0", "capabilities": ["url", "scheduled"], "types": ["arxiv"]},
+            {
+                "name": "file",
+                "version": "1.0.0",
+                "capabilities": ["file", "url"],
+                "types": ["pdf", "docx", "txt"],
+            },
+            {
+                "name": "webpage",
+                "version": "1.0.0",
+                "capabilities": ["crawl", "url"],
+                "types": ["html", "webpage"],
+            },
+            {
+                "name": "github",
+                "version": "1.0.0",
+                "capabilities": ["sync", "scheduled"],
+                "types": ["github"],
+            },
+            {
+                "name": "database",
+                "version": "1.0.0",
+                "capabilities": ["query", "scheduled"],
+                "types": ["sql"],
+            },
+            {
+                "name": "api",
+                "version": "1.0.0",
+                "capabilities": ["scheduled", "webhook"],
+                "types": ["rest", "api"],
+            },
+            {
+                "name": "email",
+                "version": "1.0.0",
+                "capabilities": ["scheduled"],
+                "types": ["email", "gmail"],
+            },
+            {
+                "name": "arxiv",
+                "version": "1.0.0",
+                "capabilities": ["url", "scheduled"],
+                "types": ["arxiv"],
+            },
         ]
 
     return "\n\n".join(
@@ -498,7 +564,6 @@ async def plugins_tab():
 def build_dashboard():
     """Build the full Gradio dashboard."""
     with gr.Blocks(title="Enterprise RAG Dashboard") as demo:
-
         gr.Markdown(
             "# Enterprise RAG Dashboard\n"
             "Multi-tenant GraphRAG visualization & interaction hub\n"
@@ -586,9 +651,8 @@ def build_dashboard():
                 gr.Markdown("### System Statistics")
                 refresh_stats = gr.Button("Refresh Stats", variant="primary")
                 with gr.Row():
-                    stat_cards = [
-                        gr.Markdown("") for _ in range(4)
-                    ]
+                    stat_cards = [gr.Markdown("") for _ in range(4)]
+
                 async def update_stats():
                     stats = await fetch_stats()
                     return make_stats_cards(stats)
@@ -601,9 +665,7 @@ def build_dashboard():
 
                 gr.Markdown("### Quick Actions")
                 with gr.Row():
-                    gr.Button("Ingest Test Doc", elem_id="ingest-test").click(
-                        None, None, None
-                    )
+                    gr.Button("Ingest Test Doc", elem_id="ingest-test").click(None, None, None)
                     gr.Button("Sync All Sources").click(None, None, None)
                     gr.Button("Clear Cache").click(None, None, None)
                     gr.Button("Export Graph").click(None, None, None)
@@ -627,6 +689,7 @@ def build_dashboard():
             with gr.TabItem("Pipeline V2"):
                 try:
                     from dashboard.v3_panel import build_v3_tab
+
                     build_v3_tab(api_base=API_BASE)
                 except Exception as _e:
                     gr.Markdown(f"V3 panel unavailable: {_e}")

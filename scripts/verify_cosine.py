@@ -13,6 +13,7 @@ Tests:
 Usage:
   python3 scripts/verify_cosine.py --api http://localhost:11434
 """
+
 from __future__ import annotations
 
 import argparse
@@ -64,20 +65,28 @@ SEMANTIC_PAIRS = [
     # HIGH similarity expected
     ("vi_synonym_company", "công ty ABC", "doanh nghiệp ABC", 0.70, 1.0),
     ("vi_synonym_revenue", "doanh thu quý 3", "doanh số ba tháng cuối", 0.55, 1.0),
-    ("vi_paraphrase", "Lợi nhuận tăng 25% so với năm ngoái",
-                      "So với năm trước, lợi nhuận đã tăng một phần tư", 0.55, 1.0),
+    (
+        "vi_paraphrase",
+        "Lợi nhuận tăng 25% so với năm ngoái",
+        "So với năm trước, lợi nhuận đã tăng một phần tư",
+        0.55,
+        1.0,
+    ),
     ("en_synonym_revenue", "revenue in Q3", "sales in third quarter", 0.65, 1.0),
     ("vi_en_translation", "doanh thu quý 3", "revenue in Q3", 0.50, 1.0),
     ("identical_text", "Báo cáo tài chính 2024", "Báo cáo tài chính 2024", 0.99, 1.001),
-
     # MEDIUM similarity (related topic)
     ("vi_related_topic", "phòng kinh doanh", "phòng marketing", 0.40, 0.80),
-
     # LOW similarity expected
     ("vi_unrelated", "doanh thu quý 3", "thời tiết Hà Nội", 0.0, 0.45),
     ("vi_antonym_meaning", "công ty lãi 100 tỷ", "công ty lỗ 100 tỷ", 0.35, 0.85),
-    ("totally_random_vi", "Báo cáo tài chính ngân hàng",
-                           "Công thức nấu phở bò gia truyền", 0.0, 0.45),
+    (
+        "totally_random_vi",
+        "Báo cáo tài chính ngân hàng",
+        "Công thức nấu phở bò gia truyền",
+        0.0,
+        0.45,
+    ),
 ]
 
 

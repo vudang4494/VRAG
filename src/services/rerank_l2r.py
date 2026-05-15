@@ -20,6 +20,7 @@ Features (11 dimensions):
  10. format_match_score     — format preference per intent (placeholder)
  11. source_quality_score   — Phase 6a CQC placeholder (1.0 default)
 """
+
 from __future__ import annotations
 
 import math
@@ -35,17 +36,17 @@ from loguru import logger
 # ── Feature weights (hand-tuned initial) ──────────────────────────────────────
 # Re-tunable via env: FEATURE_WEIGHTS_JSON='{"stage2":0.3,...}'
 DEFAULT_WEIGHTS = {
-    "stage2_score":            0.25,
-    "cosine_dense":            0.10,
-    "cosine_graph_aware":      0.20,
-    "consistency_score":       0.10,
-    "chunk_level_factor":      0.05,
+    "stage2_score": 0.25,
+    "cosine_dense": 0.10,
+    "cosine_graph_aware": 0.20,
+    "consistency_score": 0.10,
+    "chunk_level_factor": 0.05,
     "entity_match_count_norm": 0.15,
-    "path_confidence":         0.05,
-    "recency_score":           0.03,
-    "retrieval_path_weight":   0.04,
-    "format_match_score":      0.01,
-    "source_quality_score":    0.02,
+    "path_confidence": 0.05,
+    "recency_score": 0.03,
+    "retrieval_path_weight": 0.04,
+    "format_match_score": 0.01,
+    "source_quality_score": 0.02,
 }
 
 
@@ -55,6 +56,7 @@ def _load_weights() -> dict[str, float]:
     if raw:
         try:
             import json as _j
+
             return {**DEFAULT_WEIGHTS, **_j.loads(raw)}
         except Exception as e:
             logger.warning(f"FEATURE_WEIGHTS_JSON parse failed: {e}; using defaults")
@@ -100,7 +102,11 @@ def _recency_score(created_at: str | None) -> float:
     except Exception:
         return 0.7
     now = datetime.now(timezone.utc)
-    days = max((now - dt.replace(tzinfo=timezone.utc)).days, 0) if dt.tzinfo is None else max((now - dt).days, 0)
+    days = (
+        max((now - dt.replace(tzinfo=timezone.utc)).days, 0)
+        if dt.tzinfo is None
+        else max((now - dt).days, 0)
+    )
     # Half-life 365 days
     return max(0.3, 0.5 ** (days / 365.0))
 
@@ -138,17 +144,19 @@ def extract_features(
     fmt_score = 1.0 if (not query_format_pref or fmt in query_format_pref) else 0.5
 
     return {
-        "stage2_score":            float(chunk.get("stage2_score") or chunk.get("score") or 0.0),
-        "cosine_dense":            min(cos_dense, 1.0),
-        "cosine_graph_aware":      min(cos_graph, 1.0),
-        "consistency_score":       float(chunk.get("consistency_score") or 0.7),
-        "chunk_level_factor":      _chunk_level_factor(chunk.get("chunk_level")),
+        "stage2_score": float(chunk.get("stage2_score") or chunk.get("score") or 0.0),
+        "cosine_dense": min(cos_dense, 1.0),
+        "cosine_graph_aware": min(cos_graph, 1.0),
+        "consistency_score": float(chunk.get("consistency_score") or 0.7),
+        "chunk_level_factor": _chunk_level_factor(chunk.get("chunk_level")),
         "entity_match_count_norm": _entity_match_norm(chunk, query_entities),
-        "path_confidence":         float(chunk.get("path_confidence") or 1.0),
-        "recency_score":           _recency_score(chunk.get("created_at") or chunk.get("metadata", {}).get("created_at")),
-        "retrieval_path_weight":   _retrieval_path_weight(chunk.get("retrieval_path")),
-        "format_match_score":      fmt_score,
-        "source_quality_score":    float(chunk.get("source_quality_score") or 1.0),
+        "path_confidence": float(chunk.get("path_confidence") or 1.0),
+        "recency_score": _recency_score(
+            chunk.get("created_at") or chunk.get("metadata", {}).get("created_at")
+        ),
+        "retrieval_path_weight": _retrieval_path_weight(chunk.get("retrieval_path")),
+        "format_match_score": fmt_score,
+        "source_quality_score": float(chunk.get("source_quality_score") or 1.0),
     }
 
 
@@ -181,7 +189,9 @@ async def rerank_l2r(
     started = time.monotonic()
 
     for c in candidates:
-        feats = extract_features(c, query_entities=query_entities, query_format_pref=query_format_pref)
+        feats = extract_features(
+            c, query_entities=query_entities, query_format_pref=query_format_pref
+        )
         c["l2r_features"] = feats
         c["l2r_score"] = score_with_weights(feats, w)
         # Final_score: blend stage2 (semantic) with l2r (feature-aware)
@@ -189,7 +199,7 @@ async def rerank_l2r(
 
     candidates.sort(key=lambda x: x.get("final_score", 0.0), reverse=True)
     elapsed = time.monotonic() - started
-    logger.debug(f"L2R rerank: {len(candidates)} chunks in {elapsed*1000:.0f}ms")
+    logger.debug(f"L2R rerank: {len(candidates)} chunks in {elapsed * 1000:.0f}ms")
     return candidates[:top_k]
 
 
@@ -220,13 +230,16 @@ async def rerank_full_pipeline_v2(
     if enable_stage1:
         stage1 = await rerank_stage1(query, candidates, top_k=stage1_top_k)
     else:
-        stage1 = [{**c, "stage1_score": float(c.get("score", 0.0))} for c in candidates[:stage1_top_k]]
+        stage1 = [
+            {**c, "stage1_score": float(c.get("score", 0.0))} for c in candidates[:stage1_top_k]
+        ]
 
     stage2 = await rerank_stage2(query, stage1, http, embed_url, embed_model, top_k=stage2_top_k)
 
     # Stage 3: L2R (replacing LLM judge)
     final = await rerank_l2r(
-        query, stage2,
+        query,
+        stage2,
         query_entities=query_entities,
         query_format_pref=query_format_pref,
         top_k=final_top_k,

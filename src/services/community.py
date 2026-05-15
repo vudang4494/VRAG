@@ -9,6 +9,7 @@ Workflow:
 6. LLM judge picks best summary.
 7. Write (:Community) nodes + IN_COMMUNITY edges to Neo4j.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -115,7 +116,10 @@ async def fetch_entity_graph(
                 RETURN src, tgt, toFloat(shared_chunks) / 10.0 AS weight
                 """,
             )
-            edges = [(row["src"], row["tgt"], float(row["weight"])) for row in await co_occur_result.data()]
+            edges = [
+                (row["src"], row["tgt"], float(row["weight"]))
+                for row in await co_occur_result.data()
+            ]
             logger.info(f"Built {len(edges)} co-occurrence edges from CONTAINS_ENTITY")
 
     return entities, edges
@@ -137,10 +141,15 @@ def cluster_leiden(
     # Try Leiden via igraph
     try:
         import igraph as ig
+
         g = ig.Graph()
         g.add_vertices(entity_names)
         name_to_idx = {n: i for i, n in enumerate(entity_names)}
-        ig_edges = [(name_to_idx[s], name_to_idx[t]) for s, t, _ in edges if s in name_to_idx and t in name_to_idx]
+        ig_edges = [
+            (name_to_idx[s], name_to_idx[t])
+            for s, t, _ in edges
+            if s in name_to_idx and t in name_to_idx
+        ]
         weights = [w for s, t, w in edges if s in name_to_idx and t in name_to_idx]
         if ig_edges:
             g.add_edges(ig_edges)
@@ -160,6 +169,7 @@ def cluster_leiden(
     try:
         import networkx as nx
         from networkx.algorithms.community import louvain_communities
+
         g = nx.Graph()
         g.add_nodes_from(entity_names)
         g.add_weighted_edges_from([(s, t, w) for s, t, w in edges])
@@ -217,7 +227,9 @@ async def generate_consistent_summary(
     Generate `vote_passes` summaries with different temperatures, LLM judge picks best.
     Returns (best_summary, vote_count).
     """
-    ent_str = "\n".join(f"- {e['name']} ({e.get('type', '')}): {e.get('description') or ''}" for e in entities[:15])
+    ent_str = "\n".join(
+        f"- {e['name']} ({e.get('type', '')}): {e.get('description') or ''}" for e in entities[:15]
+    )
     chunk_str = "\n---\n".join(c["text"][:500] for c in chunks[:5])
     prompt = _COMMUNITY_SUMMARY_PROMPT.format(entities=ent_str, chunks=chunk_str)
 
@@ -288,8 +300,12 @@ async def write_community(
                 com.summary_vote_count = $votes,
                 com.generated_at = datetime()
             """,
-            cid=community_id, tid=tenant_id, level=level, summary=summary,
-            count=len(member_entities), votes=vote_count,
+            cid=community_id,
+            tid=tenant_id,
+            level=level,
+            summary=summary,
+            count=len(member_entities),
+            votes=vote_count,
         )
         for name in member_entities:
             params = {"name": name, "cid": community_id, "level": level}
@@ -316,7 +332,8 @@ async def write_community(
                 MATCH (parent:Community {id: $pid})
                 MERGE (com)-[:SUB_COMMUNITY_OF]->(parent)
                 """,
-                cid=community_id, pid=parent_community_id,
+                cid=community_id,
+                pid=parent_community_id,
             )
 
 
@@ -360,14 +377,23 @@ async def build_communities_for_tenant(
         ent_objs = [name_to_entity[n] for n in members if n in name_to_entity]
         async with sem:
             summary, votes = await generate_consistent_summary(
-                ent_objs, chunks, llm, llm_model, vote_passes,
+                ent_objs,
+                chunks,
+                llm,
+                llm_model,
+                vote_passes,
             )
         if not summary:
             return 0
         community_id = f"comm_{tenant_id or 'default'}_L0_{cid}_{uuid.uuid4().hex[:6]}"
         await write_community(
-            neo4j_driver, community_id, tenant_id, level=0,
-            summary=summary, member_entities=members, vote_count=votes,
+            neo4j_driver,
+            community_id,
+            tenant_id,
+            level=0,
+            summary=summary,
+            member_entities=members,
+            vote_count=votes,
         )
         written += 1
         return 1

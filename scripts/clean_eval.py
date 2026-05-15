@@ -17,6 +17,7 @@ Metrics:
   - refusal_accuracy: refused == expect_refusal
   - latency_ms: wall clock
 """
+
 from __future__ import annotations
 
 import argparse
@@ -68,6 +69,7 @@ async def embed_single(
 
 def cosine_similarity(a: list[float], b: list[float]) -> float:
     import math
+
     dot = sum(x * y for x, y in zip(a, b))
     norm_a = math.sqrt(sum(x * x for x in a))
     norm_b = math.sqrt(sum(x * x for x in b))
@@ -220,9 +222,7 @@ async def run_eval(args) -> None:
 
         r = await query_standard(args.api, q["query"], args.tenant)
 
-        expected_count = len(
-            {q.get("expected_doc")} | set(q.get("expected_docs", [])) - {None}
-        )
+        expected_count = len({q.get("expected_doc")} | set(q.get("expected_docs", [])) - {None})
         docs_found = check_expected_doc(
             r.get("sources", []),
             q.get("expected_doc"),
@@ -262,9 +262,11 @@ async def run_eval(args) -> None:
         kw_str = f"kw={kw_hit:.2f}"
         ref_str = f"refused={'YES' if refused else 'no'}"
         ref_ok = "(OK)" if refusal_correct else "(WRONG)"
-        err_str = f" ERR: {r.get('error','')[:50]}" if r.get("error") else ""
+        err_str = f" ERR: {r.get('error', '')[:50]}" if r.get("error") else ""
         routing = r.get("routing", {})
-        react_str = f"[{routing.get('query_type','?')}:{'R' if routing.get('react_used') else 'S'}]"
+        react_str = (
+            f"[{routing.get('query_type', '?')}:{'R' if routing.get('react_used') else 'S'}]"
+        )
 
         print(
             f"         {docs_str:10} {kw_str:8} {ref_str} {ref_ok:8} {lat:6.1f}s "
@@ -284,9 +286,7 @@ async def run_eval(args) -> None:
         lats = sorted(r["latency_ms"] for r in ok)
         p50 = lats[len(lats) // 2]
         p95 = lats[int(len(lats) * 0.95)]
-        avg_doc = sum(
-            r["docs_found"] / max(r["docs_expected"], 1) for r in ok
-        ) / len(ok)
+        avg_doc = sum(r["docs_found"] / max(r["docs_expected"], 1) for r in ok) / len(ok)
         avg_kw = sum(r["kw_hit_ratio"] for r in ok) / len(ok)
         refusal_acc = sum(1 for r in ok if r["refusal_correct"]) / len(ok)
 
@@ -299,7 +299,7 @@ async def run_eval(args) -> None:
 
         print(f"\nC1_v3_standard (validation=OFF, retries=0, fresh_client)")
         print(f"  OK={len(ok)}/{len(results)}  ERR={len(err)}")
-        print(f"  p50_latency={p50/1000:.1f}s  p95_latency={p95/1000:.1f}s")
+        print(f"  p50_latency={p50 / 1000:.1f}s  p95_latency={p95 / 1000:.1f}s")
         print(f"  avg_doc_recall={avg_doc:.1%}")
         print(f"  avg_kw_hit={kw_hit_rate:.1%}  (lit={lit:.1%} sem={sem:.1%} miss={miss:.1%})")
         print(f"  refusal_accuracy={refusal_acc:.1%}")
@@ -328,9 +328,7 @@ async def run_eval(args) -> None:
         ref_acc = sum(1 for r in runs if r["refusal_correct"]) / n
         lats = sorted(r["latency_ms"] for r in runs)
         p50 = lats[len(lats) // 2] / 1000 if lats else 0
-        print(
-            f"{cat:<22} {n:>3} {avg_doc:>10.1%} {avg_kw:>7.1%} {ref_acc:>7.1%} {p50:>7.1f}s"
-        )
+        print(f"{cat:<22} {n:>3} {avg_doc:>10.1%} {avg_kw:>7.1%} {ref_acc:>7.1%} {p50:>7.1f}s")
 
     # ── Per-query detail ──────────────────────────────────────────────────────
     print("\n" + "=" * 80)
@@ -340,9 +338,7 @@ async def run_eval(args) -> None:
         err_str = f" ERR: {r['error'][:80]}" if r.get("error") else ""
         kw = r["kw_hit_ratio"]
         bd = r.get("kw_breakdown") or []
-        kw_str = ",".join(
-            f"{d['keyword'][:10]}({d['hit_type'][0]})" for d in bd
-        )
+        kw_str = ",".join(f"{d['keyword'][:10]}({d['hit_type'][0]})" for d in bd)
         if not kw_str:
             kw_str = "n/a"
         routing = r.get("routing") or {}
@@ -353,7 +349,7 @@ async def run_eval(args) -> None:
             f"docs={r['docs_found']}/{r['docs_expected']:>1} "
             f"kw={kw:.2f} {kw_str[:35]:35} "
             f"{'REFUSED' if r['refused'] else 'ok':7} "
-            f"{lat:6.1f}s [{routing.get('query_type','?')[:8]:8} {react}]{err_str}"
+            f"{lat:6.1f}s [{routing.get('query_type', '?')[:8]:8} {react}]{err_str}"
         )
 
     # ── Save report ────────────────────────────────────────────────────────────
@@ -391,15 +387,10 @@ async def run_eval(args) -> None:
         "per_category": {
             cat: {
                 "n": len(runs),
-                "avg_doc_recall": sum(
-                    r["docs_found"] / max(r["docs_expected"], 1) for r in runs
-                )
+                "avg_doc_recall": sum(r["docs_found"] / max(r["docs_expected"], 1) for r in runs)
                 / len(runs),
                 "avg_kw_hit": sum(r["kw_hit_ratio"] for r in runs) / len(runs),
-                "refusal_accuracy": sum(
-                    1 for r in runs if r["refusal_correct"]
-                )
-                / len(runs),
+                "refusal_accuracy": sum(1 for r in runs if r["refusal_correct"]) / len(runs),
             }
             for cat, runs in cats.items()
         },

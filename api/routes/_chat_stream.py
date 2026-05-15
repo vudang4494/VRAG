@@ -1,4 +1,5 @@
 """Streaming chat endpoint — /chat/stream (SSE)."""
+
 import json
 import time
 from typing import Any
@@ -56,9 +57,12 @@ async def chat_v3_stream(body: dict[str, Any]):
         try:
             # 1. Query understanding
             from src.services.query_understanding import understand_query
+
             t0 = time.monotonic()
             understanding = await understand_query(
-                query, clients.llm, model=settings.ollama_model,
+                query,
+                clients.llm,
+                model=settings.ollama_model,
                 timeout=settings.query_understanding_timeout_s,
             )
             latency["query_understanding_ms"] = (time.monotonic() - t0) * 1000
@@ -70,7 +74,8 @@ async def chat_v3_stream(body: dict[str, Any]):
 
             t0 = time.monotonic()
             candidates = await multi_path_retrieve(
-                understanding, clients,
+                understanding,
+                clients,
                 tenant_id=tenant_id,
                 format_filter=format_filter,
                 access_levels=access_levels,
@@ -80,12 +85,14 @@ async def chat_v3_stream(body: dict[str, Any]):
             latency["retrieval_ms"] = (time.monotonic() - t0) * 1000
 
             if not candidates:
-                yield sse({
-                    "type": "done",
-                    "refused": True,
-                    "refusal_reason": "no_candidates",
-                    "total_ms": (time.monotonic() - started_total) * 1000,
-                })
+                yield sse(
+                    {
+                        "type": "done",
+                        "refused": True,
+                        "refusal_reason": "no_candidates",
+                        "total_ms": (time.monotonic() - started_total) * 1000,
+                    }
+                )
                 return
 
             # 3. Rerank → L2R final
@@ -119,32 +126,40 @@ async def chat_v3_stream(body: dict[str, Any]):
             latency["rerank_ms"] = (time.monotonic() - t0) * 1000
 
             if not top_reranked:
-                yield sse({
-                    "type": "done",
-                    "refused": True,
-                    "refusal_reason": "rerank_empty",
-                    "total_ms": (time.monotonic() - started_total) * 1000,
-                })
+                yield sse(
+                    {
+                        "type": "done",
+                        "refused": True,
+                        "refusal_reason": "rerank_empty",
+                        "total_ms": (time.monotonic() - started_total) * 1000,
+                    }
+                )
                 return
 
             # 4. Send META event — UI gets sources before tokens arrive
-            sources_out = [
+            sources_out = (
+                [
+                    {
+                        "chunk_id": c.get("chunk_id"),
+                        "text": (c.get("text") or "")[:300],
+                        "source": c.get("source"),
+                        "format": c.get("format"),
+                        "chunk_level": c.get("chunk_level"),
+                        "final_score": c.get("final_score"),
+                    }
+                    for c in top_reranked[: settings.final_top_k]
+                ]
+                if include_sources
+                else []
+            )
+            yield sse(
                 {
-                    "chunk_id": c.get("chunk_id"),
-                    "text": (c.get("text") or "")[:300],
-                    "source": c.get("source"),
-                    "format": c.get("format"),
-                    "chunk_level": c.get("chunk_level"),
-                    "final_score": c.get("final_score"),
+                    "type": "meta",
+                    "intent": understanding.get("intent"),
+                    "sources": sources_out,
+                    "retrieval_timings": latency,
                 }
-                for c in top_reranked[:settings.final_top_k]
-            ] if include_sources else []
-            yield sse({
-                "type": "meta",
-                "intent": understanding.get("intent"),
-                "sources": sources_out,
-                "retrieval_timings": latency,
-            })
+            )
 
             # 5. Stream generation
             context = format_context(top_reranked)
@@ -155,6 +170,7 @@ async def chat_v3_stream(body: dict[str, Any]):
             )
 
             from src.services.ollama_helper import ollama_chat_stream
+
             t0 = time.monotonic()
             full_answer = ""
             async for chunk in ollama_chat_stream(
@@ -175,6 +191,7 @@ async def chat_v3_stream(body: dict[str, Any]):
             validation = {"passed": True, "grounded_ratio": 1.0, "citation_ratio": 1.0}
             if settings.validation_enabled and full_answer.strip():
                 from src.services.validation import validate_answer
+
                 t0 = time.monotonic()
                 validation = await validate_answer(
                     answer=full_answer,
@@ -189,25 +206,31 @@ async def chat_v3_stream(body: dict[str, Any]):
                 )
                 latency["validation_ms"] = (time.monotonic() - t0) * 1000
 
-            yield sse({
-                "type": "validation",
-                "passed": validation.get("passed", True),
-                "grounded_ratio": validation.get("grounded_ratio", 1.0),
-                "citation_ratio": validation.get("citation_ratio", 1.0),
-                "invalid_entities": validation.get("invalid_entities", []),
-                "failure_reason": validation.get("failure_reason"),
-            })
+            yield sse(
+                {
+                    "type": "validation",
+                    "passed": validation.get("passed", True),
+                    "grounded_ratio": validation.get("grounded_ratio", 1.0),
+                    "citation_ratio": validation.get("citation_ratio", 1.0),
+                    "invalid_entities": validation.get("invalid_entities", []),
+                    "failure_reason": validation.get("failure_reason"),
+                }
+            )
 
             # 7. Done event with full stats
             total_ms = (time.monotonic() - started_total) * 1000
-            yield sse({
-                "type": "done",
-                "refused": not validation.get("passed", True),
-                "refusal_reason": validation.get("failure_reason") if not validation.get("passed", True) else None,
-                "total_ms": total_ms,
-                "latency_breakdown_ms": latency,
-                "answer_length": len(full_answer),
-            })
+            yield sse(
+                {
+                    "type": "done",
+                    "refused": not validation.get("passed", True),
+                    "refusal_reason": validation.get("failure_reason")
+                    if not validation.get("passed", True)
+                    else None,
+                    "total_ms": total_ms,
+                    "latency_breakdown_ms": latency,
+                    "answer_length": len(full_answer),
+                }
+            )
 
             # Record metrics
             try:

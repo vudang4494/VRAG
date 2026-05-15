@@ -15,24 +15,56 @@ Multi-signal score (no LLM, all regex/counting):
 
 Returns score 0-1. Drop if < threshold (default 0.4).
 """
+
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass
 
 
-HEDGE_WORDS_VI = [r"\bcó thể\b", r"\bchắc(?: chắn)?\b", r"\bcó lẽ\b", r"\bhình như\b",
-                   r"\bgiả định\b", r"\bdường như\b", r"\bnghi ngờ\b"]
-HEDGE_WORDS_EN = [r"\bmaybe\b", r"\bpossibly\b", r"\bperhaps\b", r"\bI think\b",
-                   r"\bsupposedly\b", r"\bseems like\b"]
+HEDGE_WORDS_VI = [
+    r"\bcó thể\b",
+    r"\bchắc(?: chắn)?\b",
+    r"\bcó lẽ\b",
+    r"\bhình như\b",
+    r"\bgiả định\b",
+    r"\bdường như\b",
+    r"\bnghi ngờ\b",
+]
+HEDGE_WORDS_EN = [
+    r"\bmaybe\b",
+    r"\bpossibly\b",
+    r"\bperhaps\b",
+    r"\bI think\b",
+    r"\bsupposedly\b",
+    r"\bseems like\b",
+]
 
-MARKETING_VI = [r"\btuyệt vời\b", r"\bđột phá\b", r"\b(siêu|cực kỳ)\s+\w+", r"\b#1 (về|cho)\b",
-                 r"\b(tốt|hàng đầu|đẳng cấp)\s+\w+"]
-MARKETING_EN = [r"\bamazing\b", r"\bgame[- ]?chang(?:er|ing)\b", r"\brevolution(?:ary)?\b",
-                 r"\b(best|world[- ]class)\s+\w+", r"\bbreakthrough\b", r"\b(unique|unmatched)\b"]
+MARKETING_VI = [
+    r"\btuyệt vời\b",
+    r"\bđột phá\b",
+    r"\b(siêu|cực kỳ)\s+\w+",
+    r"\b#1 (về|cho)\b",
+    r"\b(tốt|hàng đầu|đẳng cấp)\s+\w+",
+]
+MARKETING_EN = [
+    r"\bamazing\b",
+    r"\bgame[- ]?chang(?:er|ing)\b",
+    r"\brevolution(?:ary)?\b",
+    r"\b(best|world[- ]class)\s+\w+",
+    r"\bbreakthrough\b",
+    r"\b(unique|unmatched)\b",
+]
 
-DRAFT_MARKERS = [r"\bTODO\b", r"\bFIXME\b", r"\bDRAFT\b", r"\bWIP\b", r"\bXXX\b",
-                  r"\b\(\?\?\?\)\b", r"\[\s*placeholder\s*\]"]
+DRAFT_MARKERS = [
+    r"\bTODO\b",
+    r"\bFIXME\b",
+    r"\bDRAFT\b",
+    r"\bWIP\b",
+    r"\bXXX\b",
+    r"\b\(\?\?\?\)\b",
+    r"\[\s*placeholder\s*\]",
+]
 
 CODE_PATTERN = re.compile(r"```[\w]*\n[\s\S]+?```|`[^`]+`")
 TABLE_PATTERN = re.compile(r"^\|.*\|\n\|[\s\-:|]+\|", re.MULTILINE)
@@ -41,7 +73,7 @@ LIST_PATTERN = re.compile(r"^\s*[-*+•]\s+\S+", re.MULTILINE)
 
 @dataclass
 class QualityScore:
-    overall: float        # 0-1
+    overall: float  # 0-1
     length_ok: bool
     entity_density: float
     has_structure: bool

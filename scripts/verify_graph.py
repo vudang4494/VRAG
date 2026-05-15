@@ -16,6 +16,7 @@ Usage:
 
 Reads NEO4J_PASSWORD from env or .env if not provided.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -31,14 +32,14 @@ import httpx
 
 EXPECTED_LABELS = ["Document", "Chunk", "Entity", "Community"]
 EXPECTED_REL_TYPES = {
-    "FROM_DOCUMENT":    "(:Chunk)->(:Document)",
-    "CONTAINS_ENTITY":  "(:Chunk)->(:Entity)",
-    "RELATES_TO":       "(:Entity)->(:Entity)",
-    "VARIANT_OF":       "(:Chunk)->(:Chunk) hierarchical, in-doc",
-    "SIMILAR_TO":       "(:Chunk)->(:Chunk) in-doc or cross-doc",
-    "SHARES_ENTITIES":  "(:Document)->(:Document) cross-doc entity overlap",
-    "SIMILAR_DOC":      "(:Document)->(:Document) cross-doc aggregate",
-    "IN_COMMUNITY":     "(:Entity)->(:Community)",
+    "FROM_DOCUMENT": "(:Chunk)->(:Document)",
+    "CONTAINS_ENTITY": "(:Chunk)->(:Entity)",
+    "RELATES_TO": "(:Entity)->(:Entity)",
+    "VARIANT_OF": "(:Chunk)->(:Chunk) hierarchical, in-doc",
+    "SIMILAR_TO": "(:Chunk)->(:Chunk) in-doc or cross-doc",
+    "SHARES_ENTITIES": "(:Document)->(:Document) cross-doc entity overlap",
+    "SIMILAR_DOC": "(:Document)->(:Document) cross-doc aggregate",
+    "IN_COMMUNITY": "(:Entity)->(:Community)",
     "SUB_COMMUNITY_OF": "(:Community)->(:Community)",
 }
 
@@ -134,7 +135,10 @@ async def main(http_url: str, user: str, password: str, tenant: str | None) -> i
         for rel, desc in EXPECTED_REL_TYPES.items():
             try:
                 rows = await cypher(
-                    client, http_url, user, password,
+                    client,
+                    http_url,
+                    user,
+                    password,
                     f"MATCH ()-[r:{rel}]->() RETURN count(r) AS c",
                 )
                 count = int(rows[0]["c"]) if rows else 0
@@ -157,7 +161,10 @@ async def main(http_url: str, user: str, password: str, tenant: str | None) -> i
         banner("3. Cross-doc SIMILAR_TO breakdown")
         try:
             rows = await cypher(
-                client, http_url, user, password,
+                client,
+                http_url,
+                user,
+                password,
                 "MATCH (a:Chunk)-[s:SIMILAR_TO]->(b:Chunk) "
                 "WHERE a.id <> b.id "
                 "RETURN s.cross_doc AS cd, count(s) AS c",
@@ -179,7 +186,10 @@ async def main(http_url: str, user: str, password: str, tenant: str | None) -> i
                 continue
             try:
                 rows = await cypher(
-                    client, http_url, user, password,
+                    client,
+                    http_url,
+                    user,
+                    password,
                     f"MATCH (a)-[r:{rel}]->(b) "
                     f"RETURN labels(a) AS la, labels(b) AS lb, properties(r) AS props "
                     f"LIMIT 3",
@@ -202,7 +212,10 @@ async def main(http_url: str, user: str, password: str, tenant: str | None) -> i
         for label in ["Chunk", "Entity", "Document"]:
             try:
                 rows = await cypher(
-                    client, http_url, user, password,
+                    client,
+                    http_url,
+                    user,
+                    password,
                     f"MATCH (n:{label}) "
                     f"RETURN sum(CASE WHEN n.tenant_id IS NOT NULL THEN 1 ELSE 0 END) AS with_t, "
                     f"       sum(CASE WHEN n.tenant_id IS NULL THEN 1 ELSE 0 END) AS no_t",
@@ -223,7 +236,10 @@ async def main(http_url: str, user: str, password: str, tenant: str | None) -> i
         banner("6. Document↔Document linkage")
         try:
             rows = await cypher(
-                client, http_url, user, password,
+                client,
+                http_url,
+                user,
+                password,
                 "MATCH (d1:Document)-[r:SHARES_ENTITIES|SIMILAR_DOC]->(d2:Document) "
                 "RETURN type(r) AS t, count(*) AS c",
             )
@@ -241,7 +257,10 @@ async def main(http_url: str, user: str, password: str, tenant: str | None) -> i
         banner("7. Orphan check")
         try:
             rows = await cypher(
-                client, http_url, user, password,
+                client,
+                http_url,
+                user,
+                password,
                 "MATCH (c:Chunk) WHERE NOT (c)-[:FROM_DOCUMENT]->() RETURN count(c) AS c",
             )
             orphan_chunks = int(rows[0]["c"]) if rows else 0
@@ -254,7 +273,10 @@ async def main(http_url: str, user: str, password: str, tenant: str | None) -> i
 
         try:
             rows = await cypher(
-                client, http_url, user, password,
+                client,
+                http_url,
+                user,
+                password,
                 "MATCH (e:Entity) WHERE NOT (:Chunk)-[:CONTAINS_ENTITY]->(e) RETURN count(e) AS c",
             )
             orphan_entities = int(rows[0]["c"]) if rows else 0
@@ -277,7 +299,9 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--http", default=os.environ.get("NEO4J_HTTP", "http://localhost:7474"))
     p.add_argument("--user", default=os.environ.get("NEO4J_USER", "neo4j"))
-    p.add_argument("--password", default=os.environ.get("NEO4J_PASSWORD") or load_password_from_env() or "")
+    p.add_argument(
+        "--password", default=os.environ.get("NEO4J_PASSWORD") or load_password_from_env() or ""
+    )
     p.add_argument("--tenant", default=None)
     args = p.parse_args()
 

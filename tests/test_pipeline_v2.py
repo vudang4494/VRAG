@@ -3,6 +3,7 @@
 These are mostly UNIT tests — không cần stack chạy (trừ một số e2e marked).
 Chạy bằng: make test-v2  hoặc  pytest tests/test_pipeline_v2.py -v
 """
+
 from __future__ import annotations
 
 import json
@@ -19,6 +20,7 @@ import pytest
 
 def test_base_chunker_split_sentences_vietnamese():
     from src.services.chunkers.base import BaseChunker
+
     text = "Đây là câu thứ nhất. Đây là câu thứ hai! Đây là câu thứ ba?"
     sentences = BaseChunker.split_sentences(text)
     assert len(sentences) == 3
@@ -28,6 +30,7 @@ def test_base_chunker_split_sentences_vietnamese():
 
 def test_base_chunker_pack_units():
     from src.services.chunkers.base import BaseChunker
+
     units = ["abc", "def", "ghi", "jkl"]
     packed = BaseChunker.pack_units(units, max_chars=10, joiner=" ")
     assert all(len(p) <= 10 for p in packed)
@@ -37,6 +40,7 @@ def test_base_chunker_pack_units():
 @pytest.mark.asyncio
 async def test_semantic_chunker_basic_text():
     from src.services.chunkers.semantic_chunker import SemanticChunker
+
     chunker = SemanticChunker(emit_levels=("paragraph",))
     text = "Câu một. Câu hai. " * 50
     units = await chunker.chunk(text, filename="test.txt")
@@ -47,6 +51,7 @@ async def test_semantic_chunker_basic_text():
 @pytest.mark.asyncio
 async def test_xlsx_chunker_csv():
     from src.services.chunkers.xlsx_chunker import XlsxChunker
+
     csv = b"STT,Khach hang,Doanh thu\n1,ABC,500\n2,XYZ,300\n3,DEF,200\n"
     chunker = XlsxChunker(rows_per_chunk=2, emit_levels=("paragraph",))
     units = await chunker.chunk(csv, filename="test.csv")
@@ -58,11 +63,24 @@ async def test_xlsx_chunker_csv():
 @pytest.mark.asyncio
 async def test_chat_chunker_json():
     from src.services.chunkers.chat_chunker import ChatChunker
-    msgs = json.dumps([
-        {"role": "user", "content": "Doanh thu Q3?", "thread_id": "t1", "timestamp": "2024-10-01"},
-        {"role": "assistant", "content": "500 tỷ.", "thread_id": "t1", "timestamp": "2024-10-01"},
-        {"role": "user", "content": "Q4?", "thread_id": "t1", "timestamp": "2024-10-02"},
-    ]).encode("utf-8")
+
+    msgs = json.dumps(
+        [
+            {
+                "role": "user",
+                "content": "Doanh thu Q3?",
+                "thread_id": "t1",
+                "timestamp": "2024-10-01",
+            },
+            {
+                "role": "assistant",
+                "content": "500 tỷ.",
+                "thread_id": "t1",
+                "timestamp": "2024-10-01",
+            },
+            {"role": "user", "content": "Q4?", "thread_id": "t1", "timestamp": "2024-10-02"},
+        ]
+    ).encode("utf-8")
     chunker = ChatChunker(qa_pair_window=1, emit_levels=("paragraph",))
     units = await chunker.chunk(msgs, filename="test.json")
     assert len(units) >= 1
@@ -76,6 +94,7 @@ async def test_chat_chunker_json():
 
 def test_format_router_pdf_extension():
     from src.services.format_router import detect_format
+
     assert detect_format("report.pdf") == "pdf"
     assert detect_format("data.xlsx") == "xlsx"
     assert detect_format("notes.md") == "md"
@@ -86,6 +105,7 @@ def test_format_router_pdf_extension():
 
 def test_format_router_pdf_magic_bytes():
     from src.services.format_router import detect_format
+
     pdf_header = b"%PDF-1.7\n..."
     assert detect_format("noext", pdf_header) == "pdf"
 
@@ -98,6 +118,7 @@ def test_format_router_pdf_magic_bytes():
 @pytest.mark.asyncio
 async def test_pii_mask_regex_email_phone():
     from src.services.pii_mask import mask_pii, MaskMap
+
     text = "Email: nguyen.a@company.com, SĐT: 0912345678"
     masked, _ = await mask_pii(text, llm=None, use_llm_ner=False)
     assert "nguyen.a@company.com" not in masked
@@ -109,6 +130,7 @@ async def test_pii_mask_regex_email_phone():
 @pytest.mark.asyncio
 async def test_pii_mask_consistent_placeholder():
     from src.services.pii_mask import MaskMap
+
     mm = MaskMap()
     p1 = mm.add("Nguyễn Văn A", "PERSON")
     p2 = mm.add("Nguyễn Văn A", "PERSON")  # same value → same placeholder
@@ -124,6 +146,7 @@ async def test_pii_mask_consistent_placeholder():
 
 def test_consistency_score_perfect():
     from src.services.consistency import consistency_score
+
     vec = [1.0] + [0.0] * 1023
     score = consistency_score({"v1": vec, "v2": vec, "v3": vec})
     assert score >= 0.99
@@ -131,6 +154,7 @@ def test_consistency_score_perfect():
 
 def test_consistency_score_orthogonal():
     from src.services.consistency import consistency_score
+
     v1 = [1.0] + [0.0] * 1023
     v2 = [0.0, 1.0] + [0.0] * 1022
     score = consistency_score({"v1": v1, "v2": v2})
@@ -139,6 +163,7 @@ def test_consistency_score_orthogonal():
 
 def test_consistency_boost_thresholds():
     from src.services.consistency import consistency_boost, classify_consistency
+
     assert consistency_boost(0.9) == 1.2
     assert consistency_boost(0.7) == 1.0
     assert consistency_boost(0.4) == 0.8
@@ -154,6 +179,7 @@ def test_consistency_boost_thresholds():
 
 def test_citation_gate_passes_when_cited():
     from src.services.validation import citation_gate
+
     answer = "Doanh thu Q3 đạt 500 tỷ [doc_abc::para::1]. Lợi nhuận 80 tỷ [doc_abc::para::2]."
     result = citation_gate(answer, min_ratio=0.5)
     assert result["passed"]
@@ -162,6 +188,7 @@ def test_citation_gate_passes_when_cited():
 
 def test_citation_gate_fails_when_uncited():
     from src.services.validation import citation_gate
+
     answer = "Doanh thu Q3 đạt 500 tỷ. Lợi nhuận 80 tỷ. Tăng 25%."
     result = citation_gate(answer, min_ratio=0.7)
     assert not result["passed"]
@@ -174,12 +201,14 @@ def test_citation_gate_fails_when_uncited():
 
 def test_to_int_id_deterministic():
     from src.services.vector_v2 import to_int_id
+
     assert to_int_id("doc_abc::para::1") == to_int_id("doc_abc::para::1")
     assert to_int_id("doc_abc::para::1") != to_int_id("doc_abc::para::2")
 
 
 def test_normalize_scores_by_format():
     from src.services.vector_v2 import normalize_scores_by_format
+
     cands = [
         {"chunk_id": "1", "format": "pdf", "score": 0.9},
         {"chunk_id": "2", "format": "pdf", "score": 0.7},
@@ -196,12 +225,14 @@ def test_normalize_scores_by_format():
 
 def test_level_factor():
     from src.services.vector_v2 import level_factor
+
     assert level_factor("section") > level_factor("paragraph") > level_factor("sentence")
     assert level_factor("document") < level_factor("paragraph")
 
 
 def test_consistency_factor():
     from src.services.vector_v2 import consistency_factor
+
     assert consistency_factor(0.9) == 1.2
     assert consistency_factor(0.7) == 1.0
     assert consistency_factor(0.4) == 0.8
@@ -214,14 +245,47 @@ def test_consistency_factor():
 
 def test_weighted_rrf_fusion():
     from src.services.retrieval_v2 import weighted_rrf
+
     paths = {
         "original:dense": [
-            {"chunk_id": "c1", "score": 0.9, "consistency_score": 0.85, "chunk_level": "paragraph", "retrieval_path": "vector:dense", "text": "...", "source": "x"},
-            {"chunk_id": "c2", "score": 0.7, "consistency_score": 0.7, "chunk_level": "paragraph", "retrieval_path": "vector:dense", "text": "...", "source": "x"},
+            {
+                "chunk_id": "c1",
+                "score": 0.9,
+                "consistency_score": 0.85,
+                "chunk_level": "paragraph",
+                "retrieval_path": "vector:dense",
+                "text": "...",
+                "source": "x",
+            },
+            {
+                "chunk_id": "c2",
+                "score": 0.7,
+                "consistency_score": 0.7,
+                "chunk_level": "paragraph",
+                "retrieval_path": "vector:dense",
+                "text": "...",
+                "source": "x",
+            },
         ],
         "hyde:dense": [
-            {"chunk_id": "c1", "score": 0.85, "consistency_score": 0.85, "chunk_level": "paragraph", "retrieval_path": "vector:dense", "text": "...", "source": "x"},
-            {"chunk_id": "c3", "score": 0.65, "consistency_score": 0.5, "chunk_level": "sentence", "retrieval_path": "vector:dense", "text": "...", "source": "x"},
+            {
+                "chunk_id": "c1",
+                "score": 0.85,
+                "consistency_score": 0.85,
+                "chunk_level": "paragraph",
+                "retrieval_path": "vector:dense",
+                "text": "...",
+                "source": "x",
+            },
+            {
+                "chunk_id": "c3",
+                "score": 0.65,
+                "consistency_score": 0.5,
+                "chunk_level": "sentence",
+                "retrieval_path": "vector:dense",
+                "text": "...",
+                "source": "x",
+            },
         ],
     }
     fused = weighted_rrf(paths, k=60, final_top_k=10)
@@ -239,6 +303,7 @@ def test_weighted_rrf_fusion():
 @pytest.mark.asyncio
 async def test_classify_intent_factual_keyword():
     from src.services.query_understanding import classify_intent
+
     mock_llm = MagicMock()
     mock_llm.chat = MagicMock()
     mock_llm.chat.completions = MagicMock()
@@ -260,16 +325,19 @@ async def test_classify_intent_factual_keyword():
 
 def test_chunk_level_enum():
     from src.models import ChunkLevel
+
     assert ChunkLevel.PARAGRAPH.value == "paragraph"
     assert ChunkLevel.SECTION.value == "section"
 
 
 def test_query_intent_enum():
     from src.models import QueryIntent
+
     assert QueryIntent.FACTUAL.value == "factual"
     assert QueryIntent.SUMMARIZATION.value == "summarization"
 
 
 def test_view_type_enum():
     from src.models import ViewType
+
     assert {v.value for v in ViewType} == {"dense", "paraphrase", "question", "summary", "keywords"}

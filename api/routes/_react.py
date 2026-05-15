@@ -1,4 +1,5 @@
 """ReAct chat endpoint — /chat/react (multi-step reasoning)."""
+
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -52,18 +53,18 @@ async def chat_v3_react(body: dict[str, Any]):
 
     if not use_react:
         # Reroute to standard pipeline instead of running ReAct on a simple query
-        return await chat_v3({
-            "query": query,
-            "tenant_id": tenant_id,
-            "access_levels": body.get("access_levels"),
-            "format_filter": body.get("format_filter"),
-            "include_sources": body.get("include_sources", True),
-            "max_retries": int(body.get("max_retries", 1)),
-            "force_react": False,
-        })
+        return await chat_v3(
+            {
+                "query": query,
+                "tenant_id": tenant_id,
+                "access_levels": body.get("access_levels"),
+                "format_filter": body.get("format_filter"),
+                "include_sources": body.get("include_sources", True),
+                "max_retries": int(body.get("max_retries", 1)),
+                "force_react": False,
+            }
+        )
 
-    react_chat_fn = __import__(
-        "src.services.react_loop", fromlist=["react_chat"]
-    ).react_chat
+    react_chat_fn = __import__("src.services.react_loop", fromlist=["react_chat"]).react_chat
     result = await react_chat_fn(query, clients, settings, tenant_id, max_steps)
     return result

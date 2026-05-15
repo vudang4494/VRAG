@@ -15,6 +15,7 @@ Metrics per query:
 
 Output: eval/results/ablation_<date>.json + console summary table.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -71,7 +72,9 @@ async def query_v3_react(client: httpx.AsyncClient, api: str, query: str, tenant
         "answer": d.get("answer", ""),
         "sources": d.get("sources", []),
         "refused": bool(d.get("refused")),
-        "latency_ms": d.get("latency_breakdown_ms", {}).get("total", (time.monotonic() - t0) * 1000),
+        "latency_ms": d.get("latency_breakdown_ms", {}).get(
+            "total", (time.monotonic() - t0) * 1000
+        ),
         "steps_used": d.get("routing", {}).get("steps_used"),
     }
 
@@ -121,21 +124,29 @@ async def query_smart_router(client: httpx.AsyncClient, api: str, query: str, te
     }
 
 
-async def query_hefr_entity_pivot(client: httpx.AsyncClient, api: str, query: str, tenant: str) -> dict:
+async def query_hefr_entity_pivot(
+    client: httpx.AsyncClient, api: str, query: str, tenant: str
+) -> dict:
     """HEFR for entity_pivot queries (paper lookup, entity search).
     Falls back to standard pipeline for non-entity queries.
     """
     from src.services.query_router import classify_query
     import re
+
     q_type = classify_query(query)
     ENTITY_PIVOT_PATTERNS = [
-        r"paper nào", r"bài báo nào", r"doc.*nào",
-        r"công trình", r"tác giả", r"của ai",
+        r"paper nào",
+        r"bài báo nào",
+        r"doc.*nào",
+        r"công trình",
+        r"tác giả",
+        r"của ai",
         r"những .* đề cập",
     ]
     is_entity_pivot = (
-        q_type == "entity_pivot" or
-        q_type == "multi_hop" and any(re.search(p, query.lower()) for p in ENTITY_PIVOT_PATTERNS)
+        q_type == "entity_pivot"
+        or q_type == "multi_hop"
+        and any(re.search(p, query.lower()) for p in ENTITY_PIVOT_PATTERNS)
     )
     if is_entity_pivot:
         return await query_hefr(client, api, query, tenant)
@@ -143,16 +154,18 @@ async def query_hefr_entity_pivot(client: httpx.AsyncClient, api: str, query: st
 
 
 CONFIGS = {
-    "C2_v3_chat":             query_v3_chat,
-    "C3_v3_chat_with_gaea":   query_v3_chat,
-    "C4_v3_react":            query_v3_react,
-    "C5_hefr_only":           query_hefr,
-    "C6_smart_router":        query_smart_router,
-    "C7_hefr_entity_pivot":   query_hefr_entity_pivot,
+    "C2_v3_chat": query_v3_chat,
+    "C3_v3_chat_with_gaea": query_v3_chat,
+    "C4_v3_react": query_v3_react,
+    "C5_hefr_only": query_hefr,
+    "C6_smart_router": query_smart_router,
+    "C7_hefr_entity_pivot": query_hefr_entity_pivot,
 }
 
 
-def check_expected_doc(sources: list[dict], expected_doc: str | None, expected_docs: list[str] | None) -> int:
+def check_expected_doc(
+    sources: list[dict], expected_doc: str | None, expected_docs: list[str] | None
+) -> int:
     """Return # of expected docs found in sources."""
     expected = set()
     if expected_doc:
@@ -198,7 +211,14 @@ async def keyword_hit_ratio(
 
     # Semantic path: use BGE cosine similarity
     if http is None:
-        breakdown = [{"keyword": kw, "hit_type": "literal" if kw.lower() in answer_lower else "missed", "similarity": None} for kw in keywords]
+        breakdown = [
+            {
+                "keyword": kw,
+                "hit_type": "literal" if kw.lower() in answer_lower else "missed",
+                "similarity": None,
+            }
+            for kw in keywords
+        ]
         return literal_ratio, breakdown
 
     try:
@@ -216,16 +236,31 @@ async def keyword_hit_ratio(
                 kw_embeds.append((kw, result))
 
         if not kw_embeds or not any(e for _, e in kw_embeds):
-            breakdown = [{"keyword": kw, "hit_type": "literal" if kw.lower() in answer_lower else "missed", "similarity": None} for kw in keywords]
+            breakdown = [
+                {
+                    "keyword": kw,
+                    "hit_type": "literal" if kw.lower() in answer_lower else "missed",
+                    "similarity": None,
+                }
+                for kw in keywords
+            ]
             return literal_ratio, breakdown
 
         # Embed answer (truncated for efficiency)
         answer_emb = await embed_single(http, embed_url, embed_model, answer[:2000], timeout=15.0)
         if not answer_emb:
-            breakdown = [{"keyword": kw, "hit_type": "literal" if kw.lower() in answer_lower else "missed", "similarity": None} for kw in keywords]
+            breakdown = [
+                {
+                    "keyword": kw,
+                    "hit_type": "literal" if kw.lower() in answer_lower else "missed",
+                    "similarity": None,
+                }
+                for kw in keywords
+            ]
             return literal_ratio, breakdown
 
         from src.services.embedding import cosine_similarity
+
         semantic_hits = 0
         breakdown: list[dict] = []
         for kw, kw_emb in kw_embeds:
@@ -243,12 +278,23 @@ async def keyword_hit_ratio(
 
         return semantic_hits / len(keywords), breakdown
     except Exception:
-        breakdown = [{"keyword": kw, "hit_type": "literal" if kw.lower() in answer_lower else "missed", "similarity": None} for kw in keywords]
+        breakdown = [
+            {
+                "keyword": kw,
+                "hit_type": "literal" if kw.lower() in answer_lower else "missed",
+                "similarity": None,
+            }
+            for kw in keywords
+        ]
         return literal_ratio, breakdown
 
 
-REFUSAL_PATTERNS = [r"không có đủ thông tin", r"không tìm thấy", r"không thể trả lời",
-                     r"i don'?t have enough information"]
+REFUSAL_PATTERNS = [
+    r"không có đủ thông tin",
+    r"không tìm thấy",
+    r"không thể trả lời",
+    r"i don'?t have enough information",
+]
 
 
 def is_refused(answer: str) -> bool:
@@ -259,7 +305,9 @@ def is_refused(answer: str) -> bool:
 async def main(args):
     bench = json.loads(Path(args.bench).read_text())
     queries = bench["queries"]
-    print(f"Ablation eval — {len(queries)} queries × {len(CONFIGS)} configs = {len(queries) * len(CONFIGS)} runs")
+    print(
+        f"Ablation eval — {len(queries)} queries × {len(CONFIGS)} configs = {len(queries) * len(CONFIGS)} runs"
+    )
     print(f"Estimated time: {len(queries) * len(CONFIGS) * 20 / 60:.1f} min\n")
 
     results = {cfg: [] for cfg in CONFIGS}
@@ -271,39 +319,49 @@ async def main(args):
                 if args.skip and cfg_name in args.skip:
                     continue
                 r = await cfg_fn(client, args.api, q["query"], args.tenant)
-                expected_count = len({q.get("expected_doc")} | set(q.get("expected_docs", [])) - {None})
-                docs_found = check_expected_doc(r.get("sources", []), q.get("expected_doc"), q.get("expected_docs"))
+                expected_count = len(
+                    {q.get("expected_doc")} | set(q.get("expected_docs", [])) - {None}
+                )
+                docs_found = check_expected_doc(
+                    r.get("sources", []), q.get("expected_doc"), q.get("expected_docs")
+                )
                 kw_hit_ratio, kw_breakdown = await keyword_hit_ratio(
-                    r.get("answer", ""), q.get("expected_keywords", []),
-                    http=client, embed_url=args.embed_url,
+                    r.get("answer", ""),
+                    q.get("expected_keywords", []),
+                    http=client,
+                    embed_url=args.embed_url,
                 )
                 refused = is_refused(r.get("answer", "")) or r.get("refused", False)
                 expect_refusal = q.get("expect_refusal", False)
-                refusal_correct = (refused == expect_refusal)
+                refusal_correct = refused == expect_refusal
 
-                results[cfg_name].append({
-                    "q_id": q["id"],
-                    "category": q["category"],
-                    "latency_ms": r.get("latency_ms", 0),
-                    "docs_found": docs_found,
-                    "docs_expected": expected_count,
-                    "kw_hit_ratio": kw_hit_ratio,
-                    "kw_breakdown": kw_breakdown,
-                    "refused": refused,
-                    "expect_refusal": expect_refusal,
-                    "refusal_correct": refusal_correct,
-                    "answer_excerpt": (r.get("answer") or "")[:200],
-                    "error": r.get("error"),
-                    # Routing metadata for C6 smart_router
-                    "routing": r.get("routing"),
-                })
+                results[cfg_name].append(
+                    {
+                        "q_id": q["id"],
+                        "category": q["category"],
+                        "latency_ms": r.get("latency_ms", 0),
+                        "docs_found": docs_found,
+                        "docs_expected": expected_count,
+                        "kw_hit_ratio": kw_hit_ratio,
+                        "kw_breakdown": kw_breakdown,
+                        "refused": refused,
+                        "expect_refusal": expect_refusal,
+                        "refusal_correct": refusal_correct,
+                        "answer_excerpt": (r.get("answer") or "")[:200],
+                        "error": r.get("error"),
+                        # Routing metadata for C6 smart_router
+                        "routing": r.get("routing"),
+                    }
+                )
                 status = "OK" if not r.get("error") else "ERR"
                 routing_str = ""
                 if cfg_name == "C6_smart_router" and r.get("routing"):
                     rt = r["routing"]
-                    routing_str = f" [{rt.get('query_type','?')}:{'React' if rt.get('react_used') else 'Std'}]"
-                print(f"  {cfg_name:<25} {status:<5} {r.get('latency_ms', 0)/1000:>6.1f}s "
-                      f"docs={docs_found}/{expected_count} kw={kw_hit_ratio:.2f} refused={refused}{routing_str}")
+                    routing_str = f" [{rt.get('query_type', '?')}:{'React' if rt.get('react_used') else 'Std'}]"
+                print(
+                    f"  {cfg_name:<25} {status:<5} {r.get('latency_ms', 0) / 1000:>6.1f}s "
+                    f"docs={docs_found}/{expected_count} kw={kw_hit_ratio:.2f} refused={refused}{routing_str}"
+                )
             print()
 
     # Aggregate per config
@@ -332,12 +390,20 @@ async def main(args):
         miss = sum(1 for d in all_bd if d.get("hit_type") == "missed") / max(len(all_bd), 1)
         kw_ok = lit_ok + sem_ok
         summary[cfg] = {
-            "n": n, "p50_latency_ms": p50,
-            "avg_doc_recall": avg_docs, "avg_kw_hit": avg_kw,
+            "n": n,
+            "p50_latency_ms": p50,
+            "avg_doc_recall": avg_docs,
+            "avg_kw_hit": avg_kw,
             "refusal_accuracy": refusal_acc,
-            "kw_breakdown": {"literal": round(lit_ok, 3), "semantic": round(sem_ok, 3), "missed": round(miss, 3)},
+            "kw_breakdown": {
+                "literal": round(lit_ok, 3),
+                "semantic": round(sem_ok, 3),
+                "missed": round(miss, 3),
+            },
         }
-        print(f"{cfg:<25} {n:>4} {p50/1000:>10.1f}s  {avg_docs:>13.2%}  {kw_ok:>7.2%}  {refusal_acc:>11.2%}  kw[lit={lit_ok:.0%} sem={sem_ok:.0%} miss={miss:.0%}]")
+        print(
+            f"{cfg:<25} {n:>4} {p50 / 1000:>10.1f}s  {avg_docs:>13.2%}  {kw_ok:>7.2%}  {refusal_acc:>11.2%}  kw[lit={lit_ok:.0%} sem={sem_ok:.0%} miss={miss:.0%}]"
+        )
 
     # Per-query detailed breakdown
     print("\n" + "═" * 90)
@@ -349,21 +415,28 @@ async def main(args):
             continue
         print(f"\n{'─' * 90}")
         print(f"  {cfg}")
-        print(f"  {'q_id':<8} {'category':<18} {'docs':>7} {'kw':>5} {'kw_detail':<40} {'refused':>8} {'lat(s)':>7}")
-        print(f"  {'─'*8} {'─'*18} {'─'*7} {'─'*5} {'─'*40} {'─'*8} {'─'*7}")
+        print(
+            f"  {'q_id':<8} {'category':<18} {'docs':>7} {'kw':>5} {'kw_detail':<40} {'refused':>8} {'lat(s)':>7}"
+        )
+        print(f"  {'─' * 8} {'─' * 18} {'─' * 7} {'─' * 5} {'─' * 40} {'─' * 8} {'─' * 7}")
         for r in ok_runs:
             kw = r["kw_hit_ratio"]
             bd = r.get("kw_breakdown") or []
-            kw_detail = ",".join(f"{d['keyword'][:10]}({d['hit_type'][0]})" for d in bd) if bd else "n/a"
+            kw_detail = (
+                ",".join(f"{d['keyword'][:10]}({d['hit_type'][0]})" for d in bd) if bd else "n/a"
+            )
             refused = "YES" if r["refused"] else "no"
             correct_refusal = "✓" if r["refusal_correct"] else "✗"
-            print(f"  {r['q_id']:<8} {r['category']:<18} {r['docs_found']}/{r['docs_expected']:>4} {kw:>5.2f} {kw_detail[:40]:<40} {refused:>5} {correct_refusal:<3} {r['latency_ms']/1000:>6.1f}s")
+            print(
+                f"  {r['q_id']:<8} {r['category']:<18} {r['docs_found']}/{r['docs_expected']:>4} {kw:>5.2f} {kw_detail[:40]:<40} {refused:>5} {correct_refusal:<3} {r['latency_ms'] / 1000:>6.1f}s"
+            )
 
     # Routing breakdown for C6 smart_router
     if "C6_smart_router" in results and results["C6_smart_router"]:
         print("\nC6 Smart Router — Query Type Breakdown:")
         print("─" * 60)
         from collections import defaultdict
+
         by_type: dict[str, list] = defaultdict(list)
         for r in results["C6_smart_router"]:
             routing_data = r.get("routing")
@@ -377,7 +450,9 @@ async def main(args):
             avg_docs = sum(r["docs_found"] / max(r["docs_expected"], 1) for r in runs) / n
             avg_kw = sum(r["kw_hit_ratio"] for r in runs) / n
             refused = sum(1 for r in runs if r["refused"]) / n
-            print(f"  {qt:<20} N={n:>2}  docs={avg_docs:.0%}  kw={avg_kw:.0%}  refused={refused:.0%}")
+            print(
+                f"  {qt:<20} N={n:>2}  docs={avg_docs:.0%}  kw={avg_kw:.0%}  refused={refused:.0%}"
+            )
 
     # Save full report
     report = {
@@ -405,5 +480,6 @@ if __name__ == "__main__":
     args = p.parse_args()
     if not args.output:
         from datetime import datetime as _d
+
         args.output = f"eval/results/ablation_{_d.now().strftime('%Y%m%d_%H%M%S')}.json"
     asyncio.run(main(args))

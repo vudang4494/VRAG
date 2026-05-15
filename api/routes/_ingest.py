@@ -1,4 +1,5 @@
 """Ingest endpoint — /ingest/upload."""
+
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
 from src.services.ingestion_v2 import ingest_document_v2

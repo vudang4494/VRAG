@@ -1,4 +1,5 @@
 """Format router — detect file format and dispatch to right chunker."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -110,7 +111,11 @@ async def route_and_chunk(
     logger.info(f"Format detected for {filename}: {fmt}")
 
     # Phase 5b: classify doc type for md/txt/html to tune chunking strategy
-    text_preview = content[:8000].decode("utf-8", errors="replace") if isinstance(content, bytes) else str(content)[:8000]
+    text_preview = (
+        content[:8000].decode("utf-8", errors="replace")
+        if isinstance(content, bytes)
+        else str(content)[:8000]
+    )
     doc_type = classify_doc_type(text_preview, filename)
     logger.info(f"Doc type for {filename}: {doc_type}")
     strat = get_strategy(doc_type)

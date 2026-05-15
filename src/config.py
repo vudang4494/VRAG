@@ -1,4 +1,5 @@
 """Configuration — all settings read from environment variables (Mac Mini M4 Optimized)."""
+
 import os
 from functools import lru_cache
 
@@ -77,7 +78,9 @@ class Settings(BaseSettings):
     # Entity extractor — SEPARATE from semantic LLM (architecture decision)
     # provider options: gliner (local NER) | openai | anthropic
     entity_extractor_provider: str = os.environ.get("ENTITY_EXTRACTOR_PROVIDER", "gliner")
-    entity_extractor_model: str = os.environ.get("ENTITY_EXTRACTOR_MODEL", "urchade/gliner_multi-v2.1")
+    entity_extractor_model: str = os.environ.get(
+        "ENTITY_EXTRACTOR_MODEL", "urchade/gliner_multi-v2.1"
+    )
     entity_extractor_threshold: float = float(os.environ.get("ENTITY_EXTRACTOR_THRESHOLD", "0.5"))
     entity_relations_enabled: bool = bool(int(os.environ.get("ENTITY_RELATIONS_ENABLED", "0")))
 
@@ -98,6 +101,7 @@ class Settings(BaseSettings):
     @property
     def chunk_levels_enabled(self) -> list[str]:
         return [x.strip() for x in self.chunk_levels_csv.split(",") if x.strip()]
+
     section_max_chars: int = 4000
     paragraph_max_chars: int = 800
     sentence_max_chars: int = 200
@@ -105,9 +109,13 @@ class Settings(BaseSettings):
     # Query understanding
     # 6 reformulations = 6 LLM calls. With qwen3.5:4b that's ~30-60s.
     # Cap reformulations via env when speed matters.
-    query_understanding_enabled: bool = bool(int(os.environ.get("QUERY_UNDERSTANDING_ENABLED", "1")))
+    query_understanding_enabled: bool = bool(
+        int(os.environ.get("QUERY_UNDERSTANDING_ENABLED", "1"))
+    )
     query_reformulations: int = int(os.environ.get("QUERY_REFORMULATIONS", "3"))
-    query_understanding_timeout_s: float = float(os.environ.get("QUERY_UNDERSTANDING_TIMEOUT_S", "60"))
+    query_understanding_timeout_s: float = float(
+        os.environ.get("QUERY_UNDERSTANDING_TIMEOUT_S", "60")
+    )
 
     # Multi-path retrieval
     retrieval_v2_path_top_k: int = 30
@@ -153,7 +161,9 @@ class Settings(BaseSettings):
     community_summary_vote_passes: int = 3
 
     # Refusal
-    refusal_message_vi: str = "Tôi không có đủ thông tin chắc chắn để trả lời câu hỏi này dựa trên tài liệu hiện có."
+    refusal_message_vi: str = (
+        "Tôi không có đủ thông tin chắc chắn để trả lời câu hỏi này dựa trên tài liệu hiện có."
+    )
 
     # OOD detection — early refusal before generation
     ood_detection_enabled: bool = bool(int(os.environ.get("OOD_DETECTION_ENABLED", "1")))

@@ -1,4 +1,5 @@
 """Prometheus metrics middleware for the RAG API."""
+
 import time
 from collections import defaultdict
 from typing import Callable
@@ -83,8 +84,16 @@ class PrometheusMetrics:
         refusal_rate = self._v2_refusals_total / total if total else 0.0
         val_total = self._v2_validation_passes + self._v2_validation_fails
         validation_pass_rate = self._v2_validation_passes / val_total if val_total else 0.0
-        avg_grounded = sum(self._v2_grounded_ratios) / len(self._v2_grounded_ratios) if self._v2_grounded_ratios else 0.0
-        avg_consistency = sum(self._v2_consistency_scores) / len(self._v2_consistency_scores) if self._v2_consistency_scores else 0.0
+        avg_grounded = (
+            sum(self._v2_grounded_ratios) / len(self._v2_grounded_ratios)
+            if self._v2_grounded_ratios
+            else 0.0
+        )
+        avg_consistency = (
+            sum(self._v2_consistency_scores) / len(self._v2_consistency_scores)
+            if self._v2_consistency_scores
+            else 0.0
+        )
 
         stage_p50 = {}
         stage_p95 = {}
@@ -182,30 +191,32 @@ class PrometheusMetrics:
 
         # V2 metrics
         v2 = self.get_v2_metrics()
-        lines.extend([
-            "",
-            "# HELP rag_v2_chats_total Pipeline V2 chat completions",
-            "# TYPE rag_v2_chats_total counter",
-            f"rag_v2_chats_total {v2['v2_chats_total']}",
-            "# HELP rag_v2_refusals_total Pipeline V2 refusals (quality gate fail)",
-            "# TYPE rag_v2_refusals_total counter",
-            f"rag_v2_refusals_total {v2['v2_refusals_total']}",
-            "# HELP rag_v2_refusal_rate Refusal ratio",
-            "# TYPE rag_v2_refusal_rate gauge",
-            f"rag_v2_refusal_rate {v2['v2_refusal_rate']}",
-            "# HELP rag_v2_validation_pass_rate Validation gates pass rate",
-            "# TYPE rag_v2_validation_pass_rate gauge",
-            f"rag_v2_validation_pass_rate {v2['v2_validation_pass_rate']}",
-            "# HELP rag_v2_avg_grounded_ratio Avg claims grounded ratio",
-            "# TYPE rag_v2_avg_grounded_ratio gauge",
-            f"rag_v2_avg_grounded_ratio {v2['v2_avg_grounded_ratio']}",
-            "# HELP rag_v2_avg_consistency_score Avg chunk consistency score",
-            "# TYPE rag_v2_avg_consistency_score gauge",
-            f"rag_v2_avg_consistency_score {v2['v2_avg_consistency_score']}",
-            "# HELP rag_v2_communities_built Total communities created",
-            "# TYPE rag_v2_communities_built counter",
-            f"rag_v2_communities_built {v2['v2_communities_built']}",
-        ])
+        lines.extend(
+            [
+                "",
+                "# HELP rag_v2_chats_total Pipeline V2 chat completions",
+                "# TYPE rag_v2_chats_total counter",
+                f"rag_v2_chats_total {v2['v2_chats_total']}",
+                "# HELP rag_v2_refusals_total Pipeline V2 refusals (quality gate fail)",
+                "# TYPE rag_v2_refusals_total counter",
+                f"rag_v2_refusals_total {v2['v2_refusals_total']}",
+                "# HELP rag_v2_refusal_rate Refusal ratio",
+                "# TYPE rag_v2_refusal_rate gauge",
+                f"rag_v2_refusal_rate {v2['v2_refusal_rate']}",
+                "# HELP rag_v2_validation_pass_rate Validation gates pass rate",
+                "# TYPE rag_v2_validation_pass_rate gauge",
+                f"rag_v2_validation_pass_rate {v2['v2_validation_pass_rate']}",
+                "# HELP rag_v2_avg_grounded_ratio Avg claims grounded ratio",
+                "# TYPE rag_v2_avg_grounded_ratio gauge",
+                f"rag_v2_avg_grounded_ratio {v2['v2_avg_grounded_ratio']}",
+                "# HELP rag_v2_avg_consistency_score Avg chunk consistency score",
+                "# TYPE rag_v2_avg_consistency_score gauge",
+                f"rag_v2_avg_consistency_score {v2['v2_avg_consistency_score']}",
+                "# HELP rag_v2_communities_built Total communities created",
+                "# TYPE rag_v2_communities_built counter",
+                f"rag_v2_communities_built {v2['v2_communities_built']}",
+            ]
+        )
         for stage, lat in v2.get("v2_stage_p95_ms", {}).items():
             lines.append(f'rag_v2_stage_p95_ms{{stage="{stage}"}} {lat:.2f}')
 

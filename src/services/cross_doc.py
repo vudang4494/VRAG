@@ -16,6 +16,7 @@ Run via:
 or via API:
   POST /api/v3/cross_doc/build  {"tenant_id": "..."}
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -26,6 +27,7 @@ from loguru import logger
 
 
 # ── 1. Document↔Document via shared entities ──────────────────────────────────
+
 
 async def link_documents_by_entities(
     neo4j_driver,
@@ -55,7 +57,7 @@ async def link_documents_by_entities(
     MATCH (d1:Document)<-[:FROM_DOCUMENT]-(c1:Chunk)-[:CONTAINS_ENTITY]->(e:Entity)
           <-[:CONTAINS_ENTITY]-(c2:Chunk)-[:FROM_DOCUMENT]->(d2:Document)
     {where_t}
-    {('AND' if where_t else 'WHERE')} d1.id < d2.id
+    {("AND" if where_t else "WHERE")} d1.id < d2.id
     WITH d1, d2, count(DISTINCT e) AS shared, collect(DISTINCT e.name) AS shared_names
     WHERE shared >= $min_shared
     RETURN d1.id AS d1_id, d2.id AS d2_id, shared, shared_names
@@ -96,7 +98,10 @@ async def link_documents_by_entities(
                 MERGE (a)-[r:SHARES_ENTITIES]->(b)
                 SET r.count = $count, r.jaccard = $jacc, r.shared_names = $names, r.updated_at = datetime()
                 """,
-                a=p["d1_id"], b=p["d2_id"], count=p["shared"], jacc=jaccard,
+                a=p["d1_id"],
+                b=p["d2_id"],
+                count=p["shared"],
+                jacc=jaccard,
                 names=p["shared_names"][:20],
             )
             # Symmetric edge for easier traversal
@@ -107,15 +112,21 @@ async def link_documents_by_entities(
                 MERGE (b)-[r:SHARES_ENTITIES]->(a)
                 SET r.count = $count, r.jaccard = $jacc, r.shared_names = $names, r.updated_at = datetime()
                 """,
-                a=p["d1_id"], b=p["d2_id"], count=p["shared"], jacc=jaccard,
+                a=p["d1_id"],
+                b=p["d2_id"],
+                count=p["shared"],
+                jacc=jaccard,
                 names=p["shared_names"][:20],
             )
             edges += 2
-    logger.info(f"link_documents_by_entities: {edges // 2} doc-pairs linked (Jaccard ≥ {min_jaccard})")
+    logger.info(
+        f"link_documents_by_entities: {edges // 2} doc-pairs linked (Jaccard ≥ {min_jaccard})"
+    )
     return {"pairs_checked": len(pairs), "edges_written": edges}
 
 
 # ── 2. Cross-doc Chunk↔Chunk via cosine ──────────────────────────────────────
+
 
 async def link_chunks_cross_doc(
     neo4j_driver,
@@ -142,7 +153,9 @@ async def link_chunks_cross_doc(
     RETURN c.id AS chunk_id LIMIT $limit
     """
     async with neo4j_driver.session() as s:
-        result = await s.run(cypher, limit=sample_chunks, **({"tid": tenant_id} if tenant_id else {}))
+        result = await s.run(
+            cypher, limit=sample_chunks, **({"tid": tenant_id} if tenant_id else {})
+        )
         chunks = [row["chunk_id"] for row in await result.data()]
 
     if not chunks:
@@ -155,6 +168,7 @@ async def link_chunks_cross_doc(
         # Get this chunk's dense vector + doc_id from Qdrant
         try:
             from src.services.vector_v2 import to_int_id
+
             point_id = to_int_id(chunk_id)
             point = await qdrant_client.retrieve(
                 collection_name=collection,
@@ -175,7 +189,9 @@ async def link_chunks_cross_doc(
 
         # Search for similar chunks in OTHER docs
         try:
-            flt = qm.Filter(must_not=[qm.FieldCondition(key="doc_id", match=qm.MatchValue(value=doc_id))])
+            flt = qm.Filter(
+                must_not=[qm.FieldCondition(key="doc_id", match=qm.MatchValue(value=doc_id))]
+            )
             if tenant_id:
                 flt = qm.Filter(
                     must=[qm.FieldCondition(key="tenant_id", match=qm.MatchValue(value=tenant_id))],
@@ -218,7 +234,9 @@ async def link_chunks_cross_doc(
                         MERGE (a)-[r:SIMILAR_TO]->(b)
                         SET r.score = $score, r.cross_doc = true, r.view = 'dense', r.updated_at = datetime()
                         """,
-                        a=chunk_id, b=target_id, score=score,
+                        a=chunk_id,
+                        b=target_id,
+                        score=score,
                     )
                     edges_written += 1
                 except Exception as e:
@@ -228,6 +246,7 @@ async def link_chunks_cross_doc(
 
 
 # ── 3. Aggregate Document similarity ──────────────────────────────────────────
+
 
 async def aggregate_document_similarity(
     neo4j_driver,
@@ -248,7 +267,7 @@ async def aggregate_document_similarity(
     cypher = f"""
     MATCH (d1:Document)<-[:FROM_DOCUMENT]-(c1:Chunk)-[s:SIMILAR_TO {{cross_doc: true}}]->(c2:Chunk)-[:FROM_DOCUMENT]->(d2:Document)
     {where_t}
-    {('AND' if where_t else 'WHERE')} d1.id < d2.id
+    {("AND" if where_t else "WHERE")} d1.id < d2.id
     WITH d1, d2, count(s) AS edges, avg(s.score) AS avg_score
     WHERE edges >= $min_edges AND avg_score >= $min_avg
     RETURN d1.id AS d1_id, d2.id AS d2_id, edges, avg_score
@@ -270,7 +289,10 @@ async def aggregate_document_similarity(
                 MERGE (a)-[r:SIMILAR_DOC]->(b)
                 SET r.avg_score = $avg, r.edge_count = $edges, r.updated_at = datetime()
                 """,
-                a=p["d1_id"], b=p["d2_id"], avg=float(p["avg_score"]), edges=int(p["edges"]),
+                a=p["d1_id"],
+                b=p["d2_id"],
+                avg=float(p["avg_score"]),
+                edges=int(p["edges"]),
             )
             await s.run(
                 """
@@ -279,7 +301,10 @@ async def aggregate_document_similarity(
                 MERGE (b)-[r:SIMILAR_DOC]->(a)
                 SET r.avg_score = $avg, r.edge_count = $edges, r.updated_at = datetime()
                 """,
-                a=p["d1_id"], b=p["d2_id"], avg=float(p["avg_score"]), edges=int(p["edges"]),
+                a=p["d1_id"],
+                b=p["d2_id"],
+                avg=float(p["avg_score"]),
+                edges=int(p["edges"]),
             )
             written += 2
     logger.info(f"aggregate_document_similarity: {written // 2} doc pairs linked")
@@ -287,6 +312,7 @@ async def aggregate_document_similarity(
 
 
 # ── 4. Orchestrator ───────────────────────────────────────────────────────────
+
 
 async def build_cross_doc_graph(
     neo4j_driver,
@@ -305,18 +331,23 @@ async def build_cross_doc_graph(
     """
     result = {}
     result["shared_entities"] = await link_documents_by_entities(
-        neo4j_driver, tenant_id,
+        neo4j_driver,
+        tenant_id,
         min_shared=min_shared_entities,
         min_jaccard=min_entity_jaccard,
     )
     result["chunk_cross_doc"] = await link_chunks_cross_doc(
-        neo4j_driver, qdrant_client, collection, tenant_id,
+        neo4j_driver,
+        qdrant_client,
+        collection,
+        tenant_id,
         candidates_per_chunk=5,
         min_score=min_chunk_score,
         sample_chunks=sample_chunks,
     )
     result["doc_similarity"] = await aggregate_document_similarity(
-        neo4j_driver, tenant_id,
+        neo4j_driver,
+        tenant_id,
         min_chunk_edges=min_chunk_edges_for_doc,
         min_avg_score=min_doc_avg_score,
     )

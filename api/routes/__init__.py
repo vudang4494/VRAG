@@ -15,6 +15,7 @@ Usage:
   from api.routes import router   # includes ALL V3 endpoints
   app.include_router(router, prefix="/api/v3")
 """
+
 from fastapi import APIRouter
 
 from api.routes._admin import router as _admin_router

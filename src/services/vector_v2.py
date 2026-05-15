@@ -2,6 +2,7 @@
 
 Tương thích với Qdrant 1.13+ và schema mới (xem scripts/init-qdrant.sh v2).
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -73,11 +74,11 @@ async def upsert_v2(
             continue
 
         named_vectors: dict[str, Any] = {
-            "dense":      ve.get("dense", dense_vec),
+            "dense": ve.get("dense", dense_vec),
             "paraphrase": ve.get("paraphrase", dense_vec),
-            "question":   ve.get("question", dense_vec),
-            "summary":    ve.get("summary", dense_vec),
-            "keywords":   ve.get("keywords", dense_vec),
+            "question": ve.get("question", dense_vec),
+            "summary": ve.get("summary", dense_vec),
+            "keywords": ve.get("keywords", dense_vec),
         }
 
         if "sparse" in p and p["sparse"]:
@@ -122,23 +123,25 @@ async def search_single_view(
     out: list[dict] = []
     for r in results:
         payload = r.payload or {}
-        out.append({
-            "chunk_id": payload.get("chunk_id", str(r.id)),
-            "text": payload.get("text", ""),
-            "source": payload.get("source", "unknown"),
-            "format": payload.get("format", "unknown"),
-            "chunk_level": payload.get("chunk_level", "paragraph"),
-            "consistency_score": float(payload.get("consistency_score", 0.7)),
-            "page_num": payload.get("page_num"),
-            "sheet_name": payload.get("sheet_name"),
-            "thread_id": payload.get("thread_id"),
-            "score": float(r.score),
-            "retrieval_path": f"vector:{view}",
-            "metadata": payload,
-            # Phase 8: domain distribution for reward scoring
-            "domain_distribution": payload.get("domain_distribution", {}),
-            "domain_primary": payload.get("domain_primary", ""),
-        })
+        out.append(
+            {
+                "chunk_id": payload.get("chunk_id", str(r.id)),
+                "text": payload.get("text", ""),
+                "source": payload.get("source", "unknown"),
+                "format": payload.get("format", "unknown"),
+                "chunk_level": payload.get("chunk_level", "paragraph"),
+                "consistency_score": float(payload.get("consistency_score", 0.7)),
+                "page_num": payload.get("page_num"),
+                "sheet_name": payload.get("sheet_name"),
+                "thread_id": payload.get("thread_id"),
+                "score": float(r.score),
+                "retrieval_path": f"vector:{view}",
+                "metadata": payload,
+                # Phase 8: domain distribution for reward scoring
+                "domain_distribution": payload.get("domain_distribution", {}),
+                "domain_primary": payload.get("domain_primary", ""),
+            }
+        )
     return out
 
 
@@ -173,24 +176,28 @@ async def search_multi_view_rrf(
         results = resp.points
     except Exception as e:
         logger.warning(f"Multi-view RRF failed, falling back to single dense: {e}")
-        return await search_single_view(client, collection, query_vector, "dense", final_limit, filter_)
+        return await search_single_view(
+            client, collection, query_vector, "dense", final_limit, filter_
+        )
 
     out: list[dict] = []
     for r in results:
         payload = r.payload or {}
-        out.append({
-            "chunk_id": payload.get("chunk_id", str(r.id)),
-            "text": payload.get("text", ""),
-            "source": payload.get("source", "unknown"),
-            "format": payload.get("format", "unknown"),
-            "chunk_level": payload.get("chunk_level", "paragraph"),
-            "consistency_score": float(payload.get("consistency_score", 0.7)),
-            "score": float(r.score),
-            "retrieval_path": "vector:multi_rrf",
-            "metadata": payload,
-            "domain_distribution": payload.get("domain_distribution", {}),
-            "domain_primary": payload.get("domain_primary", ""),
-        })
+        out.append(
+            {
+                "chunk_id": payload.get("chunk_id", str(r.id)),
+                "text": payload.get("text", ""),
+                "source": payload.get("source", "unknown"),
+                "format": payload.get("format", "unknown"),
+                "chunk_level": payload.get("chunk_level", "paragraph"),
+                "consistency_score": float(payload.get("consistency_score", 0.7)),
+                "score": float(r.score),
+                "retrieval_path": "vector:multi_rrf",
+                "metadata": payload,
+                "domain_distribution": payload.get("domain_distribution", {}),
+                "domain_primary": payload.get("domain_primary", ""),
+            }
+        )
     return out
 
 
@@ -220,19 +227,21 @@ async def search_sparse(
     out: list[dict] = []
     for r in results:
         payload = r.payload or {}
-        out.append({
-            "chunk_id": payload.get("chunk_id", str(r.id)),
-            "text": payload.get("text", ""),
-            "source": payload.get("source", "unknown"),
-            "format": payload.get("format", "unknown"),
-            "chunk_level": payload.get("chunk_level", "paragraph"),
-            "consistency_score": float(payload.get("consistency_score", 0.7)),
-            "score": float(r.score),
-            "retrieval_path": "sparse:bm25",
-            "metadata": payload,
-            "domain_distribution": payload.get("domain_distribution", {}),
-            "domain_primary": payload.get("domain_primary", ""),
-        })
+        out.append(
+            {
+                "chunk_id": payload.get("chunk_id", str(r.id)),
+                "text": payload.get("text", ""),
+                "source": payload.get("source", "unknown"),
+                "format": payload.get("format", "unknown"),
+                "chunk_level": payload.get("chunk_level", "paragraph"),
+                "consistency_score": float(payload.get("consistency_score", 0.7)),
+                "score": float(r.score),
+                "retrieval_path": "sparse:bm25",
+                "metadata": payload,
+                "domain_distribution": payload.get("domain_distribution", {}),
+                "domain_primary": payload.get("domain_primary", ""),
+            }
+        )
     return out
 
 

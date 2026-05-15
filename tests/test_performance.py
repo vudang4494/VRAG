@@ -1,4 +1,5 @@
 """Performance and stress tests for the RAG stack."""
+
 import concurrent.futures
 import statistics
 import time
@@ -20,8 +21,12 @@ class TestLLMPerformance:
         start = time.monotonic()
         r = httpx.post(
             f"{OLLAMA}/v1/chat/completions",
-            json={"model": "qwen3.5:4b", "messages": [{"role": "user", "content": prompt}],
-                  "max_tokens": 80, "temperature": 0.3},
+            json={
+                "model": "qwen3.5:4b",
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": 80,
+                "temperature": 0.3,
+            },
             timeout=120,
         )
         elapsed = time.monotonic() - start
@@ -32,11 +37,15 @@ class TestLLMPerformance:
 
     def test_concurrent_requests(self):
         """Handle multiple concurrent LLM requests."""
+
         def call_llm(i):
             r = httpx.post(
                 f"{OLLAMA}/v1/chat/completions",
-                json={"model": "qwen3.5:4b", "messages": [{"role": "user", "content": f"Q{i}"}],
-                      "max_tokens": 40},
+                json={
+                    "model": "qwen3.5:4b",
+                    "messages": [{"role": "user", "content": f"Q{i}"}],
+                    "max_tokens": 40,
+                },
                 timeout=120,
             )
             return r.status_code, time.monotonic()
@@ -60,8 +69,11 @@ class TestLLMPerformance:
             start = time.monotonic()
             r = httpx.post(
                 f"{OLLAMA}/v1/chat/completions",
-                json={"model": "qwen3.5:4b", "messages": [{"role": "user", "content": f"Q{i}"}],
-                      "max_tokens": 40},
+                json={
+                    "model": "qwen3.5:4b",
+                    "messages": [{"role": "user", "content": f"Q{i}"}],
+                    "max_tokens": 40,
+                },
                 timeout=120,
             )
             latencies.append(time.monotonic() - start)
@@ -88,8 +100,9 @@ class TestEmbeddingPerformance:
             times.append(time.monotonic() - start)
             assert r.status_code == 200
 
-        print(f"\n  10 embeddings: {sum(times):.1f}s total, "
-              f"{statistics.mean(times)*1000:.0f}ms avg")
+        print(
+            f"\n  10 embeddings: {sum(times):.1f}s total, {statistics.mean(times) * 1000:.0f}ms avg"
+        )
 
     def test_embedding_latency(self):
         """Single embedding latency."""
@@ -104,9 +117,11 @@ class TestEmbeddingPerformance:
             times.append(time.monotonic() - start)
             assert r.status_code == 200
 
-        print(f"\n  Mean: {statistics.mean(times)*1000:.0f}ms | "
-              f"Min: {min(times)*1000:.0f}ms | "
-              f"Max: {max(times)*1000:.0f}ms")
+        print(
+            f"\n  Mean: {statistics.mean(times) * 1000:.0f}ms | "
+            f"Min: {min(times) * 1000:.0f}ms | "
+            f"Max: {max(times) * 1000:.0f}ms"
+        )
 
 
 class TestRAGPerformance:
@@ -129,11 +144,14 @@ class TestRAGPerformance:
             times.append(time.monotonic() - start)
             assert r.status_code == 200
 
-        print(f"\n  E2E mean: {statistics.mean(times):.1f}s | "
-              f"Min: {min(times):.1f}s | Max: {max(times):.1f}s")
+        print(
+            f"\n  E2E mean: {statistics.mean(times):.1f}s | "
+            f"Min: {min(times):.1f}s | Max: {max(times):.1f}s"
+        )
 
     def test_concurrent_rag_requests(self):
         """Handle concurrent RAG requests."""
+
         def call_rag(i):
             start = time.monotonic()
             r = httpx.post(

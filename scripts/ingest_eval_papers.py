@@ -5,6 +5,7 @@ Ingest all papers in /tmp/eval_papers/ through Pipeline V2.
 Sequential because Ollama is bottleneck. Each ingest ~5 min on M4 with qwen3.5:4b.
 Run via: python3 scripts/ingest_eval_papers.py [--api http://localhost:8800] [--tenant eval]
 """
+
 from __future__ import annotations
 
 import argparse
@@ -47,7 +48,7 @@ async def main(args):
 
     async with httpx.AsyncClient(timeout=1200.0) as client:
         for i, path in enumerate(papers, 1):
-            print(f"[{i}/{len(papers)}] {path.name} ({path.stat().st_size/1024:.1f} KB)")
+            print(f"[{i}/{len(papers)}] {path.name} ({path.stat().st_size / 1024:.1f} KB)")
             t0 = time.monotonic()
             try:
                 result = await ingest_one(client, args.api, path, args.tenant)
@@ -60,46 +61,60 @@ async def main(args):
                 rels = result.get("relationships_extracted", 0)
                 avg_cons = result.get("avg_consistency_score", 0)
                 doc_id = result.get("doc_id", "")
-                print(f"    {status}: {chunks_indexed}/{chunks_total} chunks "
-                      f"(dropped: {dropped}), entities: {entities}, "
-                      f"rels: {rels}, consistency: {avg_cons:.2f}, "
-                      f"time: {elapsed/60:.1f}min, doc_id: {doc_id}")
-                results.append({
-                    "file": path.name,
-                    "status": status,
-                    "doc_id": doc_id,
-                    "chunks_total": chunks_total,
-                    "chunks_indexed": chunks_indexed,
-                    "chunks_dropped": dropped,
-                    "entities": entities,
-                    "relationships": rels,
-                    "avg_consistency": avg_cons,
-                    "duration_seconds": elapsed,
-                })
+                print(
+                    f"    {status}: {chunks_indexed}/{chunks_total} chunks "
+                    f"(dropped: {dropped}), entities: {entities}, "
+                    f"rels: {rels}, consistency: {avg_cons:.2f}, "
+                    f"time: {elapsed / 60:.1f}min, doc_id: {doc_id}"
+                )
+                results.append(
+                    {
+                        "file": path.name,
+                        "status": status,
+                        "doc_id": doc_id,
+                        "chunks_total": chunks_total,
+                        "chunks_indexed": chunks_indexed,
+                        "chunks_dropped": dropped,
+                        "entities": entities,
+                        "relationships": rels,
+                        "avg_consistency": avg_cons,
+                        "duration_seconds": elapsed,
+                    }
+                )
             except Exception as e:
                 elapsed = time.monotonic() - t0
-                print(f"    FAILED after {elapsed/60:.1f}min: {e}")
-                results.append({
-                    "file": path.name,
-                    "status": "error",
-                    "error": str(e)[:200],
-                    "duration_seconds": elapsed,
-                })
+                print(f"    FAILED after {elapsed / 60:.1f}min: {e}")
+                results.append(
+                    {
+                        "file": path.name,
+                        "status": "error",
+                        "error": str(e)[:200],
+                        "duration_seconds": elapsed,
+                    }
+                )
 
     total_elapsed = time.monotonic() - started_total
     print()
     print("═" * 70)
-    print(f"  Ingest complete: {sum(1 for r in results if r.get('status') == 'success')}/{len(results)} succeeded")
-    print(f"  Total time: {total_elapsed/60:.1f} min")
+    print(
+        f"  Ingest complete: {sum(1 for r in results if r.get('status') == 'success')}/{len(results)} succeeded"
+    )
+    print(f"  Total time: {total_elapsed / 60:.1f} min")
     print("═" * 70)
 
     # Save report
-    Path(args.report).write_text(json.dumps({
-        "tenant": args.tenant,
-        "total_files": len(results),
-        "total_duration_seconds": total_elapsed,
-        "results": results,
-    }, ensure_ascii=False, indent=2))
+    Path(args.report).write_text(
+        json.dumps(
+            {
+                "tenant": args.tenant,
+                "total_files": len(results),
+                "total_duration_seconds": total_elapsed,
+                "results": results,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
     print(f"\n  Report: {args.report}")
 
 

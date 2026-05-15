@@ -7,6 +7,7 @@ Stage 3: LLM judge per-candidate — top 10 → top 5.
 Note: Stage 1 model loaded lazily. Falls back to Stage 2-only nếu model
 chưa cài (avoids breaking on first run without `sentence-transformers`).
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -29,6 +30,7 @@ def _load_cross_encoder(model_name: str = "BAAI/bge-reranker-v2-m3"):
         return _CROSS_ENCODER
     try:
         from sentence_transformers import CrossEncoder
+
         _CROSS_ENCODER = CrossEncoder(model_name, max_length=512)
         logger.info(f"Loaded cross-encoder: {model_name}")
     except Exception as e:
@@ -55,7 +57,9 @@ async def rerank_stage1(
 
     pairs = [(query, c.get("text", "")[:2000]) for c in candidates]
     try:
-        scores = await asyncio.to_thread(model.predict, pairs, batch_size=batch_size, show_progress_bar=False)
+        scores = await asyncio.to_thread(
+            model.predict, pairs, batch_size=batch_size, show_progress_bar=False
+        )
     except Exception as e:
         logger.warning(f"Stage 1 rerank failed: {e}")
         return [{**c, "stage1_score": 0.0} for c in candidates[:top_k]]
@@ -87,7 +91,11 @@ async def rerank_stage2(
 
     async def _score_one(c: dict) -> dict:
         # Prefer 'summary' view embedding if present, else compute on text
-        summary_emb = c.get("view_embeddings", {}).get("summary") if isinstance(c.get("view_embeddings"), dict) else None
+        summary_emb = (
+            c.get("view_embeddings", {}).get("summary")
+            if isinstance(c.get("view_embeddings"), dict)
+            else None
+        )
         if summary_emb:
             sim = cosine_similarity(q_vec, summary_emb)
         else:
@@ -125,8 +133,11 @@ Câu hỏi: {query}
 Đánh giá:"""
 
 
-async def _judge_one(query: str, candidate: dict, llm: Any, model: str, timeout: float = 5.0) -> dict:
+async def _judge_one(
+    query: str, candidate: dict, llm: Any, model: str, timeout: float = 5.0
+) -> dict:
     from src.services.ollama_helper import ollama_chat
+
     text = candidate.get("text", "")[:1500]
     prompt = _LLM_JUDGE_PROMPT.format(query=query, text=text)
     try:
@@ -141,7 +152,11 @@ async def _judge_one(query: str, candidate: dict, llm: Any, model: str, timeout:
         )
     except Exception as e:
         logger.debug(f"Stage 3 judge failed (fallback to stage2 score): {e}")
-        return {**candidate, "stage3_score": float(candidate.get("stage2_score", 0.0)), "judge_reason": None}
+        return {
+            **candidate,
+            "stage3_score": float(candidate.get("stage2_score", 0.0)),
+            "judge_reason": None,
+        }
 
     # Parse SCORE: N, REASON: ...
     score_match = re.search(r"SCORE\s*:\s*(\d+(?:\.\d+)?)", raw, re.IGNORECASE)
@@ -199,7 +214,9 @@ async def rerank_full_pipeline(
     if enable_stage1:
         stage1 = await rerank_stage1(query, candidates, top_k=stage1_top_k)
     else:
-        stage1 = [{**c, "stage1_score": float(c.get("score", 0.0))} for c in candidates[:stage1_top_k]]
+        stage1 = [
+            {**c, "stage1_score": float(c.get("score", 0.0))} for c in candidates[:stage1_top_k]
+        ]
 
     stage2 = await rerank_stage2(query, stage1, http, embed_url, embed_model, top_k=stage2_top_k)
 

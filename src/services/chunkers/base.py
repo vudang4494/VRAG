@@ -1,4 +1,5 @@
 """Base chunker contract — all format chunkers inherit from this."""
+
 from __future__ import annotations
 
 import re
@@ -10,6 +11,7 @@ from typing import Any
 @dataclass
 class ChunkUnit:
     """A single chunk produced by a chunker. Format-agnostic shape."""
+
     text: str
     chunk_index: int
     chunk_level: str  # "sentence" | "paragraph" | "section" | "document"

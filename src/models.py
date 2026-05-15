@@ -1,4 +1,5 @@
 """Pydantic models for multi-tenant, multi-source RAG."""
+
 from datetime import datetime
 from enum import Enum
 from typing import Annotated, Any, Literal
@@ -66,16 +67,17 @@ class AccessLevel(str, Enum):
 
 
 class ChunkStrategy(str, Enum):
-    FIXED = "fixed"          # Fixed-size with overlap
-    SENTENCE = "sentence"    # Sentence-aware splitting
-    PARAGRAPH = "paragraph" # Paragraph boundaries
-    SEMANTIC = "semantic"    # LLM-based semantic chunks
+    FIXED = "fixed"  # Fixed-size with overlap
+    SENTENCE = "sentence"  # Sentence-aware splitting
+    PARAGRAPH = "paragraph"  # Paragraph boundaries
+    SEMANTIC = "semantic"  # LLM-based semantic chunks
     HIERARCHICAL = "hierarchical"  # Hierarchical (h1/h2/h3)
 
 
 # ---------------------------------------------------------------------------
 # Tenant
 # ---------------------------------------------------------------------------
+
 
 class TenantBase(BaseModel):
     name: str = Field(..., min_length=2, max_length=128)
@@ -137,6 +139,7 @@ class Tenant(TenantBase):
 # User / API Key
 # ---------------------------------------------------------------------------
 
+
 class ApiKeyCreate(BaseModel):
     name: str = Field(..., min_length=2, max_length=128)
     scopes: list[str] = Field(default_factory=lambda: ["chat", "ingest", "read"])
@@ -161,6 +164,7 @@ class ApiKey(BaseModel):
 # Source (data source / plugin config)
 # ---------------------------------------------------------------------------
 
+
 class SourceBase(BaseModel):
     name: str = Field(..., min_length=2, max_length=256)
     source_type: SourceType
@@ -168,7 +172,9 @@ class SourceBase(BaseModel):
     status: SourceStatus = SourceStatus.ACTIVE
     access_level: AccessLevel = AccessLevel.INTERNAL
     tags: list[str] = Field(default_factory=list)
-    schedule_cron: str | None = Field(default=None, description="Cron expression for scheduled sync")
+    schedule_cron: str | None = Field(
+        default=None, description="Cron expression for scheduled sync"
+    )
     is_recurring: bool = False
     crawl_depth: int = Field(default=1, ge=1, le=10)
     filters: dict[str, Any] = Field(default_factory=dict)
@@ -194,6 +200,7 @@ class SourceUpdate(BaseModel):
 
 class SourceCredentials(BaseModel):
     """Credentials stored encrypted. Never returned in API responses."""
+
     encrypted_blob: str  # Fernet-encrypted JSON of credentials
 
 
@@ -215,6 +222,7 @@ class Source(SourceBase):
 # Document
 # ---------------------------------------------------------------------------
 
+
 class DocumentBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=512)
     access_level: AccessLevel = AccessLevel.INTERNAL
@@ -228,7 +236,7 @@ class DocumentBase(BaseModel):
 class DocumentIngest(DocumentBase):
     source_id: str
     file_content: bytes | None = None  # uploaded file
-    file_url: str | None = None       # URL for web/API sources
+    file_url: str | None = None  # URL for web/API sources
     chunk_strategy: ChunkStrategy | None = None
     chunk_size: int | None = Field(default=None, ge=128, le=4096)
     chunk_overlap: int | None = Field(default=None, ge=0, le=512)
@@ -287,6 +295,7 @@ class Entity(BaseModel):
 # Retrieval
 # ---------------------------------------------------------------------------
 
+
 class RetrievalFilters(BaseModel):
     source_ids: list[str] | None = None
     tags: list[str] | None = None
@@ -324,6 +333,7 @@ class RetrievalResponse(BaseModel):
 # Chat / RAG
 # ---------------------------------------------------------------------------
 
+
 class ChatMessage(BaseModel):
     role: Literal["system", "user", "assistant", "developer"]
     content: str
@@ -359,6 +369,7 @@ class ChatCompletionResponse(BaseModel):
 # Ingestion Job
 # ---------------------------------------------------------------------------
 
+
 class IngestJobResponse(BaseModel):
     job_id: str
     tenant_id: str
@@ -378,6 +389,7 @@ class IngestJobResponse(BaseModel):
 # ---------------------------------------------------------------------------
 # Statistics / Metrics
 # ---------------------------------------------------------------------------
+
 
 class TenantStats(BaseModel):
     tenant_id: str
@@ -408,14 +420,17 @@ class SystemStats(BaseModel):
 
 class HealthResponse(BaseModel):
     """Health check response format."""
+
     status: str
     checks: dict[str, Any]
+
 
 class ServiceCheck(BaseModel):
     status: str
     detail: str | None = None
     models: list[str] | None = None
     collections: int | None = None
+
 
 class IngestResponse(BaseModel):
     status: str
@@ -425,6 +440,7 @@ class IngestResponse(BaseModel):
     entities_extracted: int
     relationships_extracted: int
     failed_chunks: int
+
 
 class ModelList(BaseModel):
     data: list[dict[str, str]]
@@ -472,6 +488,7 @@ class RelationType(str, Enum):
 
 class ChunkV2(BaseModel):
     """V2 chunk with hierarchical, multi-view, consistency-scored shape."""
+
     id: str
     tenant_id: str
     document_id: str
@@ -568,4 +585,3 @@ class ChatCompletionV3Response(BaseModel):
     trace_id: str | None = None
     refused: bool = False
     refusal_reason: str | None = None
-

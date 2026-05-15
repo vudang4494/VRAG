@@ -10,6 +10,7 @@ Cho mỗi user query, sinh ra:
 
 Cộng với intent classifier: factual | analytical | summarization | comparison.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -76,6 +77,7 @@ Loại:"""
 async def _llm_text(llm: Any, model: str, prompt: str, max_tokens: int = 200) -> str:
     """Phase 0a fix — Ollama native to bypass Qwen3 thinking-mode content loss."""
     from src.services.ollama_helper import ollama_chat
+
     return await ollama_chat(
         messages=[{"role": "user", "content": prompt}],
         model=model,
@@ -89,7 +91,9 @@ async def rewrite_query(query: str, llm: Any, model: str = "qwen3.5:4b") -> str:
     return text or query
 
 
-async def decompose_query(query: str, llm: Any, model: str = "qwen3.5:4b") -> tuple[bool, list[str]]:
+async def decompose_query(
+    query: str, llm: Any, model: str = "qwen3.5:4b"
+) -> tuple[bool, list[str]]:
     raw = await _llm_text(llm, model, _DECOMPOSE_PROMPT.format(query=query), max_tokens=300)
     raw = re.sub(r"```(?:json)?\s*|\s*```", "", raw).strip()
     try:
@@ -150,17 +154,18 @@ async def understand_query(
     # complete even if later ones time out. With small LLMs (qwen3.5:4b),
     # reducing reformulations saves significant latency.
     from src.config import get_settings as _gs
+
     _n = _gs().query_reformulations
     all_tasks = [
-        ("intent",    classify_intent(query, llm, model)),    # always
-        ("rewrite",   rewrite_query(query, llm, model)),       # always
-        ("keywords",  extract_keywords(query, llm, model)),    # always
-        ("hyde",      hyde_generate(query, llm, model)),       # if n>=4
-        ("decompose", decompose_query(query, llm, model)),     # if n>=5
-        ("step_back", step_back_query(query, llm, model)),     # if n>=6
+        ("intent", classify_intent(query, llm, model)),  # always
+        ("rewrite", rewrite_query(query, llm, model)),  # always
+        ("keywords", extract_keywords(query, llm, model)),  # always
+        ("hyde", hyde_generate(query, llm, model)),  # if n>=4
+        ("decompose", decompose_query(query, llm, model)),  # if n>=5
+        ("step_back", step_back_query(query, llm, model)),  # if n>=6
     ]
     # Always include intent classifier; cap other reformulations by config
-    selected = [all_tasks[0]] + all_tasks[1:1 + max(_n - 1, 0)]
+    selected = [all_tasks[0]] + all_tasks[1 : 1 + max(_n - 1, 0)]
     tasks = dict(selected)
 
     gathered = asyncio.gather(*tasks.values(), return_exceptions=True)
@@ -179,17 +184,19 @@ async def understand_query(
         else:
             out[k] = r
 
-    is_multi_hop, sub_qs = out.get("decompose") if isinstance(out.get("decompose"), tuple) else (False, [])
+    is_multi_hop, sub_qs = (
+        out.get("decompose") if isinstance(out.get("decompose"), tuple) else (False, [])
+    )
 
     reformulations = [{"kind": "original", "text": query, "weight": 1.0}]
     if out.get("rewrite"):
-        reformulations.append({"kind": "rewrite",   "text": out["rewrite"], "weight": 1.1})
+        reformulations.append({"kind": "rewrite", "text": out["rewrite"], "weight": 1.1})
     if out.get("hyde"):
-        reformulations.append({"kind": "hyde",      "text": out["hyde"],    "weight": 1.3})
+        reformulations.append({"kind": "hyde", "text": out["hyde"], "weight": 1.3})
     if out.get("step_back"):
         reformulations.append({"kind": "step_back", "text": out["step_back"], "weight": 0.8})
     if out.get("keywords"):
-        reformulations.append({"kind": "keywords",  "text": out["keywords"], "weight": 0.9})
+        reformulations.append({"kind": "keywords", "text": out["keywords"], "weight": 0.9})
     if is_multi_hop and sub_qs:
         for sq in sub_qs[:2]:
             reformulations.append({"kind": "decompose", "text": sq, "weight": 1.1})

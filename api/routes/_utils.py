@@ -1,4 +1,5 @@
 """Shared helpers used across chat and streaming endpoints."""
+
 import time
 from typing import Any
 

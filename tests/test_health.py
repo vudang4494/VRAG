@@ -1,4 +1,5 @@
 """Health check tests for all RAG stack services."""
+
 import subprocess
 
 import httpx
@@ -8,16 +9,18 @@ import pytest
 BASE = "http://localhost"
 
 SERVICES = {
-    "ollama":     {"url": "http://localhost:11434/api/tags"},
-    "qdrant":     {"url": f"{BASE}:6333/healthz"},
-    "neo4j":      {"url": f"{BASE}:7474"},
-    "rag_api":     {"url": f"{BASE}:8800/health"},
-    "redis":      {"cmd": ["docker", "exec", "rag-redis", "redis-cli", "ping"]},
-    "postgres":   {"cmd": ["docker", "exec", "rag-postgres", "pg_isready", "-U", "raguser", "-d", "ragdb"]},
-    "langfuse":   {"url": f"{BASE}:3000/api/public/health"},
+    "ollama": {"url": "http://localhost:11434/api/tags"},
+    "qdrant": {"url": f"{BASE}:6333/healthz"},
+    "neo4j": {"url": f"{BASE}:7474"},
+    "rag_api": {"url": f"{BASE}:8800/health"},
+    "redis": {"cmd": ["docker", "exec", "rag-redis", "redis-cli", "ping"]},
+    "postgres": {
+        "cmd": ["docker", "exec", "rag-postgres", "pg_isready", "-U", "raguser", "-d", "ragdb"]
+    },
+    "langfuse": {"url": f"{BASE}:3000/api/public/health"},
     "prometheus": {"url": f"{BASE}:9090/-/healthy"},
-    "grafana":    {"url": f"{BASE}:3001/api/health"},
-    "nginx":      {"url": f"{BASE}:80"},
+    "grafana": {"url": f"{BASE}:3001/api/health"},
+    "nginx": {"url": f"{BASE}:80"},
 }
 
 

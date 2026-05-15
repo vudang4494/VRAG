@@ -1,4 +1,5 @@
 """Mac Mini M4 Optimization Tests — comprehensive performance and resource tests."""
+
 import asyncio
 import time
 import os
@@ -46,6 +47,7 @@ TEST_QUERIES = [
 # Section 1: Service Health
 # =============================================================================
 
+
 class TestMacMiniServices:
     """Verify all Mac Mini stack services are healthy."""
 
@@ -79,7 +81,9 @@ class TestMacMiniServices:
         """Redis cache health via docker exec."""
         result = subprocess.run(
             ["docker", "exec", REDIS_CONTAINER, "redis-cli", "ping"],
-            capture_output=True, text=True, timeout=10,
+            capture_output=True,
+            text=True,
+            timeout=10,
         )
         assert result.returncode == 0
         assert "PONG" in result.stdout
@@ -102,7 +106,9 @@ class TestMacMiniServices:
             assert data["status"] in ("ok", "degraded")
             checks = data["checks"]
             for svc in ["ollama", "qdrant", "neo4j", "redis"]:
-                assert checks[svc]["status"] == "ok", f"{svc} failed: {checks[svc].get('detail', '')}"
+                assert checks[svc]["status"] == "ok", (
+                    f"{svc} failed: {checks[svc].get('detail', '')}"
+                )
 
     @pytest.mark.asyncio
     async def test_dashboard_reachable(self):
@@ -115,6 +121,7 @@ class TestMacMiniServices:
 # =============================================================================
 # Section 2: LLM & Embedding Performance
 # =============================================================================
+
 
 class TestMacMiniLLMPerformance:
     """Test Ollama LLM and embedding performance on M4 Metal GPU."""
@@ -223,12 +230,15 @@ class TestMacMiniLLMPerformance:
         print(f"\n  Concurrent embedding (9 texts, sem=3): {total:.0f}ms total, {avg:.1f}ms avg")
 
         # Without concurrency, would be ~9 * avg. With sem=3, should be ~3 * avg
-        assert total < avg * 9 * 1.5, f"Concurrency not effective: {total:.0f}ms vs expected ~{avg*3:.0f}ms"
+        assert total < avg * 9 * 1.5, (
+            f"Concurrency not effective: {total:.0f}ms vs expected ~{avg * 3:.0f}ms"
+        )
 
 
 # =============================================================================
 # Section 3: RAG Pipeline Performance
 # =============================================================================
+
 
 class TestRAGPipeline:
     """End-to-end RAG pipeline tests."""
@@ -301,7 +311,10 @@ class TestRAGPipeline:
             print(f"\n  First call (miss):  {latency1:.0f}ms")
             print(f"  Second call (hit):  {latency2:.0f}ms")
             print(f"  Speedup:            {speedup:.1f}x")
-            assert r1.json()["choices"][0]["message"]["content"] == r2.json()["choices"][0]["message"]["content"]
+            assert (
+                r1.json()["choices"][0]["message"]["content"]
+                == r2.json()["choices"][0]["message"]["content"]
+            )
 
     @pytest.mark.asyncio
     async def test_qdrant_collection_info(self):
@@ -348,6 +361,7 @@ class TestRAGPipeline:
 # Section 4: Resource Usage
 # =============================================================================
 
+
 class TestMacMiniResources:
     """Monitor resource usage of all containers."""
 
@@ -355,10 +369,14 @@ class TestMacMiniResources:
         """Check memory usage of all RAG containers."""
         result = subprocess.run(
             [
-                "docker", "ps", "--format",
+                "docker",
+                "ps",
+                "--format",
                 "{{.Names}}\t{{.MemUsage}}",
             ],
-            capture_output=True, text=True, timeout=15,
+            capture_output=True,
+            text=True,
+            timeout=15,
         )
         print("\n  Container memory usage:")
         for line in result.stdout.strip().split("\n"):
@@ -369,9 +387,10 @@ class TestMacMiniResources:
     def test_docker_total_memory(self):
         """Total Docker memory usage."""
         result = subprocess.run(
-            ["docker", "stats", "--no-stream", "--format",
-             "{{.Name}}\t{{.MemUsage}}"],
-            capture_output=True, text=True, timeout=30,
+            ["docker", "stats", "--no-stream", "--format", "{{.Name}}\t{{.MemUsage}}"],
+            capture_output=True,
+            text=True,
+            timeout=30,
         )
         total_mem = 0
         print("\n  All containers:")
@@ -383,19 +402,29 @@ class TestMacMiniResources:
                 # Try to parse memory usage (format: "123.4MiB / 1GiB")
                 mem_str = parts[1] if len(parts) >= 2 else ""
                 import re
+
                 match = re.search(r"([\d.]+)([KMGT]i?B)", mem_str)
                 if match:
                     val = float(match.group(1))
                     unit = match.group(2)
-                    factor = {"KiB": 1/1024, "MiB": 1, "GiB": 1024, "KB": 1/1024, "MB": 1, "GB": 1024}.get(unit, 1)
+                    factor = {
+                        "KiB": 1 / 1024,
+                        "MiB": 1,
+                        "GiB": 1024,
+                        "KB": 1 / 1024,
+                        "MB": 1,
+                        "GB": 1024,
+                    }.get(unit, 1)
                     total_mem += val * factor
-        print(f"\n  Total Docker memory: {total_mem:.1f} MiB ({total_mem/1024:.2f} GiB)")
+        print(f"\n  Total Docker memory: {total_mem:.1f} MiB ({total_mem / 1024:.2f} GiB)")
 
     def test_system_memory(self):
         """Mac Mini system memory."""
         result = subprocess.run(
             ["sysctl", "hw.memsize"],
-            capture_output=True, text=True, timeout=5,
+            capture_output=True,
+            text=True,
+            timeout=5,
         )
         total_gb = int(result.stdout.strip().split()[-1]) / (1024**3)
         print(f"\n  Mac Mini total RAM: {total_gb:.1f} GB")
@@ -404,6 +433,7 @@ class TestMacMiniResources:
     def test_qdrant_vectors_info(self):
         """Detailed Qdrant collection info."""
         import json
+
         r = httpx.get(f"{QDRANT_BASE}/collections/enterprise_kb", timeout=10)
         if r.status_code == 200:
             data = r.json()["result"]
@@ -418,6 +448,7 @@ class TestMacMiniResources:
 # Section 5: Optimization Verification
 # =============================================================================
 
+
 class TestOptimization:
     """Verify all optimization settings are applied correctly."""
 
@@ -425,7 +456,9 @@ class TestOptimization:
         """Verify Ollama optimization env vars."""
         result = subprocess.run(
             ["docker", "exec", "rag-api", "env"],
-            capture_output=True, text=True, timeout=10,
+            capture_output=True,
+            text=True,
+            timeout=10,
         )
         env_lines = result.stdout.lower()
         checks = {
@@ -437,19 +470,23 @@ class TestOptimization:
         for name, passed in checks.items():
             status = "OK" if passed else "MISSING"
             print(f"  {name}: {status}")
-        assert all(checks.values()), f"Missing optimizations: {[k for k,v in checks.items() if not v]}"
+        assert all(checks.values()), (
+            f"Missing optimizations: {[k for k, v in checks.items() if not v]}"
+        )
 
     def test_redis_memory_limit(self):
         """Verify Redis memory is limited to 128MB."""
         result = subprocess.run(
             ["docker", "exec", "rag-redis", "redis-cli", "CONFIG", "GET", "maxmemory"],
-            capture_output=True, text=True, timeout=10,
+            capture_output=True,
+            text=True,
+            timeout=10,
         )
         assert result.returncode == 0
         # maxmemory is in bytes; 128MB = 134217728 bytes
         mem = int(result.stdout.strip().split()[-1])
-        print(f"\n  Redis maxmemory: {mem} bytes ({mem/1024/1024:.0f}MB)")
-        assert mem <= 134217728 * 1.1, f"Redis maxmemory too high: {mem/1024/1024:.0f}MB"
+        print(f"\n  Redis maxmemory: {mem} bytes ({mem / 1024 / 1024:.0f}MB)")
+        assert mem <= 134217728 * 1.1, f"Redis maxmemory too high: {mem / 1024 / 1024:.0f}MB"
 
     def test_qdrant_sparse_quantization(self):
         """Verify Qdrant scalar quantization is enabled."""
@@ -468,7 +505,9 @@ class TestOptimization:
         """Verify Neo4j heap and pagecache sizes."""
         result = subprocess.run(
             ["docker", "exec", "rag-neo4j", "neo4j", "status"],
-            capture_output=True, text=True, timeout=10,
+            capture_output=True,
+            text=True,
+            timeout=10,
         )
         output = result.stdout + result.stderr
         print(f"\n  Neo4j status output: {output[:200]}")
@@ -485,12 +524,14 @@ class TestOptimization:
 # Section 6: Stress Test
 # =============================================================================
 
+
 class TestStress:
     """Light stress testing — Mac Mini M4 can handle moderate load."""
 
     @pytest.mark.asyncio
     async def test_concurrent_chat_requests(self):
         """Send 5 concurrent RAG chat requests."""
+
         async def chat(client, i):
             start = time.monotonic()
             r = await client.post(
@@ -515,7 +556,7 @@ class TestStress:
         successes = sum(1 for r in results if r[1] == 200)
         print(f"\n  5 concurrent requests:")
         print(f"    Total time: {total:.0f}ms")
-        print(f"    Avg latency: {sum(latencies)/len(latencies):.0f}ms")
+        print(f"    Avg latency: {sum(latencies) / len(latencies):.0f}ms")
         print(f"    Max latency: {max(latencies):.0f}ms")
         print(f"    Success rate: {successes}/5")
         assert successes == 5, f"Some requests failed: {results}"

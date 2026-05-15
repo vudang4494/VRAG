@@ -9,6 +9,7 @@ Replaces single-cosine topic boundary detection with 5-signal ensemble:
 
 Weighted vote — split if score > 0.55 (tunable).
 """
+
 from __future__ import annotations
 
 import re
@@ -22,16 +23,40 @@ from src.services.chunkers.base import BaseChunker, ChunkUnit
 
 # ── Vietnamese + English discourse markers ────────────────────────────────────
 _DISCOURSE_MARKERS_VI = [
-    r"\bTuy nhiên\b", r"\bNgoài ra\b", r"\bMặt khác\b", r"\bDo đó\b", r"\bVì vậy\b",
-    r"\bNgược lại\b", r"\bĐồng thời\b", r"\bThứ nhất\b", r"\bThứ hai\b", r"\bThứ ba\b",
-    r"\bTóm lại\b", r"\bCuối cùng\b", r"\bBên cạnh đó\b", r"\bHơn nữa\b",
-    r"\bChẳng hạn\b", r"\bVí dụ\b",
+    r"\bTuy nhiên\b",
+    r"\bNgoài ra\b",
+    r"\bMặt khác\b",
+    r"\bDo đó\b",
+    r"\bVì vậy\b",
+    r"\bNgược lại\b",
+    r"\bĐồng thời\b",
+    r"\bThứ nhất\b",
+    r"\bThứ hai\b",
+    r"\bThứ ba\b",
+    r"\bTóm lại\b",
+    r"\bCuối cùng\b",
+    r"\bBên cạnh đó\b",
+    r"\bHơn nữa\b",
+    r"\bChẳng hạn\b",
+    r"\bVí dụ\b",
 ]
 _DISCOURSE_MARKERS_EN = [
-    r"\bHowever\b", r"\bMoreover\b", r"\bFurthermore\b", r"\bIn contrast\b",
-    r"\bOn the other hand\b", r"\bConversely\b", r"\bIn addition\b", r"\bTherefore\b",
-    r"\bThus\b", r"\bFirstly?\b", r"\bSecondly?\b", r"\bThirdly?\b", r"\bFinally\b",
-    r"\bIn conclusion\b", r"\bFor example\b", r"\bFor instance\b",
+    r"\bHowever\b",
+    r"\bMoreover\b",
+    r"\bFurthermore\b",
+    r"\bIn contrast\b",
+    r"\bOn the other hand\b",
+    r"\bConversely\b",
+    r"\bIn addition\b",
+    r"\bTherefore\b",
+    r"\bThus\b",
+    r"\bFirstly?\b",
+    r"\bSecondly?\b",
+    r"\bThirdly?\b",
+    r"\bFinally\b",
+    r"\bIn conclusion\b",
+    r"\bFor example\b",
+    r"\bFor instance\b",
 ]
 _DISCOURSE_RE = re.compile(
     "|".join(_DISCOURSE_MARKERS_VI + _DISCOURSE_MARKERS_EN),
@@ -41,11 +66,15 @@ _DISCOURSE_RE = re.compile(
 
 # ── Mode classification ──────────────────────────────────────────────────────
 _FACT_PATTERNS = [r"\d+%", r"\d+\s*(tỷ|triệu|nghìn|million|billion)", r"\d{4}", r"là\s+\w+"]
-_OPINION_PATTERNS = [r"\b(rất|cực kỳ|tuyệt|excellent|amazing|terrible)\b",
-                      r"\b(theo tôi|theo chúng tôi|in my opinion)\b",
-                      r"\b(có thể|chắc chắn|definitely|maybe|possibly)\b"]
-_INSTRUCTION_PATTERNS = [r"^(Bước \d|Step \d|First[,\.]|Next[,\.])",
-                          r"\b(hãy|please|let us|let's)\b"]
+_OPINION_PATTERNS = [
+    r"\b(rất|cực kỳ|tuyệt|excellent|amazing|terrible)\b",
+    r"\b(theo tôi|theo chúng tôi|in my opinion)\b",
+    r"\b(có thể|chắc chắn|definitely|maybe|possibly)\b",
+]
+_INSTRUCTION_PATTERNS = [
+    r"^(Bước \d|Step \d|First[,\.]|Next[,\.])",
+    r"\b(hãy|please|let us|let's)\b",
+]
 
 
 def _detect_mode(text: str) -> str:
@@ -64,10 +93,10 @@ def _is_structural_boundary(text: str) -> bool:
     if not s:
         return True
     return bool(
-        re.match(r"^#{1,6}\s", s)        # markdown heading
-        or re.match(r"^[-*+]\s", s)      # list bullet
-        or re.match(r"^\d+\.\s", s)      # numbered list
-        or s.startswith("```")           # code block
+        re.match(r"^#{1,6}\s", s)  # markdown heading
+        or re.match(r"^[-*+]\s", s)  # list bullet
+        or re.match(r"^\d+\.\s", s)  # numbered list
+        or s.startswith("```")  # code block
     )
 
 
@@ -91,6 +120,7 @@ class MultiSignalChunker(BaseChunker):
       structural:        0.15
       mode_shift:        0.10
     """
+
     name = "multi_signal"
 
     def __init__(
@@ -144,13 +174,15 @@ class MultiSignalChunker(BaseChunker):
         # Pack into ChunkUnits
         units: list[ChunkUnit] = []
         for idx, para in enumerate(paragraphs):
-            units.append(ChunkUnit(
-                text=" ".join(para),
-                chunk_index=idx,
-                chunk_level="paragraph",
-                parent_index=None,
-                metadata={"filename": filename, "chunker": self.name},
-            ))
+            units.append(
+                ChunkUnit(
+                    text=" ".join(para),
+                    chunk_index=idx,
+                    chunk_level="paragraph",
+                    parent_index=None,
+                    metadata={"filename": filename, "chunker": self.name},
+                )
+            )
         return units
 
     async def _compute_boundaries(self, sentences: list[str]) -> list[float]:
@@ -162,12 +194,18 @@ class MultiSignalChunker(BaseChunker):
         if self.http and self.embed_url:
             try:
                 from src.services.embedding import embed_batch, cosine_similarity
+
                 embs = await embed_batch(
-                    self.http, self.embed_url, self.embed_model, sentences, batch_size=32, timeout=60.0,
+                    self.http,
+                    self.embed_url,
+                    self.embed_model,
+                    sentences,
+                    batch_size=32,
+                    timeout=60.0,
                 )
                 for i in range(1, n):
-                    if embs[i-1] and embs[i]:
-                        drop = 1.0 - cosine_similarity(embs[i-1], embs[i])
+                    if embs[i - 1] and embs[i]:
+                        drop = 1.0 - cosine_similarity(embs[i - 1], embs[i])
                         scores[i] += self.weights["semantic_drop"] * drop
             except Exception as e:
                 logger.debug(f"MultiSignal embed failed, skip semantic_drop: {e}")

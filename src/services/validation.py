@@ -3,6 +3,7 @@
 Three gates run in parallel. If any fails, the response should be refused
 or retried with broader retrieval (per config.validation_retry_on_fail).
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -52,6 +53,7 @@ async def extract_atomic_claims(answer: str, llm: Any, model: str = "qwen3.5:4b"
     Phase 0a fix: use Ollama native (think:false) to avoid Qwen3 empty content.
     """
     from src.services.ollama_helper import ollama_chat
+
     if not answer.strip():
         return []
     try:
@@ -78,9 +80,15 @@ async def extract_atomic_claims(answer: str, llm: Any, model: str = "qwen3.5:4b"
 async def verify_claim(claim: str, context: str, llm: Any, model: str = "qwen3.5:4b") -> str:
     """Returns 'YES' | 'NO' | 'PARTIAL'. Phase 0a — Ollama native."""
     from src.services.ollama_helper import ollama_chat
+
     try:
         raw = await ollama_chat(
-            messages=[{"role": "user", "content": _VERIFY_CLAIM_PROMPT.format(claim=claim, context=context[:5000])}],
+            messages=[
+                {
+                    "role": "user",
+                    "content": _VERIFY_CLAIM_PROMPT.format(claim=claim, context=context[:5000]),
+                }
+            ],
             model=model,
             temperature=0.1,
             max_tokens=20,
@@ -210,7 +218,9 @@ def citation_gate(answer: str, min_ratio: float = 0.40) -> dict[str, Any]:
         return {"passed": True, "citation_ratio": 1.0, "uncited": []}
     cited = [s for s in sentences if _CITATION_PATTERN.search(s) or _CITATION_PATTERN_V2.search(s)]
     ratio = len(cited) / len(sentences)
-    uncited = [s for s in sentences if not (_CITATION_PATTERN.search(s) or _CITATION_PATTERN_V2.search(s))]
+    uncited = [
+        s for s in sentences if not (_CITATION_PATTERN.search(s) or _CITATION_PATTERN_V2.search(s))
+    ]
     return {
         "passed": ratio >= min_ratio,
         "citation_ratio": ratio,
@@ -243,7 +253,11 @@ async def validate_answer(
       }
     """
     halluc_task = hallucination_gate(answer, context, llm, model, min_grounded_ratio)
-    entity_task = entity_gate(answer, neo4j_driver, tenant_id, max_invalid_entities) if neo4j_driver else _passthrough_entity()
+    entity_task = (
+        entity_gate(answer, neo4j_driver, tenant_id, max_invalid_entities)
+        if neo4j_driver
+        else _passthrough_entity()
+    )
     cite_result = citation_gate(answer, min_citation_ratio)
 
     halluc, entity = await asyncio.gather(halluc_task, entity_task)
@@ -256,7 +270,11 @@ async def validate_answer(
     if not cite_result["passed"]:
         reasons.append(f"low_citations({cite_result['citation_ratio']:.2f}<{min_citation_ratio})")
 
-    confidence = halluc["grounded_ratio"] * (1.0 - 0.2 * (not entity["passed"])) * (1.0 - 0.1 * (not cite_result["passed"]))
+    confidence = (
+        halluc["grounded_ratio"]
+        * (1.0 - 0.2 * (not entity["passed"]))
+        * (1.0 - 0.1 * (not cite_result["passed"]))
+    )
 
     return {
         "passed": halluc["passed"] and entity["passed"] and cite_result["passed"],

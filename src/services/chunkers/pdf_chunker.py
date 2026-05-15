@@ -2,6 +2,7 @@
 
 Output: ChunkUnit list with page_num + heading_path metadata when possible.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -90,6 +91,7 @@ class PDFChunker(BaseChunker):
 
         def _run():
             from docling.document_converter import DocumentConverter
+
             with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
                 f.write(content)
                 tmp_path = Path(f.name)

@@ -1,4 +1,5 @@
 """Health endpoints — /health and /health/deep."""
+
 from typing import Any
 
 from fastapi import APIRouter

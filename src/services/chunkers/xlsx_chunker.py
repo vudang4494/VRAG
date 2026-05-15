@@ -5,6 +5,7 @@ Strategy:
 - Header được prepend trong text mỗi chunk để LLM/embedder hiểu context.
 - Metadata: sheet_name, column_names, row_range.
 """
+
 from __future__ import annotations
 
 import csv
@@ -48,20 +49,24 @@ class XlsxChunker(BaseChunker):
             section_parent = None
             if "section" in self.emit_levels and rows:
                 section_text = self._format_table(header, rows[:5])
-                section_text = f"[Sheet: {sheet_name}]\n{section_text}\n... ({len(rows)} rows total)"
-                units.append(ChunkUnit(
-                    text=section_text,
-                    chunk_index=idx,
-                    chunk_level="section",
-                    parent_index=None,
-                    metadata={
-                        "sheet_name": sheet_name,
-                        "column_names": header,
-                        "row_count": len(rows),
-                        "filename": filename,
-                        "format": "csv" if is_csv else "xlsx",
-                    },
-                ))
+                section_text = (
+                    f"[Sheet: {sheet_name}]\n{section_text}\n... ({len(rows)} rows total)"
+                )
+                units.append(
+                    ChunkUnit(
+                        text=section_text,
+                        chunk_index=idx,
+                        chunk_level="section",
+                        parent_index=None,
+                        metadata={
+                            "sheet_name": sheet_name,
+                            "column_names": header,
+                            "row_count": len(rows),
+                            "filename": filename,
+                            "format": "csv" if is_csv else "xlsx",
+                        },
+                    )
+                )
                 section_parent = idx
                 idx += 1
 
@@ -69,20 +74,22 @@ class XlsxChunker(BaseChunker):
                 row_batch = rows[i : i + self.rows_per_chunk]
                 row_range = (i, i + len(row_batch))
                 text = self._format_table(header if self.include_header else None, row_batch)
-                text = f"[Sheet: {sheet_name}, rows {row_range[0]+1}-{row_range[1]}]\n{text}"
-                units.append(ChunkUnit(
-                    text=text,
-                    chunk_index=idx,
-                    chunk_level="paragraph",
-                    parent_index=section_parent,
-                    metadata={
-                        "sheet_name": sheet_name,
-                        "column_names": header,
-                        "row_range": list(row_range),
-                        "filename": filename,
-                        "format": "csv" if is_csv else "xlsx",
-                    },
-                ))
+                text = f"[Sheet: {sheet_name}, rows {row_range[0] + 1}-{row_range[1]}]\n{text}"
+                units.append(
+                    ChunkUnit(
+                        text=text,
+                        chunk_index=idx,
+                        chunk_level="paragraph",
+                        parent_index=section_parent,
+                        metadata={
+                            "sheet_name": sheet_name,
+                            "column_names": header,
+                            "row_range": list(row_range),
+                            "filename": filename,
+                            "format": "csv" if is_csv else "xlsx",
+                        },
+                    )
+                )
                 idx += 1
         return units
 
@@ -113,6 +120,7 @@ class XlsxChunker(BaseChunker):
     def _parse_xlsx(self, content: bytes) -> list[tuple[str, list[str], list[list[Any]]]]:
         try:
             from openpyxl import load_workbook
+
             wb = load_workbook(io.BytesIO(content), data_only=True, read_only=True)
         except Exception as e:
             logger.warning(f"openpyxl parse failed: {e}")
@@ -126,7 +134,9 @@ class XlsxChunker(BaseChunker):
                 header_row = next(it)
             except StopIteration:
                 continue
-            header = [str(h).strip() if h is not None else f"col_{i}" for i, h in enumerate(header_row)]
+            header = [
+                str(h).strip() if h is not None else f"col_{i}" for i, h in enumerate(header_row)
+            ]
             data_rows = [list(row) for row in it if any(c is not None for c in row)]
             if data_rows:
                 result.append((sheet_name, header, data_rows))

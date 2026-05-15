@@ -29,6 +29,7 @@ lower α = closer to original (less context).
 Storage: refined embedding upserted to Qdrant as 6th named vector "graph_aware"
 in the existing enterprise_kb collection.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -250,7 +251,12 @@ async def refine_chunk_gaea(
                       Pass empty dict if no entities (will fall back to chunk-only).
     """
     entity_names, neighbor_ids = await fetch_chunk_neighborhood(
-        chunk_id, neo4j_driver, qdrant_client, collection, tenant_id, neighbor_cap,
+        chunk_id,
+        neo4j_driver,
+        qdrant_client,
+        collection,
+        tenant_id,
+        neighbor_cap,
     )
 
     # Build KV pool: entity aggregates + neighbor chunk embeddings
@@ -293,7 +299,11 @@ async def build_entity_embedding_cache(
     async def _one(name: str):
         async with sem:
             emb = await aggregate_entity_embedding(
-                name, neo4j_driver, qdrant_client, collection, tenant_id,
+                name,
+                neo4j_driver,
+                qdrant_client,
+                collection,
+                tenant_id,
             )
             if emb is not None:
                 cache[name] = emb
@@ -322,7 +332,10 @@ async def batch_refine_tenant(
 
     # Step 1: build entity cache
     entity_cache = await build_entity_embedding_cache(
-        neo4j_driver, qdrant_client, collection, tenant_id,
+        neo4j_driver,
+        qdrant_client,
+        collection,
+        tenant_id,
     )
 
     # Step 2: list all chunks for tenant
@@ -355,8 +368,15 @@ async def batch_refine_tenant(
                 continue
             try:
                 refined = await refine_chunk_gaea(
-                    cid, orig_emb, neo4j_driver, qdrant_client, collection,
-                    entity_cache, tenant_id, alpha, neighbor_cap,
+                    cid,
+                    orig_emb,
+                    neo4j_driver,
+                    qdrant_client,
+                    collection,
+                    entity_cache,
+                    tenant_id,
+                    alpha,
+                    neighbor_cap,
                 )
                 point_id = to_int_id(cid)
                 updated_points.append(
@@ -382,8 +402,10 @@ async def batch_refine_tenant(
                 error_count += len(updated_points)
                 refined_count -= len(updated_points)
 
-        logger.info(f"GAEA: batch {batch_start // batch_size + 1} done "
-                    f"({refined_count}/{len(chunk_ids)} refined, {error_count} errors)")
+        logger.info(
+            f"GAEA: batch {batch_start // batch_size + 1} done "
+            f"({refined_count}/{len(chunk_ids)} refined, {error_count} errors)"
+        )
 
     return {
         "tenant_id": tenant_id,

@@ -1,4 +1,5 @@
 """Test configuration and shared fixtures."""
+
 import asyncio
 import os
 import pytest
@@ -13,7 +14,9 @@ os.environ.setdefault("NEO4J_URL", "bolt://localhost:7687")
 os.environ.setdefault("NEO4J_USER", "neo4j")
 os.environ.setdefault("NEO4J_PASSWORD", "")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
-os.environ.setdefault("POSTGRES_URL", "postgresql://raguser:46b0a29fb12290c116e2cf8995334e07c1c1@localhost:5432/ragdb")
+os.environ.setdefault(
+    "POSTGRES_URL", "postgresql://raguser:46b0a29fb12290c116e2cf8995334e07c1c1@localhost:5432/ragdb"
+)
 os.environ.setdefault("LANGFUSE_HOST", "http://localhost:3000")
 os.environ.setdefault("MAX_CONCURRENT_REQUESTS", "8")
 os.environ.setdefault("REQUEST_TIMEOUT_S", "120")

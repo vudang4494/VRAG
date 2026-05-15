@@ -21,6 +21,7 @@ This module:
   2. Cypher rewriter to add temporal filter
   3. Migration helper to add valid_from/valid_to to existing entities
 """
+
 from __future__ import annotations
 
 import re
@@ -30,11 +31,11 @@ from typing import Any
 
 _TIME_REF_PATTERNS = {
     "current": [r"\b(hiện tại|hiện nay|bây giờ|now|current|today)\b"],
-    "latest":  [r"\b(mới nhất|gần đây nhất|latest|most recent)\b"],
-    "year":    [r"\b(năm|in)\s+(\d{4})\b"],
+    "latest": [r"\b(mới nhất|gần đây nhất|latest|most recent)\b"],
+    "year": [r"\b(năm|in)\s+(\d{4})\b"],
     "quarter": [r"\b(quý|Q)\s*([1-4])\s*(năm)?\s*(\d{4})\b", r"\b(Q[1-4])\s+(\d{4})\b"],
-    "month":   [r"\b(tháng|month)\s+(\d{1,2})(?:\s*(năm|of)\s+(\d{4}))?\b"],
-    "past":    [r"\b(năm ngoái|tháng trước|last year|last month)\b"],
+    "month": [r"\b(tháng|month)\s+(\d{1,2})(?:\s*(năm|of)\s+(\d{4}))?\b"],
+    "past": [r"\b(năm ngoái|tháng trước|last year|last month)\b"],
 }
 
 
@@ -128,16 +129,19 @@ async def add_temporal_to_entity(
     RETURN e
     """
     async with neo4j_driver.session() as s:
-        await s.run(cypher, name=entity_name, tid=tenant_id, **{
-            "from": valid_from or datetime.now(timezone.utc).date().isoformat(),
-            "to": valid_to,
-            "version": version,
-        })
+        await s.run(
+            cypher,
+            name=entity_name,
+            tid=tenant_id,
+            **{
+                "from": valid_from or datetime.now(timezone.utc).date().isoformat(),
+                "to": valid_to,
+                "version": version,
+            },
+        )
 
 
-async def migrate_entities_set_default_validity(
-    neo4j_driver, tenant_id: str
-) -> dict[str, int]:
+async def migrate_entities_set_default_validity(neo4j_driver, tenant_id: str) -> dict[str, int]:
     """Migration: set valid_from to created_at, valid_to NULL for existing entities."""
     cypher = """
     MATCH (e:Entity {tenant_id: $tid})

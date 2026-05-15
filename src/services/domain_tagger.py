@@ -15,6 +15,7 @@ The 8 axes were chosen to match the eval benchmark categories:
   factual_definition, method_algorithm, comparison_analysis, research_paper,
   technical_code, biological_science, instruction_howto, business_finance
 """
+
 from __future__ import annotations
 
 import re
@@ -28,14 +29,14 @@ import numpy as np
 # ── Domain taxonomy ────────────────────────────────────────────────────────────
 
 DOMAIN_AXES = [
-    "factual_definition",     # 0: what/definition questions
-    "method_algorithm",      # 1: algorithms, techniques, computational methods
-    "comparison_analysis",   # 2: compare, contrast, evaluate, analysis
-    "research_paper",        # 3: academic paper structure / results
-    "technical_code",        # 4: code, implementation, API, technical specs
-    "biological_science",    # 5: biology, protein, medical, scientific experiments
-    "instruction_howto",     # 6: how-to, step-by-step, instructions
-    "business_finance",      # 7: finance, business metrics, market data
+    "factual_definition",  # 0: what/definition questions
+    "method_algorithm",  # 1: algorithms, techniques, computational methods
+    "comparison_analysis",  # 2: compare, contrast, evaluate, analysis
+    "research_paper",  # 3: academic paper structure / results
+    "technical_code",  # 4: code, implementation, API, technical specs
+    "biological_science",  # 5: biology, protein, medical, scientific experiments
+    "instruction_howto",  # 6: how-to, step-by-step, instructions
+    "business_finance",  # 7: finance, business metrics, market data
 ]
 N_DOMAINS = len(DOMAIN_AXES)  # 8
 
@@ -43,6 +44,7 @@ N_DOMAINS = len(DOMAIN_AXES)  # 8
 @dataclass
 class DomainDistribution:
     """Soft domain membership over 8 axes. Values sum to ~1.0 (normalized)."""
+
     factual_definition: float
     method_algorithm: float
     comparison_analysis: float
@@ -104,9 +106,9 @@ class DomainDistribution:
         return DomainDistribution.from_list([v * scalar for v in self.to_list()])
 
     def __add__(self, other: "DomainDistribution") -> "DomainDistribution":
-        return DomainDistribution.from_list([
-            a + b for a, b in zip(self.to_list(), other.to_list())
-        ])
+        return DomainDistribution.from_list(
+            [a + b for a, b in zip(self.to_list(), other.to_list())]
+        )
 
 
 # ── Keyword/signal dictionaries ────────────────────────────────────────────────
@@ -114,49 +116,129 @@ class DomainDistribution:
 # (axis_name, weight) pairs for matching keywords in text
 _AXIS_KEYWORDS: dict[str, list[tuple[str, float]]] = {
     "factual_definition": [
-        ("là gì", 0.9), ("what is", 0.9), ("defined as", 0.9), ("definition", 0.7),
-        ("means", 0.7), ("means", 0.7), ("viết tắt", 0.9), ("tắt của", 0.9),
-        ("giới thiệu", 0.6), ("tổng quan", 0.5), ("overview", 0.5),
+        ("là gì", 0.9),
+        ("what is", 0.9),
+        ("defined as", 0.9),
+        ("definition", 0.7),
+        ("means", 0.7),
+        ("means", 0.7),
+        ("viết tắt", 0.9),
+        ("tắt của", 0.9),
+        ("giới thiệu", 0.6),
+        ("tổng quan", 0.5),
+        ("overview", 0.5),
     ],
     "method_algorithm": [
-        ("algorithm", 0.9), ("thuật toán", 0.9), ("phương pháp", 0.7), ("method", 0.7),
-        ("technique", 0.7), ("sử dụng", 0.5), ("hoạt động", 0.5), ("cơ chế", 0.7),
-        ("clustering", 0.8), ("detection", 0.7), ("leiden", 0.9), ("louvain", 0.9),
-        ("embedding", 0.7), ("contrastive", 0.8), ("training", 0.6),
+        ("algorithm", 0.9),
+        ("thuật toán", 0.9),
+        ("phương pháp", 0.7),
+        ("method", 0.7),
+        ("technique", 0.7),
+        ("sử dụng", 0.5),
+        ("hoạt động", 0.5),
+        ("cơ chế", 0.7),
+        ("clustering", 0.8),
+        ("detection", 0.7),
+        ("leiden", 0.9),
+        ("louvain", 0.9),
+        ("embedding", 0.7),
+        ("contrastive", 0.8),
+        ("training", 0.6),
     ],
     "comparison_analysis": [
-        ("so sánh", 0.9), ("compare", 0.9), ("khác nhau", 0.9), ("difference", 0.8),
-        ("hơn kém", 0.8), ("tốt hơn", 0.7), ("better", 0.7), ("worse", 0.7),
-        ("đánh giá", 0.8), ("evaluate", 0.8), ("analysis", 0.7), ("phân tích", 0.7),
-        ("tại sao", 0.8), ("why", 0.8), ("vai trò", 0.8), ("role", 0.7),
+        ("so sánh", 0.9),
+        ("compare", 0.9),
+        ("khác nhau", 0.9),
+        ("difference", 0.8),
+        ("hơn kém", 0.8),
+        ("tốt hơn", 0.7),
+        ("better", 0.7),
+        ("worse", 0.7),
+        ("đánh giá", 0.8),
+        ("evaluate", 0.8),
+        ("analysis", 0.7),
+        ("phân tích", 0.7),
+        ("tại sao", 0.8),
+        ("why", 0.8),
+        ("vai trò", 0.8),
+        ("role", 0.7),
     ],
     "research_paper": [
-        ("paper", 0.9), ("bài báo", 0.9), ("nghiên cứu", 0.8), ("research", 0.8),
-        ("accuracy", 0.7), ("results", 0.7), ("kết quả", 0.7), ("performance", 0.7),
-        ("benchmark", 0.8), ("evaluation", 0.7), ("metric", 0.7),
-        ("section", 0.5), ("table", 0.5), ("figure", 0.5),
+        ("paper", 0.9),
+        ("bài báo", 0.9),
+        ("nghiên cứu", 0.8),
+        ("research", 0.8),
+        ("accuracy", 0.7),
+        ("results", 0.7),
+        ("kết quả", 0.7),
+        ("performance", 0.7),
+        ("benchmark", 0.8),
+        ("evaluation", 0.7),
+        ("metric", 0.7),
+        ("section", 0.5),
+        ("table", 0.5),
+        ("figure", 0.5),
     ],
     "technical_code": [
-        ("code", 0.9), ("implementation", 0.9), ("function", 0.8), ("class", 0.8),
-        ("api", 0.9), ("parameter", 0.8), ("module", 0.8), ("library", 0.8),
-        ("syntax", 0.9), ("import", 0.8), ("def ", 0.8), ("const", 0.7),
+        ("code", 0.9),
+        ("implementation", 0.9),
+        ("function", 0.8),
+        ("class", 0.8),
+        ("api", 0.9),
+        ("parameter", 0.8),
+        ("module", 0.8),
+        ("library", 0.8),
+        ("syntax", 0.9),
+        ("import", 0.8),
+        ("def ", 0.8),
+        ("const", 0.7),
     ],
     "biological_science": [
-        ("protein", 0.9), ("biology", 0.9), ("biological", 0.9), ("cell", 0.8),
-        ("dna", 0.9), ("structure", 0.7), ("alphafold", 0.9), ("genome", 0.9),
-        ("scientific", 0.8), ("experiment", 0.8), ("sequence", 0.8),
-        ("axit amin", 0.9), ("amino acid", 0.9), ("disease", 0.7), ("medical", 0.8),
+        ("protein", 0.9),
+        ("biology", 0.9),
+        ("biological", 0.9),
+        ("cell", 0.8),
+        ("dna", 0.9),
+        ("structure", 0.7),
+        ("alphafold", 0.9),
+        ("genome", 0.9),
+        ("scientific", 0.8),
+        ("experiment", 0.8),
+        ("sequence", 0.8),
+        ("axit amin", 0.9),
+        ("amino acid", 0.9),
+        ("disease", 0.7),
+        ("medical", 0.8),
     ],
     "instruction_howto": [
-        ("cách", 0.8), ("how to", 0.9), ("bước", 0.8), ("step", 0.8),
-        ("hướng dẫn", 0.9), ("guide", 0.8), ("instruction", 0.8),
-        ("thực hiện", 0.7), ("làm thế nào", 0.9), ("như thế nào", 0.9),
-        ("chạy", 0.7), ("sử dụng", 0.6), ("cài đặt", 0.8), ("install", 0.8),
+        ("cách", 0.8),
+        ("how to", 0.9),
+        ("bước", 0.8),
+        ("step", 0.8),
+        ("hướng dẫn", 0.9),
+        ("guide", 0.8),
+        ("instruction", 0.8),
+        ("thực hiện", 0.7),
+        ("làm thế nào", 0.9),
+        ("như thế nào", 0.9),
+        ("chạy", 0.7),
+        ("sử dụng", 0.6),
+        ("cài đặt", 0.8),
+        ("install", 0.8),
     ],
     "business_finance": [
-        ("revenue", 0.9), ("profit", 0.9), ("stock", 0.9), ("market", 0.8),
-        ("finance", 0.9), ("financial", 0.9), ("revenue", 0.9), ("investment", 0.9),
-        ("tài chính", 0.9), ("doanh thu", 0.9), ("lợi nhuận", 0.9), ("cổ phiếu", 0.9),
+        ("revenue", 0.9),
+        ("profit", 0.9),
+        ("stock", 0.9),
+        ("market", 0.8),
+        ("finance", 0.9),
+        ("financial", 0.9),
+        ("revenue", 0.9),
+        ("investment", 0.9),
+        ("tài chính", 0.9),
+        ("doanh thu", 0.9),
+        ("lợi nhuận", 0.9),
+        ("cổ phiếu", 0.9),
     ],
 }
 
@@ -325,23 +407,47 @@ def tag_query(query: str) -> DomainDistribution:
 
     # Query-specific patterns (higher weight for short texts)
     QUERY_METHOD_PATTERNS = [
-        r"thuật toán", r"algorithm", r"phương pháp", r"method",
-        r"hoạt động", r"cơ chế", r"kỹ thuật",
+        r"thuật toán",
+        r"algorithm",
+        r"phương pháp",
+        r"method",
+        r"hoạt động",
+        r"cơ chế",
+        r"kỹ thuật",
     ]
     QUERY_COMPARE_PATTERNS = [
-        r"so sánh", r"khác nhau", r"compare", r"hơn kém",
-        r"tại sao", r"tại sao", r"vai trò", r"đánh giá",
+        r"so sánh",
+        r"khác nhau",
+        r"compare",
+        r"hơn kém",
+        r"tại sao",
+        r"tại sao",
+        r"vai trò",
+        r"đánh giá",
     ]
     QUERY_FACTUAL_PATTERNS = [
-        r"là gì", r"what is", r"viết tắt", r"bao nhiêu",
-        r"bao gồm", r"gồm", r"có gì",
+        r"là gì",
+        r"what is",
+        r"viết tắt",
+        r"bao nhiêu",
+        r"bao gồm",
+        r"gồm",
+        r"có gì",
     ]
     QUERY_HOWTO_PATTERNS = [
-        r"làm thế nào", r"như thế nào", r"cách", r"how to",
-        r"hướng dẫn", r"bước", r"thực hiện",
+        r"làm thế nào",
+        r"như thế nào",
+        r"cách",
+        r"how to",
+        r"hướng dẫn",
+        r"bước",
+        r"thực hiện",
     ]
     QUERY_BIO_PATTERNS = [
-        r"protein", r"dự đoán", r"cấu trúc", r"biology",
+        r"protein",
+        r"dự đoán",
+        r"cấu trúc",
+        r"biology",
     ]
 
     for ax, patterns in [

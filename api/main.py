@@ -14,6 +14,7 @@ Endpoints live under /api/v3 (see api/routes_v3.py for the full V3 surface):
 
 Root-level endpoints kept: /health, /metrics (Prometheus), /api/metrics (JSON).
 """
+
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
@@ -60,9 +61,11 @@ app = FastAPI(
 )
 
 from api.routes_v3 import router as v3_router  # noqa: E402
+
 app.include_router(v3_router, prefix="/api/v3", tags=["v3"])
 
 from src.metrics import MetricsMiddleware, get_metrics  # noqa: E402
+
 app.add_middleware(MetricsMiddleware)
 
 

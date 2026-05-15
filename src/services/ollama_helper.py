@@ -23,6 +23,7 @@ Usage:
         temperature=0.2,
     )
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -78,23 +79,25 @@ async def ollama_chat(
             if not content:
                 content = (msg.get("thinking") or "").strip()
                 if content:
-                    logger.debug(f"ollama_chat: empty content, used thinking fallback ({len(content)} chars)")
+                    logger.debug(
+                        f"ollama_chat: empty content, used thinking fallback ({len(content)} chars)"
+                    )
             return content
         except httpx.HTTPStatusError as e:
             last_error = f"HTTP {e.response.status_code}: {e}"
-            logger.warning(f"ollama_chat attempt {attempt+1}/{_retries} failed: {last_error}")
+            logger.warning(f"ollama_chat attempt {attempt + 1}/{_retries} failed: {last_error}")
         except httpx.ConnectError as e:
             last_error = f"ConnectError: {e}"
-            logger.warning(f"ollama_chat attempt {attempt+1}/{_retries} failed: {last_error}")
+            logger.warning(f"ollama_chat attempt {attempt + 1}/{_retries} failed: {last_error}")
         except httpx.RemoteProtocolError as e:
             last_error = f"RemoteProtocolError: {e}"
-            logger.warning(f"ollama_chat attempt {attempt+1}/{_retries} failed: {last_error}")
+            logger.warning(f"ollama_chat attempt {attempt + 1}/{_retries} failed: {last_error}")
         except Exception as e:
             last_error = str(e)
-            logger.warning(f"ollama_chat attempt {attempt+1}/{_retries} failed: {last_error}")
+            logger.warning(f"ollama_chat attempt {attempt + 1}/{_retries} failed: {last_error}")
 
         if attempt < _retries - 1:
-            wait = 2 ** attempt
+            wait = 2**attempt
             logger.info(f"ollama_chat: retrying in {wait}s...")
             await _aio.sleep(wait)
 

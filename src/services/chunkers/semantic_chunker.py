@@ -6,6 +6,7 @@ Strategy:
 3. Pack sentences thành paragraphs (cùng topic).
 4. Pack paragraphs thành sections nếu max_chars cho phép.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -56,23 +57,27 @@ class SemanticChunker(BaseChunker):
             section_text = "\n\n".join(section)
             section_parent_idx = idx if "section" in self.emit_levels else None
             if "section" in self.emit_levels:
-                units.append(ChunkUnit(
-                    text=section_text,
-                    chunk_index=idx,
-                    chunk_level="section",
-                    parent_index=None,
-                    metadata={"section_index": section_idx},
-                ))
+                units.append(
+                    ChunkUnit(
+                        text=section_text,
+                        chunk_index=idx,
+                        chunk_level="section",
+                        parent_index=None,
+                        metadata={"section_index": section_idx},
+                    )
+                )
                 idx += 1
             for para_idx, para in enumerate(section):
                 if "paragraph" in self.emit_levels:
-                    units.append(ChunkUnit(
-                        text=para,
-                        chunk_index=idx,
-                        chunk_level="paragraph",
-                        parent_index=section_parent_idx,
-                        metadata={"section_index": section_idx, "paragraph_index": para_idx},
-                    ))
+                    units.append(
+                        ChunkUnit(
+                            text=para,
+                            chunk_index=idx,
+                            chunk_level="paragraph",
+                            parent_index=section_parent_idx,
+                            metadata={"section_index": section_idx, "paragraph_index": para_idx},
+                        )
+                    )
                     idx += 1
         return units
 
@@ -83,6 +88,7 @@ class SemanticChunker(BaseChunker):
 
         try:
             from src.services.embedding import embed_batch, cosine_similarity
+
             embeds = await embed_batch(
                 self.http,
                 self.embed_url,
@@ -101,8 +107,7 @@ class SemanticChunker(BaseChunker):
             sim = cosine_similarity(embeds[i - 1], embeds[i])
             sent = sentences[i]
             split_now = (
-                sim < self.topic_shift_threshold
-                or buf_len + len(sent) > self.paragraph_max_chars
+                sim < self.topic_shift_threshold or buf_len + len(sent) > self.paragraph_max_chars
             )
             if split_now:
                 paragraphs.append([sent])

@@ -14,6 +14,7 @@ Workflow:
 Usage:
   python3 scripts/v2_smoke_test.py [--api http://localhost:8800] [--tenant default]
 """
+
 from __future__ import annotations
 
 import argparse
@@ -101,13 +102,17 @@ async def run(api_base: str, tenant: str, sample_path: Path | None = None) -> in
         try:
             files = {"file": (filename, content, "application/octet-stream")}
             data = {"tenant_id": tenant, "access_level": "INTERNAL"}
-            resp = await client.post(f"{api_base}/api/v3/ingest/upload", files=files, data=data, timeout=300.0)
+            resp = await client.post(
+                f"{api_base}/api/v3/ingest/upload", files=files, data=data, timeout=300.0
+            )
             resp.raise_for_status()
             result = resp.json()
             ok(f"Status: {result.get('status')}")
             print(f"     - Format detected: {result.get('format')}")
             print(f"     - Chunks indexed: {result.get('chunks_indexed')}")
-            print(f"     - Chunks dropped (low consistency): {result.get('chunks_dropped_low_quality', 0)}")
+            print(
+                f"     - Chunks dropped (low consistency): {result.get('chunks_dropped_low_quality', 0)}"
+            )
             print(f"     - Avg consistency score: {result.get('avg_consistency_score', 0):.3f}")
             print(f"     - Entities extracted: {result.get('entities_extracted', 0)}")
             print(f"     - Relationships: {result.get('relationships_extracted', 0)}")
@@ -132,7 +137,12 @@ async def run(api_base: str, tenant: str, sample_path: Path | None = None) -> in
         try:
             resp = await client.post(
                 f"{api_base}/api/v3/chat",
-                json={"query": query, "tenant_id": tenant, "include_sources": True, "max_retries": 0},
+                json={
+                    "query": query,
+                    "tenant_id": tenant,
+                    "include_sources": True,
+                    "max_retries": 0,
+                },
                 timeout=180.0,
             )
             resp.raise_for_status()
@@ -156,9 +166,11 @@ async def run(api_base: str, tenant: str, sample_path: Path | None = None) -> in
         print(f"     Intent classified: {intent}")
         print(f"     Confidence: {confidence:.3f}")
         print(f"     Refused: {refused}")
-        print(f"     Validation: passed={validation.get('passed')}, "
-              f"grounded={validation.get('grounded_ratio', 0):.2f}, "
-              f"citation_ratio={validation.get('citation_ratio', 0):.2f}")
+        print(
+            f"     Validation: passed={validation.get('passed')}, "
+            f"grounded={validation.get('grounded_ratio', 0):.2f}, "
+            f"citation_ratio={validation.get('citation_ratio', 0):.2f}"
+        )
         print(f"     Sources returned: {len(sources)}")
         print(f"     Total latency: {latency.get('total_ms', 0):.0f}ms")
         print(f"     Wall time: {chat_time:.1f}s")
@@ -225,6 +237,7 @@ def main():
     args = p.parse_args()
 
     import asyncio
+
     code = asyncio.run(run(args.api, args.tenant, args.sample))
     sys.exit(code)
 

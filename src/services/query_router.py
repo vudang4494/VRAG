@@ -18,6 +18,7 @@ Usage:
     query_type = classify_query("GraphRAG là gì?")
     use_react = should_use_react(query_type)
 """
+
 from __future__ import annotations
 
 import re

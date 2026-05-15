@@ -10,6 +10,7 @@ Flow:
             └─ neo4j upsert (Chunk + VARIANT_OF + CONTAINS_ENTITY)
         → link_semantic_chunks (cross-view SIMILAR_TO)
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -50,10 +51,10 @@ async def _vote_entities(
     min_votes: int = 2,
 ) -> tuple[list[dict], list[dict]]:
     """Run entity extraction N times, vote on entities/relationships."""
-    runs = await asyncio.gather(*[
-        extract_entities_and_relations(text, llm, model=model)
-        for _ in range(passes)
-    ], return_exceptions=True)
+    runs = await asyncio.gather(
+        *[extract_entities_and_relations(text, llm, model=model) for _ in range(passes)],
+        return_exceptions=True,
+    )
     runs = [r for r in runs if isinstance(r, dict)]
     if not runs:
         return [], []
@@ -73,7 +74,11 @@ async def _vote_entities(
             # Prefer the most descriptive entry
             existing = ent_meta.get(key)
             if not existing or len(e.get("description", "")) > len(existing.get("description", "")):
-                ent_meta[key] = {"name": name, "type": e.get("type", "OTHER"), "description": e.get("description", "")}
+                ent_meta[key] = {
+                    "name": name,
+                    "type": e.get("type", "OTHER"),
+                    "description": e.get("description", ""),
+                }
         for rel in run.get("relationships", []):
             src = (rel.get("source") or "").strip().lower()
             tgt = (rel.get("target") or "").strip().lower()
@@ -82,8 +87,14 @@ async def _vote_entities(
             k = (src, tgt)
             rel_votes[k] += 1
             existing = rel_meta.get(k)
-            if not existing or len(rel.get("description", "")) > len(existing.get("description", "")):
-                rel_meta[k] = {"source": src, "target": tgt, "description": rel.get("description", "")}
+            if not existing or len(rel.get("description", "")) > len(
+                existing.get("description", "")
+            ):
+                rel_meta[k] = {
+                    "source": src,
+                    "target": tgt,
+                    "description": rel.get("description", ""),
+                }
 
     confirmed_entities = []
     for k, v in ent_votes.items():
@@ -116,6 +127,7 @@ async def ingest_document_v2(
     """
     import time as _time
     from src.config import get_settings
+
     settings = get_settings()
 
     doc_hash = _doc_hash(content)
@@ -155,14 +167,16 @@ async def ingest_document_v2(
     # 2. Convert to dict-like chunks for the rest of the pipeline
     chunks = []
     for u in chunk_units:
-        chunks.append({
-            "id": _chunk_id(doc_id, u.chunk_level, u.chunk_index),
-            "text": u.text,
-            "chunk_index": u.chunk_index,
-            "chunk_level": u.chunk_level,
-            "parent_chunk_index": u.parent_index,
-            "metadata": {**u.metadata, "format": fmt},
-        })
+        chunks.append(
+            {
+                "id": _chunk_id(doc_id, u.chunk_level, u.chunk_index),
+                "text": u.text,
+                "chunk_index": u.chunk_index,
+                "chunk_level": u.chunk_level,
+                "parent_chunk_index": u.parent_index,
+                "metadata": {**u.metadata, "format": fmt},
+            }
+        )
     # Build parent_chunk_id mapping using chunk_index → id
     idx_to_id = {c["chunk_index"]: c["id"] for c in chunks}
     for c in chunks:
@@ -172,7 +186,9 @@ async def ingest_document_v2(
     # 3. PII masking with consistent placeholders
     if settings.pii_mask_enabled:
         chunks, mask_map = await mask_chunks(
-            chunks, llm=clients.llm, model=settings.ollama_model,
+            chunks,
+            llm=clients.llm,
+            model=settings.ollama_model,
             use_llm_ner=settings.pii_llm_ner_enabled,
         )
         logger.info(f"[V2] {filename}: masked {len(mask_map.forward)} PII entities")
@@ -195,7 +211,12 @@ async def ingest_document_v2(
     # with views disabled, score is always 0 and would drop everything).
     pre_filter_avg = sum(c.get("consistency_score", 0.0) for c in chunks) / max(len(chunks), 1)
     if settings.consistency_views_enabled:
-        chunks_kept = [c for c in chunks if c.get("consistency_score", 0.0) >= settings.consistency_low_threshold or len(c["text"]) < 200]
+        chunks_kept = [
+            c
+            for c in chunks
+            if c.get("consistency_score", 0.0) >= settings.consistency_low_threshold
+            or len(c["text"]) < 200
+        ]
         dropped = len(chunks) - len(chunks_kept)
         if dropped:
             logger.info(f"[V2] {filename}: dropped {dropped} low-consistency chunks")
@@ -205,7 +226,8 @@ async def ingest_document_v2(
     # Average for telemetry — computed on KEPT chunks if any, else pre-filter avg
     avg_consistency = (
         sum(c.get("consistency_score", 0.0) for c in chunks) / len(chunks)
-        if chunks else pre_filter_avg
+        if chunks
+        else pre_filter_avg
     )
 
     # 6. Entity extraction — uses SEPARATE entity extractor (GLiNER / API)
@@ -252,6 +274,7 @@ async def ingest_document_v2(
         return [], []
 
     sem = asyncio.Semaphore(4)  # GLiNER is CPU-bound and fast → higher concurrency OK
+
     async def _bounded_entities(chunk):
         async with sem:
             return await _entities_for(chunk)
@@ -264,7 +287,9 @@ async def ingest_document_v2(
         c["id"]: len(ents) for c, (ents, _) in zip(chunks, entity_results)
     }
     chunks, cqc_rejected = filter_chunks_by_quality(
-        chunks, threshold=0.40, entity_counts=entity_counts,
+        chunks,
+        threshold=0.40,
+        entity_counts=entity_counts,
     )
     cqc_dropped = len(cqc_rejected)
     if cqc_dropped:
@@ -273,10 +298,7 @@ async def ingest_document_v2(
             logger.debug(f"[V2] CQC reject: {rc.get('id')} — {rc.get('quality_reasons', [])[:2]}")
     # Re-align entity_results with filtered chunks
     kept_ids = {c["id"] for c in chunks}
-    entity_results = [
-        er for er, c in zip(entity_results, chunks)
-        if c["id"] in kept_ids
-    ]
+    entity_results = [er for er, c in zip(entity_results, chunks) if c["id"] in kept_ids]
     _mark("cqc_filter")
 
     # 7. Domain tagging — tag each chunk with 8-axis semantic distribution
@@ -315,11 +337,13 @@ async def ingest_document_v2(
         }
         # Strip None values
         payload = {k: v for k, v in payload.items() if v is not None}
-        qdrant_points.append({
-            "id": c["id"],
-            "view_embeddings": c.get("view_embeddings", {}),
-            "payload": payload,
-        })
+        qdrant_points.append(
+            {
+                "id": c["id"],
+                "view_embeddings": c.get("view_embeddings", {}),
+                "payload": payload,
+            }
+        )
 
     qdrant_task = upsert_v2(clients.qdrant, settings.qdrant_collection, qdrant_points)
 
@@ -351,7 +375,8 @@ async def ingest_document_v2(
         return total_e, total_r
 
     chunks_indexed, (entities_extracted, relationships_extracted) = await asyncio.gather(
-        qdrant_task, _neo4j_writes(),
+        qdrant_task,
+        _neo4j_writes(),
     )
     _mark("upsert_qdrant_neo4j")
 
@@ -386,7 +411,9 @@ async def _link_in_doc(clients: Any, chunks: list[dict], min_score: float = 0.75
     embeds = []
     ids = []
     for c in chunks:
-        emb = c.get("view_embeddings", {}).get("dense") or c.get("view_embeddings", {}).get("original")
+        emb = c.get("view_embeddings", {}).get("dense") or c.get("view_embeddings", {}).get(
+            "original"
+        )
         if emb:
             embeds.append(emb)
             ids.append(c["id"])

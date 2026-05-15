@@ -8,6 +8,7 @@ Different doc types need different chunking config:
   code:            respect function/class boundaries, ~500 chars
   generic:         default semantic chunking
 """
+
 from __future__ import annotations
 
 import re

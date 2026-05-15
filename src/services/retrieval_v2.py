@@ -10,6 +10,7 @@ Pipeline:
   ─► weighted RRF fusion
   ─► return top candidates for reranking
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -130,6 +131,7 @@ async def _entity_pivot_path(
     # "Self-RAG" → "Self_RAG" so Cypher matches the entity node name stored in Neo4j.
     # The raw GLiNER names are NOT applied to Neo4j during ingest — _sanitize is.
     from src.services.kg import _sanitize
+
     seen: dict[str, str] = {}
     for e in ents:
         key = _sanitize(e.name).strip().lower()
@@ -178,22 +180,24 @@ async def _entity_pivot_path(
     max_possible_matches = max(len(names_lower), 1)
     for r in rows:
         score = float(r["matches"]) / max_possible_matches  # normalized 0..1
-        candidates.append({
-            "chunk_id": r["chunk_id"],
-            "text": r["text"] or "",
-            "source": r["source"] or "unknown",
-            "format": r["format"] or "unknown",
-            "chunk_level": r["chunk_level"] or "paragraph",
-            "consistency_score": float(r["consistency_score"] or 0.7),
-            "score": score,
-            "retrieval_path": "entity_pivot",
-            "matched_entities": r["matched_names"] or [],
-            "entity_match_count": r["matches"],
-            "metadata": {},
-            # Phase 8: domain distribution for reward scoring
-            "domain_distribution": r.get("domain_distribution") or {},
-            "domain_primary": r.get("domain_primary") or "",
-        })
+        candidates.append(
+            {
+                "chunk_id": r["chunk_id"],
+                "text": r["text"] or "",
+                "source": r["source"] or "unknown",
+                "format": r["format"] or "unknown",
+                "chunk_level": r["chunk_level"] or "paragraph",
+                "consistency_score": float(r["consistency_score"] or 0.7),
+                "score": score,
+                "retrieval_path": "entity_pivot",
+                "matched_entities": r["matched_names"] or [],
+                "entity_match_count": r["matches"],
+                "metadata": {},
+                # Phase 8: domain distribution for reward scoring
+                "domain_distribution": r.get("domain_distribution") or {},
+                "domain_primary": r.get("domain_primary") or "",
+            }
+        )
 
     logger.info(
         f"entity_pivot: query entities {names_display} → "
@@ -205,13 +209,23 @@ async def _entity_pivot_path(
 async def _graph_path(neo4j_driver, query_vec, http, embed_url, embed_model, tenant_id, top_k=20):
     """Wrap V1 graph_retrieve with tenant filter."""
     from src.services.kg import graph_retrieve
+
     try:
         results = await graph_retrieve(
-            neo4j_driver, query_vec, http, embed_url, embed_model, top_k=top_k,
+            neo4j_driver,
+            query_vec,
+            http,
+            embed_url,
+            embed_model,
+            top_k=top_k,
         )
         # Add tenant filter post-hoc if needed (graph_retrieve V1 không filter tenant)
         if tenant_id:
-            results = [r for r in results if (r.get("metadata") or {}).get("tenant_id") in (None, tenant_id)]
+            results = [
+                r
+                for r in results
+                if (r.get("metadata") or {}).get("tenant_id") in (None, tenant_id)
+            ]
         for r in results:
             r["retrieval_path"] = "graph"
             r.setdefault("format", "graph")
@@ -260,9 +274,12 @@ async def _community_path(
         return []
 
     from src.services.embedding import embed_batch, cosine_similarity
+
     summaries = [c["summary"] for c in communities]
     try:
-        embeds = await embed_batch(http, embed_url, embed_model, summaries, batch_size=16, timeout=60.0)
+        embeds = await embed_batch(
+            http, embed_url, embed_model, summaries, batch_size=16, timeout=60.0
+        )
     except Exception:
         return []
 
@@ -274,17 +291,19 @@ async def _community_path(
     scored.sort(key=lambda x: x[1], reverse=True)
     out: list[dict] = []
     for com, sim in scored[:top_k]:
-        out.append({
-            "chunk_id": com["id"],
-            "text": com["summary"],
-            "source": f"community_L{com['level']}",
-            "format": "community",
-            "chunk_level": "section",
-            "consistency_score": 0.85,
-            "score": float(sim),
-            "retrieval_path": "community",
-            "metadata": {"level": com["level"], "member_count": com["mc"]},
-        })
+        out.append(
+            {
+                "chunk_id": com["id"],
+                "text": com["summary"],
+                "source": f"community_L{com['level']}",
+                "format": "community",
+                "chunk_level": "section",
+                "consistency_score": 0.85,
+                "score": float(sim),
+                "retrieval_path": "community",
+                "metadata": {"level": com["level"], "member_count": com["mc"]},
+            }
+        )
     return out
 
 
@@ -323,10 +342,12 @@ def weighted_rrf(
                 chunk_dd = c.get("domain_distribution")
                 if chunk_dd:
                     try:
-                        chunk_domain = DomainDistribution.from_list([
-                            chunk_dd.get(ax, 0.0) for ax in DOMAIN_AXES
-                        ])
-                        dm_reward = 1.0 + domain_reward(chunk_domain, query_domain, scale=domain_scale)
+                        chunk_domain = DomainDistribution.from_list(
+                            [chunk_dd.get(ax, 0.0) for ax in DOMAIN_AXES]
+                        )
+                        dm_reward = 1.0 + domain_reward(
+                            chunk_domain, query_domain, scale=domain_scale
+                        )
                     except Exception:
                         dm_reward = 1.0
 
@@ -355,12 +376,16 @@ async def multi_path_retrieve(
     Run multi-path retrieval based on QueryUnderstanding result.
     """
     from src.config import get_settings
+
     settings = get_settings()
 
     intent = understanding.get("intent", "factual")
     strategy = INTENT_STRATEGY.get(intent, INTENT_STRATEGY["factual"])
     views = strategy["views"] or ["dense"]
-    reformulations = understanding.get("reformulations", [{"kind": "original", "text": understanding.get("original", ""), "weight": 1.0}])
+    reformulations = understanding.get(
+        "reformulations",
+        [{"kind": "original", "text": understanding.get("original", ""), "weight": 1.0}],
+    )
 
     # Phase 8: tag query domain for reward scoring
     query_domain = tag_query(understanding.get("original", ""))
@@ -373,7 +398,9 @@ async def multi_path_retrieve(
 
     # Embed all reformulations in parallel
     embed_tasks = [
-        _embed_query(clients.http, settings.ollama_embed_url, settings.ollama_embed_model, r["text"])
+        _embed_query(
+            clients.http, settings.ollama_embed_url, settings.ollama_embed_model, r["text"]
+        )
         for r in reformulations
     ]
     embeds = await asyncio.gather(*embed_tasks)
@@ -385,8 +412,12 @@ async def multi_path_retrieve(
         if not vec:
             return f"{reform_kind}:{view}", []
         results = await search_single_view(
-            clients.qdrant, settings.qdrant_collection, vec, view,
-            limit=top_k_per_path, filter_=qdrant_filter,
+            clients.qdrant,
+            settings.qdrant_collection,
+            vec,
+            view,
+            limit=top_k_per_path,
+            filter_=qdrant_filter,
         )
         return f"{reform_kind}:{view}", results
 
@@ -399,18 +430,31 @@ async def multi_path_retrieve(
     graph_task = None
     if strategy["use_graph"] and embeds and embeds[0]:
         graph_task = _graph_path(
-            clients.neo4j, embeds[0], clients.http,
-            settings.ollama_embed_url, settings.ollama_embed_model,
-            tenant_id, top_k=top_k_per_path,
+            clients.neo4j,
+            embeds[0],
+            clients.http,
+            settings.ollama_embed_url,
+            settings.ollama_embed_model,
+            tenant_id,
+            top_k=top_k_per_path,
         )
 
     # Community path (if intent supports + enabled)
     community_task = None
-    if strategy["use_community"] and getattr(settings, "community_enabled", False) and embeds and embeds[0]:
+    if (
+        strategy["use_community"]
+        and getattr(settings, "community_enabled", False)
+        and embeds
+        and embeds[0]
+    ):
         community_task = _community_path(
-            clients.neo4j, embeds[0], clients.http,
-            settings.ollama_embed_url, settings.ollama_embed_model,
-            tenant_id, top_k=5,
+            clients.neo4j,
+            embeds[0],
+            clients.http,
+            settings.ollama_embed_url,
+            settings.ollama_embed_model,
+            tenant_id,
+            top_k=5,
         )
 
     # Entity-pivot path — always-on when entity_extractor available.
@@ -418,29 +462,38 @@ async def multi_path_retrieve(
     # Returns the extracted query entities for later inclusion in context.
     # Phase 6b: detect temporal intent and filter entity lookup by time range.
     from src.services.temporal_entities import detect_temporal_intent
+
     temporal = detect_temporal_intent(understanding.get("original", ""))
     if temporal.get("type") != "none":
-        logger.info(f"  temporal intent: {temporal['type']} — filter: {temporal.get('filter_cypher', '')[:80]}")
+        logger.info(
+            f"  temporal intent: {temporal['type']} — filter: {temporal.get('filter_cypher', '')[:80]}"
+        )
     entity_pivot_task = None
     query_entities_holder: dict[str, list[str]] = {"entities": []}
     entity_extractor = getattr(clients, "entity_extractor", None)
     if entity_extractor is not None:
+
         async def _run_entity_pivot():
             cands, query_ents = await _entity_pivot_path(
-                clients.neo4j, entity_extractor,
+                clients.neo4j,
+                entity_extractor,
                 understanding.get("original", ""),
-                tenant_id, top_k=top_k_per_path,
+                tenant_id,
+                top_k=top_k_per_path,
                 temporal_filter=temporal.get("filter_cypher", ""),
             )
             query_entities_holder["entities"] = query_ents
             return cands
+
         entity_pivot_task = _run_entity_pivot()
 
     # Run all paths in parallel
-    all_tasks = search_tasks \
-        + ([graph_task] if graph_task else []) \
-        + ([community_task] if community_task else []) \
+    all_tasks = (
+        search_tasks
+        + ([graph_task] if graph_task else [])
+        + ([community_task] if community_task else [])
         + ([entity_pivot_task] if entity_pivot_task else [])
+    )
     results = await asyncio.gather(*all_tasks, return_exceptions=True)
 
     # Collect vector search results
@@ -487,8 +540,11 @@ async def multi_path_retrieve(
 
     # Weighted RRF — now with domain reward boost (Phase 8)
     fused = weighted_rrf(
-        paths, k=settings.rrf_k, final_top_k=final_top_k,
-        query_domain=query_domain, domain_scale=0.3,
+        paths,
+        k=settings.rrf_k,
+        final_top_k=final_top_k,
+        query_domain=query_domain,
+        domain_scale=0.3,
     )
 
     # Attach query entities to first result for caller (LLM prompt) to access.

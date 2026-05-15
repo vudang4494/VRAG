@@ -7,6 +7,7 @@ Purpose: extract structured entities + types from raw chunk text. This is the
 "bridge" between unstructured vector embeddings and structured graph queries.
 Quality of entity extraction directly determines GraphRAG capabilities.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -81,6 +82,7 @@ class BaseEntityExtractor(ABC):
 # GLiNER backend — local NER, fast, no LLM needed
 # ────────────────────────────────────────────────────────────────────────────
 
+
 class GLiNERExtractor(BaseEntityExtractor):
     """
     Local NER via GLiNER (Zaratiana et al., 2023).
@@ -108,11 +110,13 @@ class GLiNERExtractor(BaseEntityExtractor):
             return
         # Disable progress bars to avoid `tqdm._lock` AttributeError in async context.
         import os as _os
+
         _os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
         _os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
         _os.environ.setdefault("TQDM_DISABLE", "1")
         try:
             from gliner import GLiNER
+
             self._model = GLiNER.from_pretrained(self.model_name)
             logger.info(f"GLiNER loaded: {self.model_name}")
         except ImportError:
@@ -195,11 +199,14 @@ class LLMRelationExtractor:
         if len(entities) < 2 or not text.strip():
             return []
 
-        entity_str = ", ".join(f'"{e.name}"' for e in entities[:20])  # cap at 20 to keep prompt small
+        entity_str = ", ".join(
+            f'"{e.name}"' for e in entities[:20]
+        )  # cap at 20 to keep prompt small
         snippet = text[: self.max_chars]
         prompt = _REL_PROMPT.format(entities=entity_str, text=snippet)
 
         from src.services.ollama_helper import ollama_chat
+
         try:
             raw = await ollama_chat(
                 messages=[{"role": "user", "content": prompt}],
@@ -225,19 +232,22 @@ class LLMRelationExtractor:
             src = (rel.get("source") or "").strip()
             tgt = (rel.get("target") or "").strip()
             if src.lower() in entity_names and tgt.lower() in entity_names and src != tgt:
-                out.append(ExtractedRelation(
-                    source=src,
-                    target=tgt,
-                    description=(rel.get("description") or "")[:300],
-                    type=rel.get("type", "RELATES_TO"),
-                    confidence=0.8,
-                ))
+                out.append(
+                    ExtractedRelation(
+                        source=src,
+                        target=tgt,
+                        description=(rel.get("description") or "")[:300],
+                        type=rel.get("type", "RELATES_TO"),
+                        confidence=0.8,
+                    )
+                )
         return out
 
 
 # ────────────────────────────────────────────────────────────────────────────
 # Combined: NER via GLiNER + Relations via small LLM call
 # ────────────────────────────────────────────────────────────────────────────
+
 
 class CombinedExtractor(BaseEntityExtractor):
     """GLiNER for entities + (optional) small LLM for relations."""
@@ -263,6 +273,7 @@ class CombinedExtractor(BaseEntityExtractor):
 # ────────────────────────────────────────────────────────────────────────────
 # Factory
 # ────────────────────────────────────────────────────────────────────────────
+
 
 def create_entity_extractor(
     provider: str = "gliner",

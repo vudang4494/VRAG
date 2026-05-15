@@ -6,6 +6,7 @@ Cho mỗi chunk:
 3. Compute consistency_score = mean pairwise cosine của 5 vectors
 4. Output: { view_text: dict, view_embeddings: dict, consistency_score: float }
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -56,6 +57,7 @@ async def _llm_call(llm: Any, model: str, prompt: str, max_tokens: int = 256) ->
     compat but unused; helper reads global clients/settings.
     """
     from src.services.ollama_helper import ollama_chat
+
     return await ollama_chat(
         messages=[{"role": "user", "content": prompt}],
         model=model,
@@ -84,10 +86,12 @@ async def generate_views(
     snippet = text[:2000]
 
     tasks = {
-        "paraphrase": _llm_call(llm, model, _PARAPHRASE_PROMPT.format(text=snippet), max_tokens=400),
-        "question":   _llm_call(llm, model, _QUESTION_PROMPT.format(text=snippet), max_tokens=200),
-        "summary":    _llm_call(llm, model, _SUMMARY_PROMPT.format(text=snippet), max_tokens=150),
-        "keywords":   _llm_call(llm, model, _KEYWORDS_PROMPT.format(text=snippet), max_tokens=100),
+        "paraphrase": _llm_call(
+            llm, model, _PARAPHRASE_PROMPT.format(text=snippet), max_tokens=400
+        ),
+        "question": _llm_call(llm, model, _QUESTION_PROMPT.format(text=snippet), max_tokens=200),
+        "summary": _llm_call(llm, model, _SUMMARY_PROMPT.format(text=snippet), max_tokens=150),
+        "keywords": _llm_call(llm, model, _KEYWORDS_PROMPT.format(text=snippet), max_tokens=100),
     }
 
     results = await asyncio.gather(*tasks.values(), return_exceptions=True)
@@ -197,7 +201,12 @@ async def process_batch_consistency(
         async with sem:
             result = await process_chunk_consistency(
                 chunk.get("text", ""),
-                llm, http, embed_url, embed_model, llm_model, enable_llm_views,
+                llm,
+                http,
+                embed_url,
+                embed_model,
+                llm_model,
+                enable_llm_views,
             )
             return {**chunk, **result}
 

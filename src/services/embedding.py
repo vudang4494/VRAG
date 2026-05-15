@@ -1,4 +1,5 @@
 """Embedding service — optimized for Apple Silicon M4 Metal GPU."""
+
 import asyncio
 
 import httpx
@@ -24,7 +25,9 @@ async def embed_single(
         resp.raise_for_status()
         return resp.json()["embedding"]
     except httpx.HTTPStatusError as e:
-        logger.warning(f"HTTP {e.response.status_code} embedding text (len={len(text)}): {e.request.url}")
+        logger.warning(
+            f"HTTP {e.response.status_code} embedding text (len={len(text)}): {e.request.url}"
+        )
         raise
     except Exception as e:
         logger.warning(f"Embedding failed for text (len={len(text)}): {e}")

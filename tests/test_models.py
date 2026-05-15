@@ -1,4 +1,5 @@
 """LLM and embedding model tests via Ollama."""
+
 import time
 
 import httpx
@@ -31,8 +32,12 @@ class TestLLMInference:
     def test_vietnamese_prompt(self):
         r = httpx.post(
             f"{OLLAMA}/v1/chat/completions",
-            json={"model": "qwen3.5:4b", "messages": [{"role": "user", "content": "Xin chao"}],
-                  "max_tokens": 60, "temperature": 0.3},
+            json={
+                "model": "qwen3.5:4b",
+                "messages": [{"role": "user", "content": "Xin chao"}],
+                "max_tokens": 60,
+                "temperature": 0.3,
+            },
             timeout=60,
         )
         assert r.status_code == 200
@@ -44,8 +49,11 @@ class TestLLMInference:
         start = time.monotonic()
         r = httpx.post(
             f"{OLLAMA}/v1/chat/completions",
-            json={"model": "qwen3.5:4b", "messages": [{"role": "user", "content": "What is AI?"}],
-                  "max_tokens": 80},
+            json={
+                "model": "qwen3.5:4b",
+                "messages": [{"role": "user", "content": "What is AI?"}],
+                "max_tokens": 80,
+            },
             timeout=60,
         )
         elapsed = time.monotonic() - start
@@ -55,8 +63,12 @@ class TestLLMInference:
     def test_token_output(self):
         r = httpx.post(
             f"{OLLAMA}/v1/chat/completions",
-            json={"model": "qwen3.5:4b", "messages": [{"role": "user", "content": "Count 1 to 5"}],
-                  "max_tokens": 50, "temperature": 0.0},
+            json={
+                "model": "qwen3.5:4b",
+                "messages": [{"role": "user", "content": "Count 1 to 5"}],
+                "max_tokens": 50,
+                "temperature": 0.0,
+            },
             timeout=60,
         )
         assert r.status_code == 200
@@ -71,7 +83,8 @@ class TestLLMInference:
                     {"role": "system", "content": "Answer only with the word HELLO."},
                     {"role": "user", "content": "Hi!"},
                 ],
-                "max_tokens": 10, "temperature": 0.0,
+                "max_tokens": 10,
+                "temperature": 0.0,
             },
             timeout=60,
         )
@@ -99,8 +112,11 @@ class TestLLMInference:
     def test_empty_context(self):
         r = httpx.post(
             f"{OLLAMA}/v1/chat/completions",
-            json={"model": "qwen3.5:4b", "messages": [{"role": "user", "content": "?"}],
-                  "max_tokens": 20},
+            json={
+                "model": "qwen3.5:4b",
+                "messages": [{"role": "user", "content": "?"}],
+                "max_tokens": 20,
+            },
             timeout=60,
         )
         assert r.status_code == 200

@@ -1,4 +1,5 @@
 """Audit logging — records every RAG API operation."""
+
 import json
 import time
 from datetime import datetime, timezone
@@ -87,9 +88,12 @@ class AuditLogger:
     def _write_to_file(self, records: list[dict[str, Any]]) -> None:
         try:
             import os
+
             log_dir = os.path.expanduser("~/.rag/audit")
             os.makedirs(log_dir, exist_ok=True)
-            log_file = os.path.join(log_dir, f"audit_{datetime.now(timezone.utc).strftime('%Y-%m-%d')}.jsonl")
+            log_file = os.path.join(
+                log_dir, f"audit_{datetime.now(timezone.utc).strftime('%Y-%m-%d')}.jsonl"
+            )
             with open(log_file, "a") as f:
                 for record in records:
                     f.write(json.dumps(record) + "\n")
@@ -99,6 +103,7 @@ class AuditLogger:
     async def _write_to_postgres(self, records: list[dict[str, Any]]) -> None:
         try:
             from src.clients import get_clients
+
             clients = get_clients()
             if clients.redis is None:
                 return
@@ -114,6 +119,7 @@ class AuditLogger:
     async def _write_to_redis(self, records: list[dict[str, Any]]) -> None:
         try:
             from src.clients import get_clients
+
             clients = get_clients()
             if clients.redis is None:
                 return
@@ -133,6 +139,7 @@ class AuditLogger:
     ) -> list[dict[str, Any]]:
         try:
             from src.clients import get_clients
+
             clients = get_clients()
             if clients.redis is None:
                 return []
@@ -144,7 +151,9 @@ class AuditLogger:
         except Exception:
             return []
 
-    def log_chat(self, tenant_id: str, query: str, sources_count: int, cache_hit: bool, latency_ms: float) -> None:
+    def log_chat(
+        self, tenant_id: str, query: str, sources_count: int, cache_hit: bool, latency_ms: float
+    ) -> None:
         self.log(
             event=AuditEvent.CHAT_QUERY_CACHE_HIT if cache_hit else AuditEvent.CHAT_QUERY,
             tenant_id=tenant_id,
@@ -156,7 +165,9 @@ class AuditLogger:
             },
         )
 
-    def log_ingestion(self, tenant_id: str, source_id: str, doc_id: str, chunks: int, duration_ms: float) -> None:
+    def log_ingestion(
+        self, tenant_id: str, source_id: str, doc_id: str, chunks: int, duration_ms: float
+    ) -> None:
         self.log(
             event=AuditEvent.DOCUMENT_INGESTED,
             tenant_id=tenant_id,
@@ -169,7 +180,14 @@ class AuditLogger:
             },
         )
 
-    def log_source_sync(self, tenant_id: str, source_id: str, docs_crawled: int, duration_ms: float, error: str | None = None) -> None:
+    def log_source_sync(
+        self,
+        tenant_id: str,
+        source_id: str,
+        docs_crawled: int,
+        duration_ms: float,
+        error: str | None = None,
+    ) -> None:
         self.log(
             event=AuditEvent.SOURCE_SYNC_FAILED if error else AuditEvent.SOURCE_SYNC_COMPLETED,
             tenant_id=tenant_id,

@@ -3,6 +3,7 @@
 Strategy: parse document → emit sections per Heading 1-3 → emit paragraphs.
 Preserves heading_path metadata.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -33,18 +34,20 @@ class DocxChunker(BaseChunker):
             section_text = "\n\n".join(paragraphs)
             section_parent = None
             if "section" in self.emit_levels:
-                units.append(ChunkUnit(
-                    text=section_text,
-                    chunk_index=idx,
-                    chunk_level="section",
-                    parent_index=None,
-                    metadata={
-                        "heading_path": heading_path,
-                        "section_index": sec_idx,
-                        "filename": filename,
-                        "format": "docx",
-                    },
-                ))
+                units.append(
+                    ChunkUnit(
+                        text=section_text,
+                        chunk_index=idx,
+                        chunk_level="section",
+                        parent_index=None,
+                        metadata={
+                            "heading_path": heading_path,
+                            "section_index": sec_idx,
+                            "filename": filename,
+                            "format": "docx",
+                        },
+                    )
+                )
                 section_parent = idx
                 idx += 1
 
@@ -53,19 +56,21 @@ class DocxChunker(BaseChunker):
             for p_idx, para in enumerate(packed):
                 if "paragraph" not in self.emit_levels:
                     continue
-                units.append(ChunkUnit(
-                    text=para,
-                    chunk_index=idx,
-                    chunk_level="paragraph",
-                    parent_index=section_parent,
-                    metadata={
-                        "heading_path": heading_path,
-                        "section_index": sec_idx,
-                        "paragraph_index": p_idx,
-                        "filename": filename,
-                        "format": "docx",
-                    },
-                ))
+                units.append(
+                    ChunkUnit(
+                        text=para,
+                        chunk_index=idx,
+                        chunk_level="paragraph",
+                        parent_index=section_parent,
+                        metadata={
+                            "heading_path": heading_path,
+                            "section_index": sec_idx,
+                            "paragraph_index": p_idx,
+                            "filename": filename,
+                            "format": "docx",
+                        },
+                    )
+                )
                 idx += 1
 
         return units

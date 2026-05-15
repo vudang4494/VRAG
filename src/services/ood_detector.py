@@ -24,8 +24,8 @@ from loguru import logger
 
 # BGE-M3 cosine similarity thresholds for relevance detection.
 # These are empirically derived from eval runs on the academic corpus.
-_RELEVANCE_HIGH = 0.70   # Top score above this → definitely in-domain
-_RELEVANCE_LOW = 0.50    # Top score below this → likely OOD
+_RELEVANCE_HIGH = 0.70  # Top score above this → definitely in-domain
+_RELEVANCE_LOW = 0.50  # Top score below this → likely OOD
 _RELEVANCE_MARGINAL = 0.60  # Between LOW and HIGH → check keyword overlap
 
 
@@ -61,11 +61,45 @@ def detect_ood_by_keyword_overlap(query: str, candidates: list[dict]) -> bool:
 
     # Extract significant terms from query (3+ chars, not common stop words)
     stop_words = {
-        "của", "là", "gì", "cái", "có", "không", "và", "trong",
-        "như", "thế", "nào", "với", "để", "cho", "từ", "hay",
-        "theo", "về", "được", "các", "một", "này", "đó", "ra",
-        "what", "is", "the", "and", "of", "to", "a", "in", "for",
-        "how", "does", "why", "when", "where", "which",
+        "của",
+        "là",
+        "gì",
+        "cái",
+        "có",
+        "không",
+        "và",
+        "trong",
+        "như",
+        "thế",
+        "nào",
+        "với",
+        "để",
+        "cho",
+        "từ",
+        "hay",
+        "theo",
+        "về",
+        "được",
+        "các",
+        "một",
+        "này",
+        "đó",
+        "ra",
+        "what",
+        "is",
+        "the",
+        "and",
+        "of",
+        "to",
+        "a",
+        "in",
+        "for",
+        "how",
+        "does",
+        "why",
+        "when",
+        "where",
+        "which",
     }
     query_lower = query.lower()
     # Split on spaces and punctuation, filter stop words and short terms
@@ -78,10 +112,7 @@ def detect_ood_by_keyword_overlap(query: str, candidates: list[dict]) -> bool:
         return False
 
     # Collect text from top candidates
-    doc_text = " ".join(
-        (c.get("text") or c.get("source") or "").lower()
-        for c in candidates[:5]
-    )
+    doc_text = " ".join((c.get("text") or c.get("source") or "").lower() for c in candidates[:5])
 
     # Count how many query terms appear in docs
     overlap = sum(1 for t in query_terms if t in doc_text)
@@ -117,21 +148,52 @@ def detect_ood_mixed(candidates: list[dict], query: str) -> dict[str, Any]:
 
     # Keyword overlap
     stop_words = {
-        "của", "là", "gì", "cái", "có", "không", "và", "trong",
-        "như", "thế", "nào", "với", "để", "cho", "từ", "hay",
-        "theo", "về", "được", "các", "một", "này", "đó", "ra",
-        "what", "is", "the", "and", "of", "to", "a", "in", "for",
-        "how", "does", "why", "when", "where", "which",
+        "của",
+        "là",
+        "gì",
+        "cái",
+        "có",
+        "không",
+        "và",
+        "trong",
+        "như",
+        "thế",
+        "nào",
+        "với",
+        "để",
+        "cho",
+        "từ",
+        "hay",
+        "theo",
+        "về",
+        "được",
+        "các",
+        "một",
+        "này",
+        "đó",
+        "ra",
+        "what",
+        "is",
+        "the",
+        "and",
+        "of",
+        "to",
+        "a",
+        "in",
+        "for",
+        "how",
+        "does",
+        "why",
+        "when",
+        "where",
+        "which",
     }
     query_terms = set()
     for tok in re.split(r"[\s\W]+", query.lower()):
         if len(tok) >= 3 and tok not in stop_words:
             query_terms.add(tok)
 
-    doc_text = " ".join(
-        (c.get("text") or c.get("source") or "").lower()
-        for c in candidates[:5]
-    )
+    doc_text = " ".join((c.get("text") or c.get("source") or "").lower() for c in candidates[:5])
     overlap = sum(1 for t in query_terms if t in doc_text)
     kw_ratio = overlap / len(query_terms) if query_terms else 1.0
 

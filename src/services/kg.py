@@ -1,4 +1,5 @@
 """Knowledge graph service — entity extraction, Neo4j storage and retrieval."""
+
 import asyncio
 import json
 import re
@@ -48,6 +49,7 @@ async def extract_entities_and_relations(
     and Qwen3 returns empty content otherwise.
     """
     from src.services.ollama_helper import ollama_chat
+
     truncated = text[:max_chars]
     prompt = _ENTITY_EXTRACT_PROMPT.format(text=truncated)
 
@@ -223,8 +225,7 @@ async def upsert_chunk_and_entities(
             )
 
         logger.debug(
-            f"Neo4j: {len(entities)} entities, {len(relationships)} rels "
-            f"from chunk {chunk_id}"
+            f"Neo4j: {len(entities)} entities, {len(relationships)} rels from chunk {chunk_id}"
         )
 
 
@@ -262,14 +263,15 @@ async def graph_retrieve(
         return []
 
     entities = [
-        {"name": r["name"], "type": r["type"], "description": r["description"]}
-        for r in records
+        {"name": r["name"], "type": r["type"], "description": r["description"]} for r in records
     ]
 
     # Batch embed descriptions
     try:
         embeds = await embed_batch(
-            http_client, embed_url, embed_model,
+            http_client,
+            embed_url,
+            embed_model,
             [e["description"] for e in entities],
             batch_size=16,
             timeout=120.0,
@@ -311,21 +313,22 @@ async def graph_retrieve(
     chunks = []
     for record in records:
         matched = set(record["matched"])
-        score = sum(
-            s for e, s in scored if e["name"] in matched
-        ) / len(matched) if matched else 0.0
-        chunks.append({
-            "chunk_id": record["chunk_id"],
-            "text": record["text"],
-            "source": record["source"],
-            "metadata": record.get("metadata", {}),
-            "graph_score": score,
-            "matched_entities": record["matched"],
-            "retrieval_mode": "graph",
-        })
+        score = sum(s for e, s in scored if e["name"] in matched) / len(matched) if matched else 0.0
+        chunks.append(
+            {
+                "chunk_id": record["chunk_id"],
+                "text": record["text"],
+                "source": record["source"],
+                "metadata": record.get("metadata", {}),
+                "graph_score": score,
+                "matched_entities": record["matched"],
+                "retrieval_mode": "graph",
+            }
+        )
 
     chunks.sort(key=lambda x: x["graph_score"], reverse=True)
     return chunks[:top_k]
+
 
 async def link_semantic_chunks(
     driver,
@@ -333,18 +336,18 @@ async def link_semantic_chunks(
     target_chunks: list[tuple[str, float]],
 ) -> None:
     """
-    Tạo liên kết ngữ nghĩa (Semantic Edge) giữa các đoạn văn bản (chunks) 
+    Tạo liên kết ngữ nghĩa (Semantic Edge) giữa các đoạn văn bản (chunks)
     khác nhau dựa trên độ tương đồng của Vector Embedding.
     Giúp tối ưu GraphRAG bằng cách kết nối tri thức xuyên tài liệu (Cross-Document).
     """
     if not target_chunks:
         return
-        
+
     async with driver.session() as s:
         for target_id, score in target_chunks:
             if target_id == source_chunk_id or score < 0.70:
                 continue
-                
+
             await s.run(
                 """
                 MATCH (c1:Chunk {id: $source_id})
@@ -354,6 +357,5 @@ async def link_semantic_chunks(
                 """,
                 source_id=source_chunk_id,
                 target_id=target_id,
-                score=score
+                score=score,
             )
-

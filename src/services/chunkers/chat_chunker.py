@@ -7,6 +7,7 @@ Input format (chat):
 
 Output: ChunkUnit per turn (paragraph level) + thread summary (section level).
 """
+
 from __future__ import annotations
 
 import json
@@ -53,20 +54,22 @@ class ChatChunker(BaseChunker):
             section_parent = None
             if "section" in self.emit_levels and msgs:
                 snippet = self._format_thread_summary(msgs)
-                units.append(ChunkUnit(
-                    text=snippet,
-                    chunk_index=idx,
-                    chunk_level="section",
-                    parent_index=None,
-                    metadata={
-                        "thread_id": tid,
-                        "message_count": len(msgs),
-                        "first_ts": str(msgs[0].get("timestamp", "")),
-                        "last_ts": str(msgs[-1].get("timestamp", "")),
-                        "filename": filename,
-                        "format": "email" if is_email else "chat",
-                    },
-                ))
+                units.append(
+                    ChunkUnit(
+                        text=snippet,
+                        chunk_index=idx,
+                        chunk_level="section",
+                        parent_index=None,
+                        metadata={
+                            "thread_id": tid,
+                            "message_count": len(msgs),
+                            "first_ts": str(msgs[0].get("timestamp", "")),
+                            "last_ts": str(msgs[-1].get("timestamp", "")),
+                            "filename": filename,
+                            "format": "email" if is_email else "chat",
+                        },
+                    )
+                )
                 section_parent = idx
                 idx += 1
 
@@ -77,20 +80,22 @@ class ChatChunker(BaseChunker):
                     continue
                 turn_text = self._format_window(window)
                 speakers = list({m.get("role") or m.get("from") or "unknown" for m in window})
-                units.append(ChunkUnit(
-                    text=turn_text,
-                    chunk_index=idx,
-                    chunk_level="paragraph",
-                    parent_index=section_parent,
-                    metadata={
-                        "thread_id": tid,
-                        "speakers": speakers,
-                        "timestamps": [str(m.get("timestamp", "")) for m in window],
-                        "in_reply_to": window[0].get("in_reply_to"),
-                        "filename": filename,
-                        "format": "email" if is_email else "chat",
-                    },
-                ))
+                units.append(
+                    ChunkUnit(
+                        text=turn_text,
+                        chunk_index=idx,
+                        chunk_level="paragraph",
+                        parent_index=section_parent,
+                        metadata={
+                            "thread_id": tid,
+                            "speakers": speakers,
+                            "timestamps": [str(m.get("timestamp", "")) for m in window],
+                            "in_reply_to": window[0].get("in_reply_to"),
+                            "filename": filename,
+                            "format": "email" if is_email else "chat",
+                        },
+                    )
+                )
                 idx += 1
         return units
 
@@ -123,6 +128,7 @@ class ChatChunker(BaseChunker):
         try:
             from email import policy
             from email.parser import Parser
+
             msg = Parser(policy=policy.default).parsestr(text)
         except Exception as e:
             logger.warning(f"Email parse failed: {e}")
@@ -137,15 +143,17 @@ class ChatChunker(BaseChunker):
             body_parts.append(msg.get_content() or "")
 
         body = "\n\n".join(b for b in body_parts if b).strip()
-        return [{
-            "role": msg.get("from", "unknown"),
-            "content": body,
-            "timestamp": msg.get("date", ""),
-            "thread_id": msg.get("message-id") or msg.get("references", "default"),
-            "in_reply_to": msg.get("in-reply-to"),
-            "subject": msg.get("subject", ""),
-            "to": msg.get("to", ""),
-        }]
+        return [
+            {
+                "role": msg.get("from", "unknown"),
+                "content": body,
+                "timestamp": msg.get("date", ""),
+                "thread_id": msg.get("message-id") or msg.get("references", "default"),
+                "in_reply_to": msg.get("in-reply-to"),
+                "subject": msg.get("subject", ""),
+                "to": msg.get("to", ""),
+            }
+        ]
 
     @staticmethod
     def _normalize_msg(m: dict) -> dict:

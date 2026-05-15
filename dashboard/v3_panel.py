@@ -11,6 +11,7 @@ Import vào dashboard.py:
     with gr.TabItem("Pipeline V2"):
         build_v3_tab(api_base="http://localhost:8800")
 """
+
 from __future__ import annotations
 
 import json
@@ -86,14 +87,17 @@ def chat_v3_fn(api_base: str, query: str, tenant_id: str, format_filter: str, ma
     )
 
     sources = result.get("sources", [])
-    sources_md = "\n\n".join(
-        f"**Source [{i+1}]**: `{s.get('chunk_id')}` "
-        f"(format=`{s.get('format')}`, level=`{s.get('chunk_level')}`, "
-        f"score=`{s.get('final_score', 0):.3f}`, "
-        f"consistency=`{s.get('consistency_score', 0):.2f}`)\n"
-        f"> {s.get('text', '')[:300]}"
-        for i, s in enumerate(sources)
-    ) or "_no sources_"
+    sources_md = (
+        "\n\n".join(
+            f"**Source [{i + 1}]**: `{s.get('chunk_id')}` "
+            f"(format=`{s.get('format')}`, level=`{s.get('chunk_level')}`, "
+            f"score=`{s.get('final_score', 0):.3f}`, "
+            f"consistency=`{s.get('consistency_score', 0):.2f}`)\n"
+            f"> {s.get('text', '')[:300]}"
+            for i, s in enumerate(sources)
+        )
+        or "_no sources_"
+    )
 
     latency = result.get("latency_breakdown_ms", {})
     latency_md = "| Stage | ms |\n|---|---|\n" + "\n".join(
@@ -109,7 +113,9 @@ def chat_v3_fn(api_base: str, query: str, tenant_id: str, format_filter: str, ma
 # ── Ingest ─────────────────────────────────────────────────────────────────────
 
 
-def ingest_v3_fn(api_base: str, file, tenant_id: str, access_level: str, department: str, author: str):
+def ingest_v3_fn(
+    api_base: str, file, tenant_id: str, access_level: str, department: str, author: str
+):
     if file is None:
         return "Upload file trước.", ""
     try:
@@ -171,7 +177,9 @@ def health_v3_fn(api_base: str):
     deps = data.get("dependencies", [])
     dep_lines = ["| Dependency | OK | Error |", "|---|---|---|"]
     for d in deps:
-        dep_lines.append(f"| {d['name']} | {'OK' if d.get('ok') else 'FAIL'} | {d.get('error', '')[:60]} |")
+        dep_lines.append(
+            f"| {d['name']} | {'OK' if d.get('ok') else 'FAIL'} | {d.get('error', '')[:60]} |"
+        )
     deps_md = "\n".join(dep_lines)
 
     metrics = data.get("metrics_v2", {})
@@ -190,7 +198,9 @@ def health_v3_fn(api_base: str):
 # ── Community ──────────────────────────────────────────────────────────────────
 
 
-def community_v3_fn(api_base: str, tenant_id: str, levels: int, resolution: float, min_size: int, vote_passes: int):
+def community_v3_fn(
+    api_base: str, tenant_id: str, levels: int, resolution: float, min_size: int, vote_passes: int
+):
     try:
         result = _post_json(
             f"{api_base}/api/v3/community/build",
@@ -267,13 +277,22 @@ def build_v3_tab(api_base: str = _DEFAULT_API) -> None:
             chat_btn.click(
                 fn=lambda q, t, f, r: chat_v3_fn(api_base, q, t, f, r),
                 inputs=[chat_query, chat_tenant, chat_format, chat_retries],
-                outputs=[chat_answer, chat_validation, chat_sources, chat_latency_md, chat_latency, chat_raw],
+                outputs=[
+                    chat_answer,
+                    chat_validation,
+                    chat_sources,
+                    chat_latency_md,
+                    chat_latency,
+                    chat_raw,
+                ],
             )
 
         # ── Ingest ─────────────────────────────────────────────────────────────
         with gr.TabItem("Ingest (V3)"):
-            gr.Markdown("### Upload tài liệu đa định dạng qua Pipeline V2\n"
-                        "Hỗ trợ: PDF, DOCX, XLSX, CSV, TXT, MD, HTML, JSON/JSONL chat, EML email")
+            gr.Markdown(
+                "### Upload tài liệu đa định dạng qua Pipeline V2\n"
+                "Hỗ trợ: PDF, DOCX, XLSX, CSV, TXT, MD, HTML, JSON/JSONL chat, EML email"
+            )
             with gr.Row():
                 with gr.Column(scale=1):
                     ingest_file = gr.File(label="File")

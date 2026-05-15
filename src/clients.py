@@ -1,4 +1,5 @@
 """Global client holders — initialized once at app startup (Mac Mini M4 Optimized)."""
+
 import asyncio
 import hashlib
 from typing import TYPE_CHECKING, Any
@@ -41,6 +42,7 @@ class SemanticCache:
             data = await self.redis.get(key)
             if data:
                 import json
+
                 return json.loads(data)
         except Exception:
             pass
@@ -50,6 +52,7 @@ class SemanticCache:
         key = self._cache_key(embedding, top_k)
         try:
             import json
+
             await self.redis.setex(key, self.ttl, json.dumps(results))
         except Exception:
             pass
@@ -68,8 +71,8 @@ class SemanticCache:
 class Clients:
     """Holds all external-service client instances."""
 
-    llm: AsyncOpenAI                # semantic LLM — generation, chat, validation
-    entity_extractor: Any           # separate entity LLM/NER — GLiNER / OpenAI / etc.
+    llm: AsyncOpenAI  # semantic LLM — generation, chat, validation
+    entity_extractor: Any  # separate entity LLM/NER — GLiNER / OpenAI / etc.
     qdrant: AsyncQdrantClient
     neo4j: Any
     redis: redis.Redis
@@ -91,6 +94,7 @@ def get_clients() -> Clients:
 async def init_clients() -> Clients:
     """Initialize all clients. Called from lifespan in main.py."""
     from src.config import get_settings
+
     settings = get_settings()
 
     clients = get_clients()
@@ -104,7 +108,7 @@ async def init_clients() -> Clients:
         max_retries=2,
         http_client=httpx.AsyncClient(
             limits=httpx.Limits(
-                max_connections=16,      # reduced from 20 (M4 optimized)
+                max_connections=16,  # reduced from 20 (M4 optimized)
                 max_keepalive_connections=8,  # reduced from 10
             ),
             timeout=httpx.Timeout(settings.request_timeout_s, connect=10.0),
@@ -178,6 +182,7 @@ async def init_clients() -> Clients:
     clients.entity_extractor = None
     try:
         from src.services.entity_extractor import create_entity_extractor
+
         clients.entity_extractor = create_entity_extractor(
             provider=settings.entity_extractor_provider,
             model=settings.entity_extractor_model,
@@ -193,6 +198,7 @@ async def init_clients() -> Clients:
         logger.info("Entity extractor initialized (lazy-load mode — model loads on first use)")
     except Exception as e:
         import logging
+
         logging.getLogger(__name__).warning(f"Entity extractor init failed: {e}")
         clients.entity_extractor = None
 

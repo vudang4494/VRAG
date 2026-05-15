@@ -10,6 +10,7 @@ New-style import (preferred):
 Legacy import (still works):
     from api.routes_v3 import router
 """
+
 from api.routes import router
 
 __all__ = ["router"]

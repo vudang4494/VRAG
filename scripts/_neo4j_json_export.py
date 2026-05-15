@@ -5,6 +5,7 @@ Usage:
   cat cypher_output.txt | python3 _neo4j_json_export.py <label>
   docker exec rag-neo4j cypher-shell ... | python3 _neo4j_json_export.py <label>
 """
+
 import json
 import sys
 
@@ -25,14 +26,14 @@ def parse_cypher_node(line: str):
     if "Node" in line:
         # node: <id> {properties}
         if "{" in line:
-            props_str = line[line.index("{"):]
+            props_str = line[line.index("{") :]
             if props_str.endswith("}"):
                 try:
                     # Handle Cypher node representation
                     # Format: Node<123> {prop: value, ...}
                     # Remove Node<id> prefix
                     bracket_end = props_str.rindex("}")
-                    inner = props_str[:bracket_end + 1]
+                    inner = props_str[: bracket_end + 1]
                     return json.loads(inner)
                 except (json.JSONDecodeError, ValueError):
                     pass

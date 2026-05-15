@@ -1,4 +1,5 @@
 """Langfuse tracing integration for RAG operations."""
+
 import time
 from contextlib import asynccontextmanager
 from typing import Any, AsyncIterator
@@ -29,6 +30,7 @@ class RAGTracer:
         try:
             from langfuse import Langfuse
             from src.config import get_settings
+
             settings = get_settings()
             if settings.langfuse_public_key and settings.langfuse_secret_key:
                 self._client = Langfuse(
@@ -61,11 +63,13 @@ class RAGTracer:
                 self._spans: list[dict] = []
 
             def add_event(self, name: str, metadata: dict | None = None) -> None:
-                self._spans.append({
-                    "name": name,
-                    "metadata": metadata or {},
-                    "timestamp": time.time(),
-                })
+                self._spans.append(
+                    {
+                        "name": name,
+                        "metadata": metadata or {},
+                        "timestamp": time.time(),
+                    }
+                )
 
         ctx = SpanContext()
         start = time.monotonic()

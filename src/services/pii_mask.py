@@ -3,6 +3,7 @@
 Mục tiêu: thay PII (tên người, CMND, SĐT, email, số tài khoản) bằng placeholder
 ổn định (cùng entity → cùng placeholder). Mapping lưu ở payload để unmask sau.
 """
+
 import hashlib
 import re
 import uuid
@@ -25,6 +26,7 @@ _IP = re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b")
 @dataclass
 class MaskMap:
     """Mapping placeholder → original value, plus reverse lookup."""
+
     id: str = field(default_factory=lambda: f"mask_{uuid.uuid4().hex[:12]}")
     forward: dict[str, str] = field(default_factory=dict)  # original → placeholder
     reverse: dict[str, str] = field(default_factory=dict)  # placeholder → original
@@ -51,6 +53,7 @@ def _mask_regex(text: str, mask_map: MaskMap) -> str:
     def replace_with(kind: str):
         def _r(m: re.Match) -> str:
             return mask_map.add(m.group(0), kind)
+
         return _r
 
     text = _EMAIL.sub(replace_with("EMAIL"), text)
@@ -87,6 +90,7 @@ async def _mask_llm_ner(
     import json
 
     from src.services.ollama_helper import ollama_chat
+
     snippet = text[:max_chars]
     try:
         raw = await ollama_chat(
