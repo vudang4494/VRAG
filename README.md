@@ -1,127 +1,143 @@
-# Enterprise Local RAG Stack v2.0 🚀
+# Enterprise Local RAG Stack v3.0
 
-A production-ready Retrieval-Augmented Generation (RAG) stack optimized for **Apple Silicon Mac**. This stack runs **100% locally**, ensuring complete data privacy while leveraging the power of Metal GPU acceleration.
+A production-ready Hybrid GraphRAG system that runs **100% locally** on Apple Silicon (M-series Mac) — no cloud dependency, complete data privacy.
 
-## 🌟 Key Features
+## Key Features
 
-- **100% Local Inference**: Powered by Ollama with Qwen3.5-4B and BGE-M3 embeddings.
-- **Hybrid GraphRAG**: Combines Vector Search (Qdrant) and Knowledge Graphs (Neo4j).
-- **Multi-tenant Architecture**: Strict data isolation for enterprise use cases.
-- **Visual Dashboard**: Gradio-based hub for Graph visualization and Chat.
-- **Observability**: Built-in Langfuse tracing, Prometheus metrics, and Grafana dashboards.
+- **Hybrid GraphRAG**: 9 retrieval paths (vector + knowledge graph + community summaries)
+- **Multi-tenant**: Strict tenant isolation via Qdrant payload filters + Neo4j property filters
+- **Apple Silicon native**: Ollama with Metal GPU acceleration, GLiNER zero-shot NER
+- **ReAct agent**: Multi-step reasoning with tool-use for complex multi-hop queries
+- **3-stage reranking**: Cross-encoder + semantic match + LLM judge
+- **Observability**: Langfuse tracing, Prometheus metrics, Grafana dashboards
 
----
+## Architecture Overview
 
-## 🏗 System Architecture & Data Flow
-
-Here is the high-level architecture and data flow of the Enterprise RAG Stack:
-
-```mermaid
-graph TD
-    %% Define Styles
-    classDef user fill:#3b82f6,stroke:#1d4ed8,stroke-width:2px,color:#fff;
-    classDef proxy fill:#f59e0b,stroke:#b45309,stroke-width:2px,color:#fff;
-    classDef app fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff;
-    classDef db fill:#8b5cf6,stroke:#5b21b6,stroke-width:2px,color:#fff;
-    classDef model fill:#ec4899,stroke:#be185d,stroke-width:2px,color:#fff;
-    classDef observe fill:#64748b,stroke:#334155,stroke-width:2px,color:#fff;
-
-    %% Nodes
-    User(("User / Browser")):::user
-    Nginx["Nginx Reverse Proxy<br/>(Rate Limiting & Routing)"]:::proxy
-    
-    WebUI["Open WebUI<br/>(Chat Interface)"]:::app
-    Dashboard["Gradio Dashboard<br/>(Visualizer & Stats)"]:::app
-    RAGAPI["RAG API<br/>(FastAPI Orchestrator)"]:::app
-    
-    Ollama["Ollama (Host)<br/>Metal GPU Accelerated"]:::model
-    
-    Qdrant[("Qdrant<br/>Vector Database")]:::db
-    Neo4j[("Neo4j<br/>Knowledge Graph")]:::db
-    Redis[("Redis<br/>Semantic Cache")]:::db
-    Postgres[("PostgreSQL<br/>App State")]:::db
-    
-    Langfuse["Langfuse<br/>(Tracing)"]:::observe
-    Prometheus["Prometheus + Grafana<br/>(Metrics)"]:::observe
-
-    %% Flow
-    User -->|HTTP Requests| Nginx
-    Nginx -->|Port 80| WebUI
-    Nginx -->|Port 7860| Dashboard
-    Nginx -->|Port 8800| RAGAPI
-    Nginx -->|Port 3000| Langfuse
-    
-    WebUI -->|Chat API| RAGAPI
-    Dashboard -->|Stats/Graph| RAGAPI
-    Dashboard -->|Cypher Query| Neo4j
-    
-    RAGAPI -->|Check Cache| Redis
-    RAGAPI -->|1. Generate Embedding| Ollama
-    RAGAPI -->|2. Vector Search| Qdrant
-    RAGAPI -->|3. Graph Traversal| Neo4j
-    RAGAPI -->|4. LLM Generation| Ollama
-    
-    RAGAPI -.->|State Tracking| Postgres
-    RAGAPI -.->|Tracing/Logs| Langfuse
-    RAGAPI -.->|Metrics| Prometheus
+```
+Query → Router (heuristic) → Query Understanding (6 reformulations)
+      → 9-path retrieval (vector/bm25/graph/community/entity-pivot)
+      → Weighted RRF fusion
+      → OOD detection (score + keyword overlap)
+      → ReAct loop OR standard path
+      → 3-stage rerank
+      → 3 validation gates (hallucination / entity / citation)
+      → Answer
 ```
 
----
+Full technical details: see [SPEC.md](./SPEC.md).
 
-## 🚀 Quick Start Guide
+## Quick Start
 
 ### 1. Prerequisites
-- **Hardware:** Apple Silicon Mac (M-series) with 16GB+ Unified Memory.
-- **Software:** `brew`, `docker`, `docker-compose`, `make`.
 
-### 2. Setup Ollama (Host)
-For maximum Metal GPU performance, Ollama runs natively on the host Mac, not in Docker.
+- Apple Silicon Mac (M-series), 16GB+ Unified Memory
+- `brew`, `docker`, `docker-compose`, `make`
+- Ollama running on host
+
+### 2. Setup Ollama
+
 ```bash
 brew install ollama
 ollama pull qwen3.5:4b
 ollama pull bge-m3
-ollama serve  # Leave this running in a separate terminal
+ollama serve
 ```
 
-### 3. Initialize & Start Stack
-Run the following commands in the project root:
+### 3. Initialize & Start
+
 ```bash
-# 1. Generate secure credentials (.env) & Build Docker images
+# Generate credentials + build images
 make init
 
-# 2. Start all services via Docker Compose
+# Start all services
 make up
 
-# 3. Initialize Qdrant and Neo4j schemas
+# Initialize database schemas
 make init-all
 
-# 4. Run full system health check
+# Health check
 make health
 ```
-> **Security Note:** All sensitive credentials (API Keys, Passwords) are auto-generated and stored locally in the `.env` file. This file is safely ignored by Git and will **never** be pushed to the repository. No external keys like OpenAI, Claude, or Gemini are hardcoded in the source code.
 
----
+### 4. Try It
 
-## 🛠 Management Commands
+```bash
+# Health check
+curl -s http://localhost:8800/api/v3/health
 
-Use the unified `Makefile` for operations:
-- `make logs`: View logs for all services.
-- `make restart`: Restart the entire stack.
-- `make down`: Stop all containers (data is preserved).
-- `make test-all`: Run health, embedding, and RAG E2E tests.
-- `make test-perf`: Run performance benchmarks.
+# Chat with your knowledge base
+curl -s -X POST http://localhost:8800/api/v3/chat \
+  -H "Content-Type: application/json" \
+  -H "X-Tenant-ID: eval" \
+  -d '{"query":"GraphRAG là gì?","max_retries":0}'
+```
 
----
+## Evaluation
 
-## 🔗 Access Points
+30-query Vietnamese benchmark suite in `eval/datasets/`. Run with:
 
-Once the stack is up, you can access the localized services at:
+```bash
+make v2-eval
+# or
+python3 scripts/ablation_eval.py --bench eval/datasets/vi_benchmark_v1.json --tenant eval
+```
 
-| Component | URL | Default Credentials |
-|-----------|-----|-------------------|
-| **Gradio Dashboard** | `http://localhost:7860` | No auth needed |
-| **Open WebUI** | `http://localhost:80` | Create your first admin account |
-| **Neo4j Browser** | `http://localhost:7474` | `neo4j` / (check `.env` for password) |
-| **Qdrant UI** | `http://localhost:6333/dashboard` | No auth needed |
-| **Langfuse** | `http://localhost:3000` | admin@localhost / (check `.env`) |
-| **Grafana** | `http://localhost:3001` | `admin` / (check `.env`) |
+## API Reference
+
+All endpoints at `/api/v3/*` (see `api/routes_v3.py`):
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/v3/health` | GET | Liveness + dependency check |
+| `/api/v3/chat` | POST | Main RAG chat endpoint |
+| `/api/v3/search` | POST | Direct retrieval (no generation) |
+| `/api/v3/ingest/upload` | POST | Document indexing |
+| `/api/v3/tenants` | GET/POST | Tenant management |
+| `/api/v3/tenants/{id}/stats` | GET | Tenant statistics |
+| `/api/v3/cache/clear` | POST | Clear semantic cache |
+| `/metrics` | GET | Prometheus metrics |
+
+## Services
+
+| Component | URL | Notes |
+|---|---|---|
+| RAG API | `http://localhost:8800` | FastAPI + uvloop |
+| Qdrant | `http://localhost:6333` | Vector DB |
+| Neo4j Browser | `http://localhost:7474` | Knowledge Graph |
+| Redis | `localhost:6379` | Semantic cache |
+| Langfuse | `http://localhost:3000` | Tracing |
+| Grafana | `http://localhost:3001` | Metrics |
+
+## Configuration
+
+All settings via environment variables (see `.env.example`):
+
+| Variable | Default | Description |
+|---|---|---|
+| `OLLAMA_MODEL` | `qwen3.5:4b` | LLM model |
+| `OLLAMA_EMBED_MODEL` | `bge-m3` | Embedding model |
+| `QDRANT_COLLECTION` | `enterprise_kb` | Vector collection |
+| `RETRIEVAL_TOP_K` | `8` | Final chunks returned |
+| `QUERY_REFORMULATIONS` | `3` | Query reformulation count |
+| `COMMUNITY_ENABLED` | `false` | Enable community summaries |
+
+## License
+
+This project is licensed under the **Apache License 2.0**. See [LICENSE](./LICENSE) for details.
+
+### What you can do
+
+- Use, reproduce, and distribute for any purpose (including commercial)
+- Create derivative works
+- Sublicense to others
+
+### What you must do
+
+- Include the Apache 2.0 license notice
+- Include NOTICE file attribution if provided
+- Clearly mark any modifications
+
+### What you cannot do
+
+- Use trademarks without permission
+- Hold contributors liable (see Section 8)

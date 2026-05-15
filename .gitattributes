@@ -1,0 +1,48 @@
+# Auto-detect text files and normalise line endings
+* text=auto
+
+# Python
+*.py text diff=python
+
+# Config / Data
+*.yml text
+*.yaml text
+*.toml text
+*.json text
+*.md text
+*.txt text
+*.sh text eol=lf
+*.cypher text
+*.ps1 text eol=crlf
+
+# Docker
+Dockerfile text
+docker-compose*.yml text
+
+# Static assets (binary)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.tar binary
+*.whl binary
+
+# Env files (never CRLF, always private)
+.env* text eol=lf
+
+# Scripts
+scripts/** text eol=lf
+
+# Linguist overrides — tell GitHub what languages this repo uses
+*.py linguist-language=Python
+*.js linguist-language=JavaScript
+*.sh linguist-language=Shell
+*.cypher linguist-language=Cypher
+
+# Exclude some generated/derived files from language stats
+src/__pycache__/ linguist-generated=true
+*.pyc linguist-generated=true

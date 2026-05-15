@@ -28,6 +28,12 @@ from src.services.vector_v2 import (
     search_multi_view_rrf,
     search_single_view,
 )
+from src.services.domain_tagger import (
+    DOMAIN_AXES,
+    domain_reward,
+    tag_query,
+    DomainDistribution,
+)
 
 
 # Map intent → preferred views + flags.
@@ -155,6 +161,8 @@ async def _entity_pivot_path(
     RETURN c.id AS chunk_id, c.text AS text, c.source AS source,
            c.format AS format, c.chunk_level AS chunk_level,
            c.consistency_score AS consistency_score,
+           c.domain_distribution AS domain_distribution,
+           c.domain_primary AS domain_primary,
            matches, matched_names
     """
 
@@ -182,6 +190,9 @@ async def _entity_pivot_path(
             "matched_entities": r["matched_names"] or [],
             "entity_match_count": r["matches"],
             "metadata": {},
+            # Phase 8: domain distribution for reward scoring
+            "domain_distribution": r.get("domain_distribution") or {},
+            "domain_primary": r.get("domain_primary") or "",
         })
 
     logger.info(
@@ -207,6 +218,9 @@ async def _graph_path(neo4j_driver, query_vec, http, embed_url, embed_model, ten
             r.setdefault("chunk_level", "paragraph")
             r.setdefault("consistency_score", 0.7)
             r.setdefault("score", float(r.get("graph_score", 0.0)))
+            # Phase 8: domain from payload
+            r["domain_distribution"] = r.get("metadata", {}).get("domain_distribution", {})
+            r["domain_primary"] = r.get("metadata", {}).get("domain_primary", "")
         return results
     except Exception as e:
         logger.warning(f"Graph path failed: {e}")
@@ -278,6 +292,8 @@ def weighted_rrf(
     paths: dict[str, list[dict]],
     k: int = 60,
     final_top_k: int = 50,
+    query_domain: DomainDistribution | None = None,
+    domain_scale: float = 0.3,
 ) -> list[dict]:
     """
     Weighted RRF fusion across many ranked lists.
@@ -285,7 +301,9 @@ def weighted_rrf(
     paths = {path_key: [candidate_dicts]}
     candidate dict must have: chunk_id, score, format, chunk_level, consistency_score, retrieval_path
 
-    weight per candidate = path_weight × consistency_factor × level_factor
+    weight per candidate = path_weight × consistency_factor × level_factor × domain_reward
+
+    Phase 8: domain reward = cosine(chunk_domain_vec, query_domain_vec) × scale
     """
     fused: dict[str, dict] = {}
     for path_key, results in paths.items():
@@ -298,12 +316,27 @@ def weighted_rrf(
             cid = c["chunk_id"]
             cs_factor = consistency_factor(c.get("consistency_score", 0.7))
             lvl_factor = level_factor(c.get("chunk_level", "paragraph"))
+
+            # Phase 8: domain reward
+            dm_reward = 1.0
+            if query_domain is not None:
+                chunk_dd = c.get("domain_distribution")
+                if chunk_dd:
+                    try:
+                        chunk_domain = DomainDistribution.from_list([
+                            chunk_dd.get(ax, 0.0) for ax in DOMAIN_AXES
+                        ])
+                        dm_reward = 1.0 + domain_reward(chunk_domain, query_domain, scale=domain_scale)
+                    except Exception:
+                        dm_reward = 1.0
+
             base = path_weight / (k + rank)
-            contribution = base * cs_factor * lvl_factor
+            contribution = base * cs_factor * lvl_factor * dm_reward
             if cid not in fused:
-                fused[cid] = {**c, "rrf_score": 0.0, "matched_paths": []}
+                fused[cid] = {**c, "rrf_score": 0.0, "matched_paths": [], "domain_reward": 0.0}
             fused[cid]["rrf_score"] += contribution
             fused[cid]["matched_paths"].append(path_key)
+            fused[cid]["domain_reward"] = max(fused[cid].get("domain_reward", 0.0), dm_reward - 1.0)
 
     sorted_results = sorted(fused.values(), key=lambda x: x["rrf_score"], reverse=True)
     return sorted_results[:final_top_k]
@@ -328,6 +361,9 @@ async def multi_path_retrieve(
     strategy = INTENT_STRATEGY.get(intent, INTENT_STRATEGY["factual"])
     views = strategy["views"] or ["dense"]
     reformulations = understanding.get("reformulations", [{"kind": "original", "text": understanding.get("original", ""), "weight": 1.0}])
+
+    # Phase 8: tag query domain for reward scoring
+    query_domain = tag_query(understanding.get("original", ""))
 
     qdrant_filter = build_tenant_filter(
         tenant_id=tenant_id,
@@ -449,8 +485,11 @@ async def multi_path_retrieve(
     for k, lst in paths.items():
         paths[k] = [norm_map.get(c["chunk_id"] + "|" + c.get("retrieval_path", ""), c) for c in lst]
 
-    # Weighted RRF
-    fused = weighted_rrf(paths, k=settings.rrf_k, final_top_k=final_top_k)
+    # Weighted RRF — now with domain reward boost (Phase 8)
+    fused = weighted_rrf(
+        paths, k=settings.rrf_k, final_top_k=final_top_k,
+        query_domain=query_domain, domain_scale=0.3,
+    )
 
     # Attach query entities to first result for caller (LLM prompt) to access.
     # Uses a global key on each candidate so it survives downstream processing.

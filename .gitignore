@@ -21,7 +21,11 @@ ssl/*.crt
 logs/
 
 # ── Eval result dumps ───────────────────────────────────────────────────
-eval/results/
+# track reports and ablation results, ignore large intermediate dumps
+!eval/results/
+eval/results/*.log
+eval/results/tmp_*
+# ignore large intermediate JSON but track final results
 *.eval.json
 
 # ── Python ──────────────────────────────────────────────────────────────
