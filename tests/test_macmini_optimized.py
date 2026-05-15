@@ -1,12 +1,12 @@
 """Mac Mini M4 Optimization Tests — comprehensive performance and resource tests."""
 
 import asyncio
-import time
 import os
-import sys
 import subprocess
-import pytest
+import time
+
 import httpx
+import pytest
 
 # Configure env for Mac Mini
 os.environ.setdefault("OLLAMA_BASE_URL", "http://localhost:11434")
@@ -324,7 +324,7 @@ class TestRAGPipeline:
             assert r.status_code == 200
             data = r.json()
             info = data["result"]
-            print(f"\n  Qdrant collection 'enterprise_kb':")
+            print("\n  Qdrant collection 'enterprise_kb':")
             print(f"    Points:     {info.get('points_count', 0)}")
             print(f"    Status:     {info.get('status', 'unknown')}")
             print(f"    Vectors:    {info.get('vectors_count', 0)}")
@@ -350,7 +350,7 @@ class TestRAGPipeline:
             if r.status_code == 200:
                 results = r.json().get("results", [])
                 counts = [r["data"][0]["row"][0] if r.get("data") else 0 for r in results]
-                print(f"\n  Neo4j Graph:")
+                print("\n  Neo4j Graph:")
                 print(f"    Documents:  {counts[0]}")
                 print(f"    Chunks:     {counts[1]}")
                 print(f"    Entities:   {counts[2]}")
@@ -432,12 +432,11 @@ class TestMacMiniResources:
 
     def test_qdrant_vectors_info(self):
         """Detailed Qdrant collection info."""
-        import json
 
         r = httpx.get(f"{QDRANT_BASE}/collections/enterprise_kb", timeout=10)
         if r.status_code == 200:
             data = r.json()["result"]
-            print(f"\n  Qdrant 'enterprise_kb':")
+            print("\n  Qdrant 'enterprise_kb':")
             print(f"    Status:    {data.get('status')}")
             print(f"    Points:    {data.get('points_count', 0)}")
             print(f"    Segments:  {data.get('segments_count', 0)}")
@@ -554,7 +553,7 @@ class TestStress:
 
         latencies = [r[0] for r in results]
         successes = sum(1 for r in results if r[1] == 200)
-        print(f"\n  5 concurrent requests:")
+        print("\n  5 concurrent requests:")
         print(f"    Total time: {total:.0f}ms")
         print(f"    Avg latency: {sum(latencies) / len(latencies):.0f}ms")
         print(f"    Max latency: {max(latencies):.0f}ms")

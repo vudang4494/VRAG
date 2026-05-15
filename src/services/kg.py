@@ -1,14 +1,11 @@
 """Knowledge graph service — entity extraction, Neo4j storage and retrieval."""
 
-import asyncio
 import json
 import re
 from typing import Any
 
 import httpx
-from neo4j import AsyncGraphDatabase
 from loguru import logger
-
 
 _ENTITY_EXTRACT_PROMPT = """Ban la chuyen gia trich xuat tri thuc tu van ban.
 Trich xuat cac thuc the (entities) va moi quan he (relationships) tu van ban duoi day.

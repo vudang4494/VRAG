@@ -13,7 +13,6 @@ from typing import Any
 
 from loguru import logger
 
-
 _CLAIM_EXTRACT_PROMPT = """Trích xuất các "atomic claims" (mệnh đề nguyên tử) từ câu trả lời sau.
 Mỗi claim là một sự thật có thể kiểm chứng độc lập.
 
@@ -131,7 +130,7 @@ async def hallucination_gate(
         "passed": score >= min_grounded_ratio,
         "grounded_ratio": score,
         "claims_total": len(claims),
-        "verdicts": list(zip(claims, verdicts)),
+        "verdicts": list(zip(claims, verdicts, strict=False)),
     }
 
 
@@ -148,7 +147,7 @@ async def entity_gate(
     candidates = set()
     for match in _ENTITY_PATTERN.finditer(answer):
         ent = match.group(1).strip()
-        if len(ent) > 3 and not ent.lower() in ("tôi", "bạn", "anh", "chị", "ông", "bà"):
+        if len(ent) > 3 and ent.lower() not in ("tôi", "bạn", "anh", "chị", "ông", "bà"):
             candidates.add(ent)
 
     if not candidates:

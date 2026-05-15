@@ -30,7 +30,6 @@ from typing import Any
 
 import httpx
 
-
 EXPECTED_LABELS = ["Document", "Chunk", "Entity", "Community"]
 EXPECTED_REL_TYPES = {
     "FROM_DOCUMENT": "(:Chunk)->(:Document)",
@@ -101,7 +100,7 @@ async def cypher(
     if not results:
         return []
     columns = results[0]["columns"]
-    return [dict(zip(columns, row["row"])) for row in results[0]["data"]]
+    return [dict(zip(columns, row["row"], strict=False)) for row in results[0]["data"]]
 
 
 async def main(http_url: str, user: str, password: str, tenant: str | None) -> int:
@@ -174,7 +173,7 @@ async def main(http_url: str, user: str, password: str, tenant: str | None) -> i
             cross_doc = sum(r["c"] for r in rows if r.get("cd"))
             ok(f"SIMILAR_TO in-doc: {in_doc}")
             if cross_doc == 0:
-                warn(f"SIMILAR_TO cross-doc: 0 — run `make v2-cross-doc` to populate")
+                warn("SIMILAR_TO cross-doc: 0 — run `make v2-cross-doc` to populate")
             else:
                 ok(f"SIMILAR_TO cross-doc: {cross_doc}")
         except Exception as e:

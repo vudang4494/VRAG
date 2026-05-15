@@ -23,15 +23,12 @@ Features (11 dimensions):
 
 from __future__ import annotations
 
-import math
 import os
 import time
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
 
 import httpx
 from loguru import logger
-
 
 # ── Feature weights (hand-tuned initial) ──────────────────────────────────────
 # Re-tunable via env: FEATURE_WEIGHTS_JSON='{"stage2":0.3,...}'
@@ -101,9 +98,9 @@ def _recency_score(created_at: str | None) -> float:
         dt = datetime.fromisoformat(str(created_at).replace("Z", "+00:00"))
     except Exception:
         return 0.7
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     days = (
-        max((now - dt.replace(tzinfo=timezone.utc)).days, 0)
+        max((now - dt.replace(tzinfo=UTC)).days, 0)
         if dt.tzinfo is None
         else max((now - dt).days, 0)
     )

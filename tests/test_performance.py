@@ -7,7 +7,6 @@ import time
 import httpx
 import pytest
 
-
 OLLAMA = "http://localhost:11434"
 BASE = "http://localhost:8800"
 

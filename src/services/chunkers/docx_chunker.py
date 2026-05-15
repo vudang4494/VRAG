@@ -6,8 +6,6 @@ Preserves heading_path metadata.
 
 from __future__ import annotations
 
-from typing import Any
-
 from loguru import logger
 
 from src.services.chunkers.base import BaseChunker, ChunkUnit
@@ -79,6 +77,7 @@ class DocxChunker(BaseChunker):
         """Return list of (heading_path, paragraph_texts) per section."""
         try:
             from io import BytesIO
+
             from docx import Document
         except ImportError:
             return self._parse_mammoth_fallback(content)
@@ -133,8 +132,9 @@ class DocxChunker(BaseChunker):
 
     def _parse_mammoth_fallback(self, content: bytes) -> list[tuple[list[str], list[str]]]:
         try:
-            import mammoth
             from io import BytesIO
+
+            import mammoth
 
             result = mammoth.extract_raw_text(BytesIO(content))
             txt = result.value or ""

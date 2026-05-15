@@ -2,6 +2,7 @@
 
 import asyncio
 import os
+
 import pytest
 
 os.environ.setdefault("OLLAMA_BASE_URL", "http://host.docker.internal:11434")

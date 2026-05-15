@@ -39,7 +39,6 @@ from typing import Any
 import numpy as np
 from loguru import logger
 
-
 # Default tuning parameters
 DEFAULT_ALPHA = 0.35
 DEFAULT_NEIGHBOR_CAP = 20
@@ -137,7 +136,7 @@ async def aggregate_entity_embedding(
 
     embs = []
     used_weights = []
-    for p, w in zip(points, weights):
+    for p, w in zip(points, weights, strict=False):
         vec = (p.vector or {}).get("dense") if isinstance(p.vector, dict) else None
         if vec:
             embs.append(np.array(vec))
@@ -328,6 +327,7 @@ async def batch_refine_tenant(
     named vectors preserved.
     """
     from qdrant_client import models as qm
+
     from src.services.vector_v2 import to_int_id
 
     # Step 1: build entity cache

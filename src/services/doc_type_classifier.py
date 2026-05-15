@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import re
 
-
 # Type-specific chunking configs
 TYPE_STRATEGIES: dict[str, dict] = {
     "research_paper": {
@@ -105,7 +104,7 @@ def classify_doc_type(text: str, filename: str = "") -> str:
 
     # Content heuristics — vote by sig hits
     snippet = text[:3000]
-    scores: dict[str, int] = {t: 0 for t in _TYPE_SIGNATURES}
+    scores: dict[str, int] = dict.fromkeys(_TYPE_SIGNATURES, 0)
     for doc_type, patterns in _TYPE_SIGNATURES.items():
         for pat in patterns:
             if pat.search(snippet):

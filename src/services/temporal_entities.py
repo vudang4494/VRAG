@@ -25,9 +25,8 @@ This module:
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
-
 
 _TIME_REF_PATTERNS = {
     "current": [r"\b(hiện tại|hiện nay|bây giờ|now|current|today)\b"],
@@ -134,7 +133,7 @@ async def add_temporal_to_entity(
             name=entity_name,
             tid=tenant_id,
             **{
-                "from": valid_from or datetime.now(timezone.utc).date().isoformat(),
+                "from": valid_from or datetime.now(UTC).date().isoformat(),
                 "to": valid_to,
                 "version": version,
             },

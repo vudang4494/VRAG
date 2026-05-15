@@ -21,7 +21,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-
 HEDGE_WORDS_VI = [
     r"\bcó thể\b",
     r"\bchắc(?: chắn)?\b",

@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import re
 
-
 _MULTI_HOP_PATTERNS = [
     # Explicit cross-doc signals
     r"so sánh",

@@ -13,14 +13,11 @@ Workflow:
 from __future__ import annotations
 
 import asyncio
-import json
 import re
 import uuid
-from datetime import datetime
 from typing import Any
 
 from loguru import logger
-
 
 _COMMUNITY_SUMMARY_PROMPT = """Bạn là chuyên gia phân tích tri thức. Dưới đây là một cụm
 các thực thể có liên quan với nhau, cùng với các đoạn văn bản đề cập đến chúng.
@@ -183,7 +180,7 @@ def cluster_leiden(
         return result
     except Exception as e:
         logger.warning(f"Louvain clustering failed: {e}")
-        return {n: 0 for n in entity_names}
+        return dict.fromkeys(entity_names, 0)
 
 
 async def fetch_chunks_for_entities(

@@ -4,8 +4,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
-
+from pydantic import BaseModel, ConfigDict, Field
 
 # ---------------------------------------------------------------------------
 # Enums

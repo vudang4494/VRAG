@@ -18,7 +18,6 @@ from typing import Any
 
 from loguru import logger
 
-
 # ── Entity types we extract (tailored for enterprise + research) ──────────────
 DEFAULT_LABELS = [
     "person",

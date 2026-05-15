@@ -107,7 +107,7 @@ class DomainDistribution:
 
     def __add__(self, other: "DomainDistribution") -> "DomainDistribution":
         return DomainDistribution.from_list(
-            [a + b for a, b in zip(self.to_list(), other.to_list())]
+            [a + b for a, b in zip(self.to_list(), other.to_list(), strict=False)]
         )
 
 

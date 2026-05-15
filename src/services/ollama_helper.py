@@ -28,6 +28,7 @@ from __future__ import annotations
 
 from typing import Any
 
+import httpx
 from loguru import logger
 
 
@@ -47,8 +48,9 @@ async def ollama_chat(
     Returns empty string on final failure (caller should handle).
     """
     import asyncio as _aio
-    from src.config import get_settings as _get_settings
+
     from src.clients import get_clients as _get_clients
+    from src.config import get_settings as _get_settings
 
     settings = _get_settings()
     clients = _get_clients()
@@ -122,8 +124,9 @@ async def ollama_chat_stream(
     block at start. Filter those out — only yield content tokens.
     """
     import json as _json
-    from src.config import get_settings
+
     from src.clients import get_clients
+    from src.config import get_settings
 
     settings = get_settings()
     clients = get_clients()
@@ -198,8 +201,8 @@ async def ollama_chat_with_meta(
         "error": str | None,
       }
     """
-    from src.config import get_settings
     from src.clients import get_clients
+    from src.config import get_settings
 
     settings = get_settings()
     clients = get_clients()

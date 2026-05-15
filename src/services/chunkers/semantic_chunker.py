@@ -9,8 +9,6 @@ Strategy:
 
 from __future__ import annotations
 
-from typing import Any
-
 import httpx
 from loguru import logger
 
@@ -87,7 +85,7 @@ class SemanticChunker(BaseChunker):
             return self.pack_units(sentences, self.paragraph_max_chars)
 
         try:
-            from src.services.embedding import embed_batch, cosine_similarity
+            from src.services.embedding import cosine_similarity, embed_batch
 
             embeds = await embed_batch(
                 self.http,

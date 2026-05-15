@@ -7,11 +7,9 @@ Chạy bằng: make test-v2  hoặc  pytest tests/test_pipeline_v2.py -v
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-
 
 # ════════════════════════════════════════════════════════════════════════════
 # Chunkers
@@ -117,7 +115,7 @@ def test_format_router_pdf_magic_bytes():
 
 @pytest.mark.asyncio
 async def test_pii_mask_regex_email_phone():
-    from src.services.pii_mask import mask_pii, MaskMap
+    from src.services.pii_mask import mask_pii
 
     text = "Email: nguyen.a@company.com, SĐT: 0912345678"
     masked, _ = await mask_pii(text, llm=None, use_llm_ner=False)
@@ -162,7 +160,7 @@ def test_consistency_score_orthogonal():
 
 
 def test_consistency_boost_thresholds():
-    from src.services.consistency import consistency_boost, classify_consistency
+    from src.services.consistency import classify_consistency, consistency_boost
 
     assert consistency_boost(0.9) == 1.2
     assert consistency_boost(0.7) == 1.0

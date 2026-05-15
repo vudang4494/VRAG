@@ -19,12 +19,9 @@ or via API:
 
 from __future__ import annotations
 
-import asyncio
-from collections import defaultdict
 from typing import Any
 
 from loguru import logger
-
 
 # ── 1. Document↔Document via shared entities ──────────────────────────────────
 

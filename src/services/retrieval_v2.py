@@ -14,28 +14,24 @@ Pipeline:
 from __future__ import annotations
 
 import asyncio
-from collections import defaultdict
 from typing import Any
 
-import httpx
 from loguru import logger
 
+from src.services.domain_tagger import (
+    DOMAIN_AXES,
+    DomainDistribution,
+    domain_reward,
+    tag_query,
+)
 from src.services.embedding import embed_single
 from src.services.vector_v2 import (
     build_tenant_filter,
     consistency_factor,
     level_factor,
     normalize_scores_by_format,
-    search_multi_view_rrf,
     search_single_view,
 )
-from src.services.domain_tagger import (
-    DOMAIN_AXES,
-    domain_reward,
-    tag_query,
-    DomainDistribution,
-)
-
 
 # Map intent → preferred views + flags.
 # "graph_aware" view (Phase 1 GAEA refined) included for all intents — it
@@ -273,7 +269,7 @@ async def _community_path(
     if not communities:
         return []
 
-    from src.services.embedding import embed_batch, cosine_similarity
+    from src.services.embedding import cosine_similarity, embed_batch
 
     summaries = [c["summary"] for c in communities]
     try:
@@ -286,7 +282,7 @@ async def _community_path(
 
     scored = [
         (c, cosine_similarity(query_vec, e))
-        for c, e in zip(communities, embeds)
+        for c, e in zip(communities, embeds, strict=False)
         if e and any(v != 0 for v in e)
     ]
     scored.sort(key=lambda x: x[1], reverse=True)
@@ -423,7 +419,7 @@ async def multi_path_retrieve(
         return f"{reform_kind}:{view}", results
 
     search_tasks = []
-    for r, vec in zip(reformulations, embeds):
+    for r, vec in zip(reformulations, embeds, strict=False):
         for v in views:
             search_tasks.append(_one_search(r["kind"], vec, v))
 
@@ -499,7 +495,7 @@ async def multi_path_retrieve(
 
     # Collect vector search results
     idx = 0
-    for r, _ in zip(reformulations, embeds):
+    for r, _ in zip(reformulations, embeds, strict=False):
         for v in views:
             res = results[idx]
             idx += 1

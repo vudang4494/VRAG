@@ -19,7 +19,6 @@ from loguru import logger
 
 from src.services.embedding import cosine_similarity, embed_single
 
-
 # Lazy-loaded cross-encoder
 _CROSS_ENCODER = None
 
@@ -64,7 +63,7 @@ async def rerank_stage1(
         logger.warning(f"Stage 1 rerank failed: {e}")
         return [{**c, "stage1_score": 0.0} for c in candidates[:top_k]]
 
-    scored = [{**c, "stage1_score": float(s)} for c, s in zip(candidates, scores)]
+    scored = [{**c, "stage1_score": float(s)} for c, s in zip(candidates, scores, strict=False)]
     scored.sort(key=lambda x: x["stage1_score"], reverse=True)
     return scored[:top_k]
 

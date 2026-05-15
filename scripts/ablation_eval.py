@@ -23,10 +23,29 @@ import asyncio
 import json
 import re
 import time
+from datetime import UTC
 from pathlib import Path
-from typing import Any
 
 import httpx
+
+
+async def embed_single(
+    http: httpx.AsyncClient,
+    embed_url: str,
+    embed_model: str,
+    text: str,
+    timeout: float = 15.0,
+) -> list[float] | None:
+    try:
+        resp = await http.post(
+            f"{embed_url}/api/embeddings",
+            json={"model": embed_model, "prompt": text[:2000]},
+            timeout=timeout,
+        )
+        resp.raise_for_status()
+        return resp.json().get("embedding")
+    except Exception:
+        return None
 
 
 async def query_v3_chat(client: httpx.AsyncClient, api: str, query: str, tenant: str) -> dict:
@@ -130,11 +149,12 @@ async def query_hefr_entity_pivot(
     """HEFR for entity_pivot queries (paper lookup, entity search).
     Falls back to standard pipeline for non-entity queries.
     """
-    from src.services.query_router import classify_query
     import re
 
+    from src.services.query_router import classify_query
+
     q_type = classify_query(query)
-    ENTITY_PIVOT_PATTERNS = [
+    entity_pivot_patterns = [
         r"paper nào",
         r"bài báo nào",
         r"doc.*nào",
@@ -146,7 +166,7 @@ async def query_hefr_entity_pivot(
     is_entity_pivot = (
         q_type == "entity_pivot"
         or q_type == "multi_hop"
-        and any(re.search(p, query.lower()) for p in ENTITY_PIVOT_PATTERNS)
+        and any(re.search(p, query.lower()) for p in entity_pivot_patterns)
     )
     if is_entity_pivot:
         return await query_hefr(client, api, query, tenant)
@@ -229,7 +249,7 @@ async def keyword_hit_ratio(
         kw_results = await asyncio.gather(*kw_tasks, return_exceptions=True)
 
         kw_embeds: list[tuple[str, list[float]]] = []
-        for kw, result in zip(keywords, kw_results):
+        for kw, result in zip(keywords, kw_results, strict=False):
             if isinstance(result, Exception):
                 kw_embeds.append((kw, []))
             else:
@@ -481,5 +501,5 @@ if __name__ == "__main__":
     if not args.output:
         from datetime import datetime as _d
 
-        args.output = f"eval/results/ablation_{_d.now().strftime('%Y%m%d_%H%M%S')}.json"
+        args.output = f"eval/results/ablation_{_d.now(UTC).strftime('%Y%m%d_%H%M%S')}.json"
     asyncio.run(main(args))

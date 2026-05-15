@@ -5,13 +5,14 @@ import hashlib
 from typing import TYPE_CHECKING, Any
 
 import httpx
+import redis.asyncio as redis
+from loguru import logger
+from neo4j import AsyncGraphDatabase
 from openai import AsyncOpenAI
 from qdrant_client import AsyncQdrantClient
-from neo4j import AsyncGraphDatabase
-import redis.asyncio as redis
 
 if TYPE_CHECKING:
-    from src.config import Settings
+    pass
 
 
 class SemanticCache:

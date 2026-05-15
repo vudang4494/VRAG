@@ -18,13 +18,11 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 import time
 from pathlib import Path
 
 import httpx
-
 
 SAMPLE_TEXT_VI = """\
 Báo cáo Tài chính Quý 3 Năm 2024 - Công ty ABC

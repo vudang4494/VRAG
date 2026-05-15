@@ -28,7 +28,6 @@ from typing import Any
 
 from loguru import logger
 
-
 ENTITY_COLLECTION_TEMPLATE = "entities_{tenant}"
 
 
@@ -71,9 +70,11 @@ async def populate_entity_collection(
 ) -> dict[str, Any]:
     """Compute aggregate embedding for each entity in tenant, upsert to
     entities_<tenant> Qdrant collection."""
-    from src.services.graph_embeddings import aggregate_entity_embedding
-    from qdrant_client import models as qm
     import hashlib
+
+    from qdrant_client import models as qm
+
+    from src.services.graph_embeddings import aggregate_entity_embedding
 
     col_name = await ensure_entity_collection(qdrant_client, tenant_id)
 

@@ -96,7 +96,7 @@ async def generate_views(
 
     results = await asyncio.gather(*tasks.values(), return_exceptions=True)
     views = {"original": text}
-    for (name, _), result in zip(tasks.items(), results):
+    for (name, _), result in zip(tasks.items(), results, strict=False):
         if isinstance(result, Exception) or not result:
             continue
         views[name] = result
@@ -121,7 +121,7 @@ async def embed_views(
             return []
 
     embeds = await asyncio.gather(*[_embed_one(t) for t in texts])
-    return {n: v for n, v in zip(names, embeds) if v}
+    return {n: v for n, v in zip(names, embeds, strict=False) if v}
 
 
 def consistency_score(view_embeddings: dict[str, list[float]]) -> float:

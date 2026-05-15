@@ -15,15 +15,14 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
-import uuid
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from loguru import logger
 
-from src.services.consistency import process_batch_consistency
 from src.services.chunk_quality import filter_chunks_by_quality
+from src.services.consistency import process_batch_consistency
 from src.services.domain_tagger import tag_chunk
 from src.services.format_router import route_and_chunk
 from src.services.kg import (
@@ -126,13 +125,14 @@ async def ingest_document_v2(
     Returns IngestResult-like dict with rich metrics + per-stage timings (ms).
     """
     import time as _time
+
     from src.config import get_settings
 
     settings = get_settings()
 
     doc_hash = _doc_hash(content)
     doc_id = f"doc_{doc_hash}"
-    started = datetime.now(timezone.utc)
+    started = datetime.now(UTC)
     stage_ms: dict[str, float] = {}
     _stage_t0 = _time.monotonic()
 
@@ -284,7 +284,7 @@ async def ingest_document_v2(
 
     # 6b. Phase 6a: CQC chunk quality filter (after entity extraction so we have entity counts)
     entity_counts: dict[str, int] = {
-        c["id"]: len(ents) for c, (ents, _) in zip(chunks, entity_results)
+        c["id"]: len(ents) for c, (ents, _) in zip(chunks, entity_results, strict=False)
     }
     chunks, cqc_rejected = filter_chunks_by_quality(
         chunks,
@@ -298,11 +298,13 @@ async def ingest_document_v2(
             logger.debug(f"[V2] CQC reject: {rc.get('id')} — {rc.get('quality_reasons', [])[:2]}")
     # Re-align entity_results with filtered chunks
     kept_ids = {c["id"] for c in chunks}
-    entity_results = [er for er, c in zip(entity_results, chunks) if c["id"] in kept_ids]
+    entity_results = [
+        er for er, c in zip(entity_results, chunks, strict=False) if c["id"] in kept_ids
+    ]
     _mark("cqc_filter")
 
     # 7. Domain tagging — tag each chunk with 8-axis semantic distribution
-    for c, (ents, _) in zip(chunks, entity_results):
+    for c, (ents, _) in zip(chunks, entity_results, strict=False):
         dd = tag_chunk(
             text=c["text"],
             entities=ents,
@@ -350,7 +352,7 @@ async def ingest_document_v2(
     async def _neo4j_writes():
         total_e = 0
         total_r = 0
-        for c, (ents, rels) in zip(chunks, entity_results):
+        for c, (ents, rels) in zip(chunks, entity_results, strict=False):
             try:
                 await upsert_chunk_and_entities(
                     clients.neo4j,
@@ -397,7 +399,7 @@ async def ingest_document_v2(
         "avg_consistency_score": avg_consistency,
         "entities_extracted": entities_extracted,
         "relationships_extracted": relationships_extracted,
-        "duration_seconds": (datetime.now(timezone.utc) - started).total_seconds(),
+        "duration_seconds": (datetime.now(UTC) - started).total_seconds(),
         "stage_ms": stage_ms,
     }
 

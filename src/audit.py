@@ -2,9 +2,11 @@
 
 import json
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
+
+from loguru import logger
 
 
 class AuditEvent(str, Enum):
@@ -50,7 +52,7 @@ class AuditLogger:
     ) -> None:
         record = {
             "event": event.value if isinstance(event, AuditEvent) else event,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "tenant_id": tenant_id,
             "user_id": user_id,
             "api_key_id": api_key_id,
@@ -92,7 +94,7 @@ class AuditLogger:
             log_dir = os.path.expanduser("~/.rag/audit")
             os.makedirs(log_dir, exist_ok=True)
             log_file = os.path.join(
-                log_dir, f"audit_{datetime.now(timezone.utc).strftime('%Y-%m-%d')}.jsonl"
+                log_dir, f"audit_{datetime.now(UTC).strftime('%Y-%m-%d')}.jsonl"
             )
             with open(log_file, "a") as f:
                 for record in records:

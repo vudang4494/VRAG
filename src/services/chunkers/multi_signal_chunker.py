@@ -20,7 +20,6 @@ from loguru import logger
 
 from src.services.chunkers.base import BaseChunker, ChunkUnit
 
-
 # ── Vietnamese + English discourse markers ────────────────────────────────────
 _DISCOURSE_MARKERS_VI = [
     r"\bTuy nhiên\b",
@@ -193,7 +192,7 @@ class MultiSignalChunker(BaseChunker):
         # S1: semantic drop (if embeddings available)
         if self.http and self.embed_url:
             try:
-                from src.services.embedding import embed_batch, cosine_similarity
+                from src.services.embedding import cosine_similarity, embed_batch
 
                 embs = await embed_batch(
                     self.http,

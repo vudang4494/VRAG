@@ -23,13 +23,12 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
-import sys
 import time
+from datetime import UTC
 from pathlib import Path
 from typing import Any
 
 import httpx
-
 
 # ── Semantic threshold (was 0.65, now 0.45 — P3 fix)
 SEMANTIC_THRESHOLD = 0.45
@@ -70,7 +69,7 @@ async def embed_single(
 def cosine_similarity(a: list[float], b: list[float]) -> float:
     import math
 
-    dot = sum(x * y for x, y in zip(a, b))
+    dot = sum(x * y for x, y in zip(a, b, strict=False))
     norm_a = math.sqrt(sum(x * x for x in a))
     norm_b = math.sqrt(sum(x * x for x in b))
     if norm_a == 0 or norm_b == 0:
@@ -111,8 +110,10 @@ async def kw_hit_ratio(
             ans_emb,
         )
 
+        for kw_results in [kw_results]:  # noqa: B007, B020
+            pass
         kw_embeds: list[tuple[str, list[float]]] = []
-        for kw, result in zip(keywords, kw_results):
+        for kw, result in zip(keywords, kw_results, strict=False):
             if isinstance(result, Exception) or result is None:
                 kw_embeds.append((kw, []))
             else:
@@ -122,7 +123,7 @@ async def kw_hit_ratio(
             lit = sum(1 for d in breakdown if d["hit_type"] == "literal")
             return lit / len(keywords), breakdown
 
-        for i, (kw, kw_emb) in enumerate(kw_embeds):
+        for i, (_kw, kw_emb) in enumerate(kw_embeds):
             sim = 0.0
             if kw_emb and ans_emb:
                 sim = cosine_similarity(kw_emb, ans_emb)
@@ -297,7 +298,7 @@ async def run_eval(args) -> None:
         miss = sum(1 for d in all_bd if d["hit_type"] == "missed") / max(len(all_bd), 1)
         kw_hit_rate = lit + sem
 
-        print(f"\nC1_v3_standard (validation=OFF, retries=0, fresh_client)")
+        print("\nC1_v3_standard (validation=OFF, retries=0, fresh_client)")
         print(f"  OK={len(ok)}/{len(results)}  ERR={len(err)}")
         print(f"  p50_latency={p50 / 1000:.1f}s  p95_latency={p95 / 1000:.1f}s")
         print(f"  avg_doc_recall={avg_doc:.1%}")
@@ -416,6 +417,6 @@ if __name__ == "__main__":
     if not args.output:
         from datetime import datetime as _d
 
-        args.output = f"eval/results/clean_eval_{_d.now().strftime('%Y%m%d_%H%M%S')}.json"
+        args.output = f"eval/results/clean_eval_{_d.now(UTC).strftime('%Y%m%d_%H%M%S')}.json"
 
     asyncio.run(run_eval(args))

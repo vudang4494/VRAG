@@ -15,8 +15,8 @@ Endpoints live under /api/v3 (see api/routes_v3.py for the full V3 surface):
 Root-level endpoints kept: /health, /metrics (Prometheus), /api/metrics (JSON).
 """
 
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse, Response

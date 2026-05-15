@@ -20,8 +20,6 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from loguru import logger
-
 # BGE-M3 cosine similarity thresholds for relevance detection.
 # These are empirically derived from eval runs on the academic corpus.
 _RELEVANCE_HIGH = 0.70  # Top score above this → definitely in-domain

@@ -20,7 +20,6 @@ from typing import Any
 
 from loguru import logger
 
-
 _REWRITE_PROMPT = """Viết lại câu hỏi sau cho rõ ràng và đầy đủ hơn, vẫn giữ nguyên ý.
 Không thêm thông tin mới. Trả lời CHỈ với câu hỏi đã viết lại, không giải thích.
 
@@ -171,14 +170,14 @@ async def understand_query(
     gathered = asyncio.gather(*tasks.values(), return_exceptions=True)
     try:
         results = await asyncio.wait_for(gathered, timeout=timeout)
-    except asyncio.TimeoutError:
+    except TimeoutError:
         gathered.cancel()
         logger.warning(f"Query understanding timeout for: {query[:80]}")
         results = [None] * len(tasks)
 
     keys = list(tasks.keys())
     out: dict[str, Any] = {"original": query}
-    for k, r in zip(keys, results):
+    for k, r in zip(keys, results, strict=False):
         if isinstance(r, Exception) or r is None:
             out[k] = "" if k != "decompose" else (False, [])
         else:

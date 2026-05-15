@@ -5,8 +5,6 @@ Output: ChunkUnit list with page_num + heading_path metadata when possible.
 
 from __future__ import annotations
 
-from typing import Any
-
 from loguru import logger
 
 from src.services.chunkers.base import BaseChunker, ChunkUnit
@@ -107,6 +105,7 @@ class PDFChunker(BaseChunker):
 
     def _parse_pypdf(self, content: bytes) -> list[tuple[int, str]]:
         from io import BytesIO
+
         from pypdf import PdfReader
 
         reader = PdfReader(BytesIO(content))

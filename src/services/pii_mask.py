@@ -12,7 +12,6 @@ from typing import Any
 
 from loguru import logger
 
-
 # Regex patterns — Việt Nam centric
 _PHONE_VN = re.compile(r"(?<!\d)(?:\+?84|0)(?:3[2-9]|5[6-9]|7[06-9]|8[1-9]|9[0-46-9])\d{7}(?!\d)")
 _EMAIL = re.compile(r"\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\b")

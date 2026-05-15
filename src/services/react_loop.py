@@ -32,7 +32,6 @@ from typing import Any
 
 from loguru import logger
 
-
 _THOUGHT_PROMPT = """Bạn là agent AI giúp trả lời câu hỏi qua việc khám phá knowledge graph.
 
 Câu hỏi gốc: {query}
@@ -285,7 +284,6 @@ async def _decide_next_action_retry(
     retries: int = 1,
 ) -> dict[str, Any]:
     """Retry wrapper for _decide_next_action with limited retries."""
-    import asyncio
 
     for attempt in range(retries + 1):
         result = await _decide_next_action(query, history, chunks_collected, model)

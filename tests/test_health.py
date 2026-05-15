@@ -5,7 +5,6 @@ import subprocess
 import httpx
 import pytest
 
-
 BASE = "http://localhost"
 
 SERVICES = {

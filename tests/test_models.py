@@ -3,8 +3,6 @@
 import time
 
 import httpx
-import pytest
-
 
 OLLAMA = "http://localhost:11434"
 
@@ -176,7 +174,7 @@ class TestEmbedding:
         r1 = httpx.post(f"{OLLAMA}/api/embeddings", json=p1, timeout=30).json()["embedding"]
         r2 = httpx.post(f"{OLLAMA}/api/embeddings", json=p2, timeout=30).json()["embedding"]
 
-        dot = sum(a * b for a, b in zip(r1, r2))
+        dot = sum(a * b for a, b in zip(r1, r2, strict=False))
         n1 = sum(a * a for a in r1) ** 0.5
         n2 = sum(b * b for b in r2) ** 0.5
         sim = dot / (n1 * n2)

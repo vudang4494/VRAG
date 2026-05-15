@@ -1,8 +1,9 @@
 """Langfuse tracing integration for RAG operations."""
 
 import time
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Any, AsyncIterator
+from typing import Any
 
 from loguru import logger
 
@@ -29,6 +30,7 @@ class RAGTracer:
     def _check(self) -> None:
         try:
             from langfuse import Langfuse
+
             from src.config import get_settings
 
             settings = get_settings()
