@@ -599,11 +599,6 @@ async def multi_path_retrieve(
         res = results[idx]
         if not isinstance(res, Exception):
             paths["entity_pivot"] = res
-            # Record supernode traversal metric
-            from src.metrics import get_metrics
-            m = get_metrics()
-            m.record_supernode_traversal(1)
-
     # Normalize scores per format BEFORE RRF
     all_cands: list[dict] = []
     for v in paths.values():

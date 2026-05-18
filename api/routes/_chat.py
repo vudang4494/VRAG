@@ -103,7 +103,6 @@ async def chat(body: dict[str, Any]):
         clients.llm,
         model=settings.ollama_model,
         timeout=settings.query_understanding_timeout_s,
-        query_type=query_type,
     )
     latency["query_understanding_ms"] = (time.monotonic() - t0) * 1000
 
@@ -135,7 +134,7 @@ async def chat(body: dict[str, Any]):
     for attempt in range(max_retries + 1):
         # 2. Multi-path retrieval
         t0 = time.monotonic()
-        top_k_per_path = settings.retrieval_path_top_k * (1 + attempt)
+        top_k_per_path = settings.retrieval_v2_path_top_k * (1 + attempt)
         candidates = await multi_path_retrieve(
             understanding,
             clients,
