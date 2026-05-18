@@ -81,6 +81,13 @@ _MULTI_HOP_PATTERNS = [
     r"sự khác biệt",
     # "cái gì" after mentioning two things
     r"gì$",
+    # "cái nào" — comparison/choice questions → multi-hop ReAct
+    r"cái nào",
+    r"nào.*hơn",
+    r"nào.*tốt hơn",
+    r"nào.*hiệu quả hơn",
+    r"nào.*đạt",
+    r"đánh giá.*nào",
     # "đều là" — multiple things with shared property
     r"đều là",
     # "liên quan" — relationship questions

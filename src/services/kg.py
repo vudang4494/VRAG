@@ -161,6 +161,28 @@ async def canonicalize_entities(
     return canonical_entities
 
 
+def canonicalize_relationships(rels: list[dict], canonical_map: dict[str, str]) -> list[dict]:
+    """
+    Replace entity names in relationship source/target with canonical forms.
+
+    Args:
+        rels: list of relationship dicts with 'source' and 'target' keys.
+        canonical_map: mapping from variant name -> canonical name.
+
+    Returns:
+        rels with source/target replaced.
+    """
+    result = []
+    for rel in rels:
+        new_rel = dict(rel)
+        src = rel.get("source", "")
+        tgt = rel.get("target", "")
+        new_rel["source"] = canonical_map.get(src, src)
+        new_rel["target"] = canonical_map.get(tgt, tgt)
+        result.append(new_rel)
+    return result
+
+
 async def extract_entities_and_relations(
     text: str,
     llm: Any,  # kept for backward compat; ignored — uses Ollama native helper
