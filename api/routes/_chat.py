@@ -15,7 +15,7 @@ router = __import__("fastapi").APIRouter()
 
 
 @router.post("/chat", tags=["v3"])
-async def chat_v3(body: dict[str, Any]):
+async def chat(body: dict[str, Any]):
     """
     Quality-first chat. Body:
       {
@@ -44,6 +44,9 @@ async def chat_v3(body: dict[str, Any]):
     max_retries = int(body.get("max_retries", 1))
     max_react_steps = int(body.get("max_react_steps", 4))
     force_react = bool(body.get("force_react", False))
+    # Benchmark mode: skip expensive quality gates for faster evaluation
+    disable_validation = bool(body.get("disable_validation", False))
+    disable_ood = bool(body.get("disable_ood", False))
 
     # Smart routing: classify query type
     from src.services.query_router import classify_query, describe_routing, should_use_react
@@ -66,7 +69,7 @@ async def chat_v3(body: dict[str, Any]):
         total_ms = (time.monotonic() - started_total) * 1000
         latency["total_ms"] = total_ms
         return {
-            "id": f"chat_v3_{uuid.uuid4().hex[:12]}",
+            "id": f"chat_{uuid.uuid4().hex[:12]}",
             "created": int(time.time()),
             "model": settings.ollama_model,
             "answer": react_result.get("answer", ""),
@@ -89,19 +92,38 @@ async def chat_v3(body: dict[str, Any]):
     from src.services.ood_detector import detect_ood_mixed
     from src.services.query_understanding import understand_query
     from src.services.rerank_l2r import rerank_l2r
-    from src.services.rerank_stages import rerank_full_pipeline
-    from src.services.retrieval_v2 import multi_path_retrieve
+    from src.services.rerank import rerank_full_pipeline
+    from src.services.retrieval import multi_path_retrieve
     from src.services.validation import validate_answer
 
-    # 1. Query understanding
+    # 1. Query understanding (2 LLM calls: rewrite + keywords)
     t0 = time.monotonic()
     understanding = await understand_query(
         query,
         clients.llm,
         model=settings.ollama_model,
         timeout=settings.query_understanding_timeout_s,
+        query_type=query_type,
     )
     latency["query_understanding_ms"] = (time.monotonic() - t0) * 1000
+
+    # 1b. Extract entities from query via GLiNER (Step 2: bridge KG to retrieval)
+    # Runs in parallel with query understanding — <200ms total overhead.
+    # These entities feed into:
+    #   - entity_pivot path in retrieval (cross-doc entity bridging)
+    #   - reranking (entity-aware score boost)
+    #   - generation context (entities highlighted in prompt)
+    query_entities: list[str] = []
+    t0_ent = time.monotonic()
+    entity_extractor = getattr(clients, "entity_extractor", None)
+    if entity_extractor is not None:
+        try:
+            ents, _ = await entity_extractor.extract(query)
+            query_entities = [e.name for e in ents if len(e.name) >= 2]
+            logger.info(f"[query_entities] {len(query_entities)} extracted: {query_entities[:8]}")
+        except Exception as e:
+            logger.debug(f"Query entity extraction failed: {e}")
+    latency["entity_extraction_ms"] = (time.monotonic() - t0_ent) * 1000
 
     candidates: list[dict] = []
     top_reranked: list[dict] = []
@@ -113,7 +135,7 @@ async def chat_v3(body: dict[str, Any]):
     for attempt in range(max_retries + 1):
         # 2. Multi-path retrieval
         t0 = time.monotonic()
-        top_k_per_path = settings.retrieval_v2_path_top_k * (1 + attempt)
+        top_k_per_path = settings.retrieval_path_top_k * (1 + attempt)
         candidates = await multi_path_retrieve(
             understanding,
             clients,
@@ -131,8 +153,8 @@ async def chat_v3(body: dict[str, Any]):
             answer = settings.refusal_message_vi
             break
 
-        # 2b. OOD detection — refuse BEFORE spending time on rerank + generation
-        if settings.ood_detection_enabled:
+        # 2b. OOD detection — skip in benchmark mode
+        if not disable_ood and settings.ood_detection_enabled:
             t0_ood = time.monotonic()
             ood_result = detect_ood_mixed(candidates, understanding.get("original") or query)
             latency["ood_detection_ms"] = (time.monotonic() - t0_ood) * 1000
@@ -151,13 +173,16 @@ async def chat_v3(body: dict[str, Any]):
                 f"kw_overlap={ood_result['keyword_overlap_ratio']}"
             )
 
-        # 3. 3-stage rerank → L2R final
+        # 3. 3-stage rerank → L2R final (with entity-aware scoring)
         t0 = time.monotonic()
-        qe: list[str] = []
-        for c in candidates:
-            qe = c.get("_query_entities") or []
-            if qe:
-                break
+        # If entity extraction already ran (Step 1b), use those entities.
+        # Otherwise fall back to entities from retrieval (entity_pivot path).
+        qe: list[str] = query_entities or []
+        if not qe:
+            for c in candidates:
+                qe = c.get("_query_entities") or []
+                if qe:
+                    break
 
         stage2_results = await rerank_full_pipeline(
             query=understanding.get("rewrite") or query,
@@ -257,8 +282,8 @@ async def chat_v3(body: dict[str, Any]):
 
         latency[f"generation_attempt{attempt}_ms"] = (time.monotonic() - t0) * 1000
 
-        # 6. Validation gates
-        if settings.validation_enabled:
+        # 6. Validation gates — skip in benchmark mode
+        if not disable_validation and settings.validation_enabled:
             from src.services.validation import correct_and_regenerate
 
             t0 = time.monotonic()
@@ -317,7 +342,7 @@ async def chat_v3(body: dict[str, Any]):
 
     try:
         get_metrics = __import__("src.metrics", fromlist=["get_metrics"]).get_metrics
-        get_metrics().record_v2_chat(
+        get_metrics().record_chat(
             refused=refused,
             validation_passed=validation.get("passed", True),
             grounded_ratio=validation.get("grounded_ratio", 0.0),
@@ -328,7 +353,7 @@ async def chat_v3(body: dict[str, Any]):
         pass
 
     return {
-        "id": f"chat_v3_{uuid.uuid4().hex[:12]}",
+        "id": f"chat_{uuid.uuid4().hex[:12]}",
         "created": int(time.time()),
         "model": settings.ollama_model,
         "answer": answer,

@@ -17,7 +17,7 @@ def format_context(candidates: list[dict]) -> str:
     if not candidates:
         return ""
 
-    # Pull query entities (set by retrieval_v2 on each candidate)
+    # Pull query entities (set by retrieval on each candidate)
     query_entities: list[str] = []
     for c in candidates:
         qe = c.get("_query_entities")
@@ -80,8 +80,8 @@ async def run_retrieval_and_rerank(
     """
     from src.services.query_understanding import understand_query
     from src.services.rerank_l2r import rerank_l2r
-    from src.services.rerank_stages import rerank_full_pipeline
-    from src.services.retrieval_v2 import multi_path_retrieve
+    from src.services.rerank import rerank_full_pipeline
+    from src.services.retrieval import multi_path_retrieve
 
     latency: dict[str, float] = {}
 
@@ -101,7 +101,7 @@ async def run_retrieval_and_rerank(
     for attempt in range(max_retries + 1):
         # Multi-path retrieval
         t0 = time.monotonic()
-        top_k_per_path = settings.retrieval_v2_path_top_k * (1 + attempt)
+        top_k_per_path = settings.retrieval_path_top_k * (1 + attempt)
         candidates = await multi_path_retrieve(
             understanding,
             clients,
@@ -181,6 +181,10 @@ def build_sources_out(
             "final_score": c.get("final_score"),
             "consistency_score": c.get("consistency_score"),
             "judge_reason": c.get("judge_reason"),
+            # GraphRAG paths — essential for benchmarking
+            "retrieval_path": c.get("retrieval_path"),
+            "matched_entities": c.get("matched_entities") or [],
+            "entity_match_count": c.get("entity_match_count"),
         }
         for c in top_reranked[:final_top_k]
     ]

@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
-from src.services.ingestion_v2 import ingest_document_v2
+from src.services.ingestion import ingest_document
 
 router = APIRouter()
 
@@ -26,7 +26,7 @@ async def ingest_upload_v3(
     fname = filename or file.filename or "upload"
     clients_get = __import__("src.clients", fromlist=["get_clients"]).get_clients
     clients = clients_get()
-    result = await ingest_document_v2(
+    result = await ingest_document(
         content=content,
         filename=fname,
         clients=clients,

@@ -15,7 +15,7 @@ router = APIRouter()
 
 
 @router.post("/chat/stream", tags=["v3"])
-async def chat_v3_stream(body: dict[str, Any]):
+async def chat_stream(body: dict[str, Any]):
     """
     Streaming chat via Server-Sent Events (SSE).
 
@@ -64,13 +64,14 @@ async def chat_v3_stream(body: dict[str, Any]):
                 clients.llm,
                 model=settings.ollama_model,
                 timeout=settings.query_understanding_timeout_s,
+                query_type="factual",  # streaming uses standard pipeline; query_type irrelevant
             )
             latency["query_understanding_ms"] = (time.monotonic() - t0) * 1000
 
             # 2. Retrieval
             from src.services.rerank_l2r import rerank_l2r
-            from src.services.rerank_stages import rerank_full_pipeline
-            from src.services.retrieval_v2 import multi_path_retrieve
+            from src.services.rerank import rerank_full_pipeline
+            from src.services.retrieval import multi_path_retrieve
 
             t0 = time.monotonic()
             candidates = await multi_path_retrieve(
@@ -79,7 +80,7 @@ async def chat_v3_stream(body: dict[str, Any]):
                 tenant_id=tenant_id,
                 format_filter=format_filter,
                 access_levels=access_levels,
-                top_k_per_path=settings.retrieval_v2_path_top_k,
+                top_k_per_path=settings.retrieval_path_top_k,
                 final_top_k=settings.rerank_stage1_top_k,
             )
             latency["retrieval_ms"] = (time.monotonic() - t0) * 1000
@@ -236,7 +237,7 @@ async def chat_v3_stream(body: dict[str, Any]):
             try:
                 metrics_get = __import__("src.metrics", fromlist=["get_metrics"]).get_metrics
                 get_metrics = metrics_get()
-                get_metrics.record_v2_chat(
+                get_metrics.record_chat(
                     refused=not validation.get("passed", True),
                     validation_passed=validation.get("passed", True),
                     grounded_ratio=validation.get("grounded_ratio", 0.0),
