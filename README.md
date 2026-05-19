@@ -4,7 +4,7 @@
 
 ### Vector-Centric Hybrid GraphRAG — runs 100% locally
 
-*Quality-first Retrieval-Augmented Generation with Knowledge Graphs, community summaries, and triple-gate hallucination defense.*
+*Quality-first Retrieval-Augmented Generation with Knowledge Graphs, community summaries, and triple-gate validation that refuses to answer when retrieval is weak.*
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB.svg?logo=python&logoColor=white)](https://www.python.org)
@@ -28,7 +28,7 @@
 
 - **What:** Open-source Hybrid GraphRAG stack, designed for accuracy and data sovereignty over throughput.
 - **Where it runs:** Your machine. Apple Silicon (M-series) or x86 Linux. Docker Compose. No cloud calls.
-- **Who it's for:** Enterprises (especially Vietnamese) that need an LLM that won't hallucinate on their internal docs, with full audit + RBAC.
+- **Who it's for:** Enterprises (especially Vietnamese) that need a RAG that **refuses to answer when grounding is weak** instead of fabricating, with full audit + RBAC.
 
 ---
 
@@ -37,23 +37,24 @@
 1. [Why VRAG Exists](#why-vrag-exists)
 2. [Quick Start](#quick-start)
 3. [Use Cases](#use-cases)
-4. [Architecture](#architecture)
-5. [The 4-Tier Online Pipeline](#the-4-tier-online-pipeline)
-6. [Core Algorithms](#core-algorithms)
-7. [Why VRAG vs Other RAG Systems](#why-vrag-vs-other-rag-systems)
-8. [Tech Stack](#tech-stack)
-9. [Configuration](#configuration)
-10. [Performance Tuning](#performance-tuning)
-11. [Project Layout](#project-layout)
-12. [API Reference](#api-reference)
-13. [Sample Query Walkthrough](#sample-query-walkthrough)
-14. [Evaluation & Benchmarks](#evaluation--benchmarks)
-15. [Deployment](#deployment)
-16. [Troubleshooting / FAQ](#troubleshooting--faq)
-17. [Roadmap](#roadmap)
-18. [Contributing](#contributing)
-19. [Citation](#citation)
-20. [License & Acknowledgments](#license)
+4. [Limitations & Caveats](#limitations--caveats) — read this before evaluating
+5. [Architecture](#architecture)
+6. [The 4-Tier Online Pipeline](#the-4-tier-online-pipeline)
+7. [Core Algorithms](#core-algorithms)
+8. [Why VRAG vs Other RAG Systems](#why-vrag-vs-other-rag-systems)
+9. [Tech Stack](#tech-stack)
+10. [Configuration](#configuration)
+11. [Performance Tuning](#performance-tuning)
+12. [Project Layout](#project-layout)
+13. [API Reference](#api-reference)
+14. [Sample Query Walkthrough](#sample-query-walkthrough)
+15. [Evaluation & Benchmarks](#evaluation--benchmarks)
+16. [Deployment](#deployment)
+17. [Troubleshooting / FAQ](#troubleshooting--faq)
+18. [Roadmap](#roadmap)
+19. [Contributing](#contributing)
+20. [Citation](#citation)
+21. [License & Acknowledgments](#license)
 
 ---
 
@@ -65,11 +66,11 @@ For most consumer use cases, that's acceptable. For **regulated, enterprise, Vie
 
 **The VRAG answer.** Three commitments shape every design decision:
 
-1. **Refuse over hallucinate.** Triple-Gate validation rejects answers that aren't grounded in retrieved chunks. The user sees an explicit "I don't know" instead of a fabricated answer.
+1. **Refuse-when-uncertain over confabulate.** Triple-Gate validation (hallucination + entity + citation) rejects answers below configurable grounding thresholds. The user gets an explicit refusal instead of a fabricated answer. This **reduces hallucinations**; it does not eliminate them — the gates themselves use an LLM judge that can err.
 2. **Deterministic over probabilistic.** Wherever a centroid match, regex, or graph traversal can replace an LLM call, it does. Tier 1 of the query pipeline runs zero LLM calls.
 3. **Graph + vector, not graph or vector.** Multi-hop reasoning needs the knowledge graph. Semantic recall needs vectors. VRAG fuses both via score-weighted RRF and a hard-limit Cypher scope that prevents supernode traversal explosions.
 
-**The trade.** Strict validation + CPU-resident LLM = slower latency than managed RAG (Cohere, Pinecone). On CPU p95 is 100-150s; on GPU we project sub-15s. VRAG is built for use cases where **a slow correct answer beats a fast wrong one**.
+**The trade-off.** Strict validation + CPU-resident LLM = slower latency than managed RAG (Cohere, Pinecone). On CPU p95 is ~100-150s; on GPU we project sub-15s (not yet verified). VRAG is built for use cases where **a slow correct answer beats a fast wrong one**. Conversely, "refuse-when-uncertain" implies a higher refusal rate than naive RAG — that is the deliberate design choice, but it does mean **VRAG sometimes refuses queries where a less strict system would have answered correctly** (false refusals).
 
 ---
 
@@ -155,6 +156,57 @@ VRAG is **not the best fit** for:
 - Public consumer chatbot with millions of QPS (use managed Cohere/Vectara)
 - Real-time agentic web search (use LangGraph + browsing)
 - Pure semantic search without explainability (use Qdrant directly)
+- Corpora that change continuously throughout the day (VRAG indexes eagerly; see [§ Indexing Cost](#indexing-cost-trade-off))
+
+---
+
+## Limitations & Caveats
+
+VRAG is a focused project (1-person engineering team at time of writing), not a vendor-grade managed service. Be aware of:
+
+### Project maturity
+- **No production scale validation.** No public deployment with 100+ concurrent users / 100k+ docs / sustained QPS test. Reported numbers are from internal eval (50 Vietnamese queries / 13k chunks).
+- **No formal benchmark on standard RAG datasets.** No RAGAS / GraphRAG-Bench / BEIR scores. Planned, not done. See [§ Roadmap](#roadmap).
+- **Limited eval breadth.** The Vietnamese 50-query benchmark is **self-designed** — there is risk of confirmation bias on what "good retrieval" means.
+
+### Methodological gaps
+- **No hyperparameter ablation.** Thresholds (`grounded_ratio=0.80`, `citation_ratio=0.40`, `early_exit=0.85`, path weights `entity_pivot=1.5`, `hyde=1.3`, etc.) were tuned heuristically on the 50-query set, not grid-searched. Transfer to other corpora is unproven.
+- **No ablation on 3-pass voting** for entity relation extraction. We assume 3 passes > 1 pass; not empirically verified.
+- **No multi-view recall ablation.** The "5 views improve recall ~15-25%" claim is from internal observation, not controlled comparison.
+
+### Architectural trade-offs (not bugs, choices to be aware of)
+- **Eager indexing, not lazy.** Each chunk gets 5 LLM-generated views + GLiNER entities + relation voting. For a 1000-doc corpus this is hours. *Approach diverges from Microsoft's [LazyGraphRAG](https://www.microsoft.com/en-us/research/blog/lazygraphrag-setting-a-new-standard-for-quality-and-cost/) (Q4 2024) and similar lazy/relation-free designs ([LinearRAG](https://arxiv.org/abs/2410.17221)) that defer work to query time.* The trade is: VRAG amortizes cost across queries; lazy designs amortize cost across the corpus. For mostly-static enterprise corpora with repeated queries, eager wins. For frequently-changing corpora, lazy wins.
+- **Triple-Gate validation uses LLM as judge.** The hallucination gate re-prompts the LLM to verify each claim. The judge model can itself misjudge. Mitigation: run gate at higher temperature than gen, use larger judge model when GPU available.
+- **False refusal rate is non-zero.** Internal eval shows ~13% of grounded queries refused (correctly-retrieved but validation gates rejected). Some of those are gate-too-strict; some are weak generation. Tunable via `VALIDATION_MIN_GROUNDED_RATIO`.
+- **Latency is poor on CPU.** ~80-150s p95 with Qwen 3.5 9B on M-series. Not viable for interactive chat at scale. GPU projection (10×) is engineering belief, not measured.
+
+### What's not implemented yet
+- **Multimodal**: text-only. No image / table extraction / chart understanding. Plan to use docling + ColPali; not done.
+- **Connector ecosystem**: no Google Drive / SharePoint / Confluence / Slack pull. Manual upload only.
+- **DSPy feedback loop**: thumbs-up/down captured by Langfuse but not wired into prompt/weight optimization.
+- **Canonicalization Tier 2 semantic** (vector dot product on entity embeddings + `apoc.refactor.mergeNodes` hard merge): only Tier 1 lexical exists. Graph will fragment when synonym pairs accumulate.
+
+### Indexing Cost Trade-Off
+
+VRAG indexes **once, eagerly**. Per-chunk cost at ingest:
+
+| Step | Cost | Configurable? |
+|---|---|---|
+| BGE-M3 dense embed | 1 embedding call | Always |
+| 4 LLM-generated views (paraphrase / question / summary / keywords) + embeds | 4 LLM + 4 embed calls | `CONSISTENCY_VIEWS_ENABLED=0` skips |
+| GLiNER entity extraction | 1 NER pass (~200ms CPU) | Always |
+| Relation extraction with N-pass voting | N × LLM calls | `ENTITY_VOTE_PASSES=1..N` |
+| Sparse BM25 | tokenize + index | Always |
+| Neo4j entity + relation upsert | Cypher writes | Always |
+
+Rough ingest cost (M-series, Qwen 9B, default config):
+- ~30-60 seconds per chunk
+- A 50-page PDF (~200 chunks at paragraph level) → 1.5-3 hours
+- A 1000-doc corpus → many hours to a day
+
+To accelerate, run **lean ingest**: `CONSISTENCY_VIEWS_ENABLED=0 ENTITY_VOTE_PASSES=1 PII_LLM_NER_ENABLED=0`. Cuts cost ~5×. Recall drops some (untested how much).
+
+For corpora that change daily, a lazy approach (LazyGraphRAG, LinearRAG) is likely a better fit than VRAG.
 
 ---
 
@@ -250,7 +302,7 @@ Optional LLM reformulations (`QUERY_REFORMULATIONS=1..5`) add: `rewrite`, `keywo
 
 ### Tier 2 — Vector-Driven Hard Limit (target <500ms)
 
-The defining innovation of VRAG. Naive entity-pivot Cypher on a supernode like "AI" matches 10k+ chunks and blows up. VRAG bounds the search:
+A distinguishing design choice. Naive entity-pivot Cypher on a supernode like "AI" matches 10k+ chunks and blows up. VRAG bounds the search:
 
 ```
 Phase 1 (parallel asyncio.gather):
@@ -312,7 +364,7 @@ If any gate fails:
 - `max_retries > 0`: regenerate with stricter prompt + tighter top-k
 - Otherwise: return the configured refusal message
 
-This is the single biggest USP vs other open-source RAG. **VRAG refuses to confabulate.**
+This is the most distinctive feature vs other open-source RAG. **VRAG aims to refuse rather than confabulate** — within the limits of the LLM judge that runs the gates (which can itself misjudge).
 
 ---
 
@@ -464,9 +516,9 @@ Aliases written as `ALIAS_OF` edges so the entity-pivot Cypher can follow them t
 
 ### Honest assessment
 
-VRAG **beats** academic SOTA (GraphRAG / LightRAG / HippoRAG) on architectural breadth — multi-view embeddings, zero-LLM router, triple-gate validation, LLMLingua compression are not combined anywhere else open-source.
+VRAG **combines** features that other open-source GraphRAG systems (GraphRAG / LightRAG / HippoRAG) implement individually: multi-view embeddings, zero-LLM router, triple-gate validation, LLMLingua compression. We have not verified this with head-to-head benchmarks on a common dataset — that's on the [Roadmap](#roadmap).
 
-VRAG **beats** managed services (Cohere / Pinecone) on data sovereignty, Vietnamese support, and multi-tenant RBAC depth.
+VRAG **differs from** managed services (Cohere / Pinecone) on data sovereignty, Vietnamese-first design, and multi-tenant RBAC depth — VRAG runs on-prem, managed services run in vendor cloud.
 
 VRAG **is behind** managed services on:
 - Latency on CPU (we project parity on GPU)
@@ -761,16 +813,15 @@ VRAG ships with a Vietnamese benchmark (50 queries × 5 intent types).
 | Intent classifier accuracy | ~90% | Some confusion factual ↔ comparison on borderline queries |
 | Cross-document `SIMILAR_TO` coverage | 73% | Of sampled chunks have similarity edges |
 
-### Performance vs other open-source RAG (Vietnamese 30Q eval)
+### Comparison with other open-source RAG
 
-| System | Doc recall avg | Refusal rate | p50 latency | Notes |
-|---|---:|---:|---:|---|
-| VRAG (default) | 62.9% | 13.3% | 82s | Strict validation, conservative refusal |
-| VRAG (low-recall mode) | 71.4% | 8.0% | 110s | `QUERY_REFORMULATIONS=3` |
-| LangChain RetrievalQA | 41.2% | 0% | 12s | Hallucinates on the 60% it misses |
-| LlamaIndex default | 48.6% | 0% | 18s | Same — speed at the cost of fabrication |
+We have **not yet run head-to-head benchmarks** against LangChain RetrievalQA / LlamaIndex / Microsoft GraphRAG on a common dataset. Earlier README versions included such numbers — they were illustrative, not measured, and have been removed. This is a known gap and is on the [Roadmap](#roadmap) as a blocking item for any "VRAG beats X" claim.
 
-The doc recall numbers favor VRAG-extended configurations; the p50 latency favors LangChain/LlamaIndex. **VRAG's value is the refusal rate** — when it answers, the answer is grounded.
+What we *can* say from the internal Vietnamese 50Q eval:
+- VRAG refuses ~13% of grounded queries (false refusal rate) — direct consequence of strict validation. A pure-vector RAG (no validation) would answer 100% of queries but with no grounding guarantee.
+- The trade-off is **deliberate** (refuse-when-uncertain) and **configurable** (lower `VALIDATION_MIN_GROUNDED_RATIO` to reduce refusals at the cost of more hallucinated answers).
+
+Standardized comparison requires RAGAS or GraphRAG-Bench on a public corpus. Until that lands, treat all comparison claims in this README as architectural ("VRAG has feature X that system Y doesn't") rather than empirical ("VRAG is N% better").
 
 Run your own:
 
@@ -937,9 +988,15 @@ For text-only RAG with no entity reasoning, no. But you lose: entity-pivot retri
 | 6 | DSPy feedback loop (👍/👎 → auto-tune) | 📋 Planned |
 | · | Multimodal ingest (table extraction, ColPali image+text) | 📋 Planned |
 | · | Canonicalization Tier 2 semantic merge (vector + APOC mergeNodes) | 📋 Planned |
-| · | RAGAS-standardized evaluation harness | 📋 Planned |
+| · | **RAGAS / GraphRAG-Bench standardized eval harness** | 📋 Planned — blocks production claims |
+| · | **Hyperparameter ablation** (validation thresholds, RRF path weights, early-exit cutoff) | 📋 Planned — blocks generalization claims |
+| · | **3-pass relation voting ablation** (vs 1-pass) | 📋 Planned — validate whether 3× LLM cost is justified |
+| · | **Multi-view embedding ablation** (5-view vs single-view recall delta) | 📋 Planned — validate the 15-25% claim |
+| · | **LazyGraphRAG comparison study** — eager (VRAG) vs lazy (Microsoft) on same corpus, measure index cost / query latency / quality trade-off | 📋 Planned |
+| · | **GPU verification** — measure actual GPU speedup (currently a projection, not measured) | 📋 Planned |
 | · | k8s manifests + Helm chart | 📋 Planned |
 | · | GitHub Actions CI (ruff + pytest on PR) | 📋 Planned |
+| · | Index cost benchmark (ingest 100 / 1k / 10k docs) on standardized hardware | 📋 Planned |
 
 ---
 
@@ -1006,7 +1063,7 @@ The Vietnamese RAG community has been invaluable — special thanks to everyone 
 
 <div align="center">
 
-**Built with care for the enterprises that can't afford to hallucinate.**
+**Built for use cases where a refused answer is preferable to a confabulated one.**
 
 [Report a bug](https://github.com/vudang4494/VRAG/issues) · [Request a feature](https://github.com/vudang4494/VRAG/issues) · [Discussions](https://github.com/vudang4494/VRAG/discussions)
 
