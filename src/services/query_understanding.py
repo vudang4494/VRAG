@@ -1,4 +1,4 @@
-"""Query Understanding — 6 reformulations + intent classification.
+"""Query Understanding — reformulations + intent classification + fast entity extraction.
 
 Cho mỗi user query, sinh ra:
 - original (passthrough)
@@ -7,8 +7,14 @@ Cho mỗi user query, sinh ra:
 - HyDE (sinh "câu trả lời giả định" để embed)
 - step-back (trừu tượng hóa)
 - keywords (cho sparse vector path)
+- intent (factual | analytical | comparison | multi_hop | kg_construction)
+- entities (GLiNER — fast, no LLM call)
+- reformulations (weighted list for multi-path retrieval)
 
-Cộng với intent classifier: factual | analytical | summarization | comparison.
+Cải tiến so với phiên bản cũ:
+- GLiNER thay LLM cho entity extraction: <100ms thay vì 3-10s
+- Intent classification chuyển sang query_router (semantic centroid matching)
+- Giữ nguyên reformulations LLM cho quality vì chúng cần reasoning
 """
 
 from __future__ import annotations
@@ -60,13 +66,15 @@ Câu hỏi: {query}
 
 Từ khóa:"""
 
-_INTENT_PROMPT = """Phân loại ý định của câu hỏi sau vào MỘT trong 4 loại:
+_INTENT_PROMPT = """Phân loại ý định của câu hỏi sau vào MỘT trong 5 loại:
 - factual: tìm thông tin cụ thể (số liệu, ngày tháng, tên, định nghĩa)
-- analytical: phân tích nguyên nhân/kết quả, suy luận multi-hop
+- analytical: phân tích nguyên nhân/kết quả, suy luận
 - summarization: tóm tắt, tổng hợp nhiều nguồn
 - comparison: so sánh 2+ đối tượng
+- multi_hop: suy luận qua nhiều bước, liên quan đến nhiều documents
+- kg_construction: hỏi về cấu trúc, schema, pipeline của knowledge graph
 
-Trả lời CHỈ một từ: factual, analytical, summarization, hoặc comparison.
+Trả lời CHỈ một từ: factual, analytical, summarization, comparison, multi_hop, hoặc kg_construction.
 
 Câu hỏi: {query}
 
@@ -85,13 +93,13 @@ async def _llm_text(llm: Any, model: str, prompt: str, max_tokens: int = 200) ->
     )
 
 
-async def rewrite_query(query: str, llm: Any, model: str = "qwen3.5:4b") -> str:
+async def rewrite_query(query: str, llm: Any, model: str = "qwen3.5:9b") -> str:
     text = await _llm_text(llm, model, _REWRITE_PROMPT.format(query=query), max_tokens=200)
     return text or query
 
 
 async def decompose_query(
-    query: str, llm: Any, model: str = "qwen3.5:4b"
+    query: str, llm: Any, model: str = "qwen3.5:9b"
 ) -> tuple[bool, list[str]]:
     raw = await _llm_text(llm, model, _DECOMPOSE_PROMPT.format(query=query), max_tokens=300)
     raw = re.sub(r"```(?:json)?\s*|\s*```", "", raw).strip()
@@ -104,22 +112,22 @@ async def decompose_query(
         return False, []
 
 
-async def hyde_generate(query: str, llm: Any, model: str = "qwen3.5:4b") -> str:
+async def hyde_generate(query: str, llm: Any, model: str = "qwen3.5:9b") -> str:
     text = await _llm_text(llm, model, _HYDE_PROMPT.format(query=query), max_tokens=300)
     return text or query
 
 
-async def step_back_query(query: str, llm: Any, model: str = "qwen3.5:4b") -> str:
+async def step_back_query(query: str, llm: Any, model: str = "qwen3.5:9b") -> str:
     text = await _llm_text(llm, model, _STEP_BACK_PROMPT.format(query=query), max_tokens=120)
     return text or query
 
 
-async def extract_keywords(query: str, llm: Any, model: str = "qwen3.5:4b") -> str:
+async def extract_keywords(query: str, llm: Any, model: str = "qwen3.5:9b") -> str:
     text = await _llm_text(llm, model, _KEYWORDS_PROMPT.format(query=query), max_tokens=100)
     return text or query
 
 
-async def classify_intent(query: str, llm: Any, model: str = "qwen3.5:4b") -> str:
+async def classify_intent(query: str, llm: Any, model: str = "qwen3.5:9b") -> str:
     raw = await _llm_text(llm, model, _INTENT_PROMPT.format(query=query), max_tokens=20)
     raw = raw.lower().strip()
     for kw in ("factual", "analytical", "summarization", "comparison"):
@@ -128,44 +136,111 @@ async def classify_intent(query: str, llm: Any, model: str = "qwen3.5:4b") -> st
     return "factual"
 
 
+# ── Fast entity extraction via GLiNER (no LLM call) ──────────────────────────────
+
+# Labels tuned for academic RAG: entities relevant to research papers
+_QUERY_ENTITY_LABELS = [
+    "technology",
+    "algorithm",
+    "metric",
+    "organization",
+    "person",
+    "dataset",
+    "product",
+    "concept",
+]
+
+_gliner_extractor: Any = None
+
+
+async def _get_gliner():
+    """Lazy-load GLiNER extractor on first use."""
+    global _gliner_extractor
+    if _gliner_extractor is not None:
+        return _gliner_extractor
+    try:
+        from src.services.entity_extractor import GLiNERExtractor
+
+        _gliner_extractor = GLiNERExtractor(
+            model_name="urchade/gliner_multi-v2.1",
+            labels=_QUERY_ENTITY_LABELS,
+            threshold=0.3,
+            max_chars=1500,
+        )
+        logger.info("GLiNER loaded for query-time entity extraction")
+    except Exception as e:
+        logger.warning(f"GLiNER entity extractor unavailable: {e}")
+        _gliner_extractor = None
+    return _gliner_extractor
+
+
+async def extract_entities_fast(query: str) -> list[str]:
+    """
+    Extract named entities from a user query via GLiNER.
+
+    Returns a list of entity name strings (deduplicated).
+    Runs in <100ms — no LLM call needed.
+    """
+    extractor = await _get_gliner()
+    if extractor is None:
+        return []
+    try:
+        ents, _ = await extractor.extract(query)
+        return [e.name for e in ents if e.confidence >= 0.3]
+    except Exception as e:
+        logger.debug(f"Fast entity extraction failed: {e}")
+        return []
+
+
 async def understand_query(
     query: str,
     llm: Any,
-    model: str = "qwen3.5:4b",
+    model: str = "qwen3.5:9b",
     timeout: float = 10.0,
 ) -> dict[str, Any]:
     """
-    Run all 6 reformulations + intent in parallel.
+    VRAG Tier 1: Zero-LLM Pre-processing.
+
+    By default runs ONLY zero-LLM signals in parallel:
+      - Task 1: BGE-M3 query embed (handled downstream in retrieval)
+      - Task 2: Semantic Router (centroid dot product, <1ms, no LLM)
+      - Task 3: GLiNER entity extract (<100ms, no LLM)
+
+    Optional LLM reformulations are opt-in via QUERY_REFORMULATIONS env var:
+      - 0 (default): zero-LLM, fastest
+      - 1: + rewrite
+      - 2: + keywords
+      - 3: + hyde
+      - 4: + decompose
+      - 5: + step_back (full menu)
 
     Returns:
       {
         "original": str,
-        "rewrite": str,
-        "decompose": {"is_multi_hop": bool, "sub_questions": [str]},
-        "hyde": str,
-        "step_back": str,
-        "keywords": str,
-        "intent": "factual|analytical|summarization|comparison",
+        "intent": str,
+        "entities": [str],
         "reformulations": [{"kind": ..., "text": ..., "weight": ...}],
+        ... (rewrite/keywords/hyde/decompose/step_back only if enabled)
       }
     """
-    # Tasks ordered by importance — front-load the cheap/critical ones so they
-    # complete even if later ones time out. With small LLMs (qwen3.5:4b),
-    # reducing reformulations saves significant latency.
     from src.config import get_settings as _gs
+    from src.services.query_router import classify_query
 
     _n = _gs().query_reformulations
-    all_tasks = [
-        ("intent", classify_intent(query, llm, model)),  # always
-        ("rewrite", rewrite_query(query, llm, model)),  # always
-        ("keywords", extract_keywords(query, llm, model)),  # always
-        ("hyde", hyde_generate(query, llm, model)),  # if n>=4
-        ("decompose", decompose_query(query, llm, model)),  # if n>=5
-        ("step_back", step_back_query(query, llm, model)),  # if n>=6
+
+    # Tier 1 always-on: GLiNER entity extraction (zero-LLM)
+    tasks: dict[str, Any] = {"entities": extract_entities_fast(query)}
+
+    # Opt-in LLM reformulations — ordered by retrieval impact
+    llm_optional = [
+        ("rewrite", rewrite_query(query, llm, model)),
+        ("keywords", extract_keywords(query, llm, model)),
+        ("hyde", hyde_generate(query, llm, model)),
+        ("decompose", decompose_query(query, llm, model)),
+        ("step_back", step_back_query(query, llm, model)),
     ]
-    # Always include intent classifier; cap other reformulations by config
-    selected = [all_tasks[0]] + all_tasks[1 : 1 + max(_n - 1, 0)]
-    tasks = dict(selected)
+    for kind, coro in llm_optional[:max(_n, 0)]:
+        tasks[kind] = coro
 
     gathered = asyncio.gather(*tasks.values(), return_exceptions=True)
     try:
@@ -179,7 +254,7 @@ async def understand_query(
     out: dict[str, Any] = {"original": query}
     for k, r in zip(keys, results, strict=False):
         if isinstance(r, Exception) or r is None:
-            out[k] = "" if k != "decompose" else (False, [])
+            out[k] = "" if k not in ("decompose", "entities") else ([], [])
         else:
             out[k] = r
 
@@ -187,6 +262,7 @@ async def understand_query(
         out.get("decompose") if isinstance(out.get("decompose"), tuple) else (False, [])
     )
 
+    # Reformulations list — always includes "original"; others only if produced
     reformulations = [{"kind": "original", "text": query, "weight": 1.0}]
     if out.get("rewrite"):
         reformulations.append({"kind": "rewrite", "text": out["rewrite"], "weight": 1.1})
@@ -200,8 +276,9 @@ async def understand_query(
         for sq in sub_qs[:2]:
             reformulations.append({"kind": "decompose", "text": sq, "weight": 1.1})
 
+    # Intent from semantic router — zero-LLM, <1ms
+    out["intent"] = classify_query(query)
     out["reformulations"] = reformulations
     out["is_multi_hop"] = is_multi_hop
-    # Ensure 'intent' always present (defaults to 'factual')
-    out["intent"] = out.get("intent") or "factual"
+    out["entities"] = out.get("entities") or []
     return out

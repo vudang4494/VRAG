@@ -1,7 +1,7 @@
-"""Tests cho Pipeline V2 modules.
+"""Tests cho VRAG pipeline modules.
 
 These are mostly UNIT tests — không cần stack chạy (trừ một số e2e marked).
-Chạy bằng: make test-v2  hoặc  pytest tests/test_pipeline_v2.py -v
+Chạy bằng: pytest tests/test_pipeline.py -v
 """
 
 from __future__ import annotations
@@ -193,19 +193,19 @@ def test_citation_gate_fails_when_uncited():
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# Vector V2
+# Vector
 # ════════════════════════════════════════════════════════════════════════════
 
 
 def test_to_int_id_deterministic():
-    from src.services.vector_v2 import to_int_id
+    from src.services.vector import to_int_id
 
     assert to_int_id("doc_abc::para::1") == to_int_id("doc_abc::para::1")
     assert to_int_id("doc_abc::para::1") != to_int_id("doc_abc::para::2")
 
 
 def test_normalize_scores_by_format():
-    from src.services.vector_v2 import normalize_scores_by_format
+    from src.services.vector import normalize_scores_by_format
 
     cands = [
         {"chunk_id": "1", "format": "pdf", "score": 0.9},
@@ -222,14 +222,14 @@ def test_normalize_scores_by_format():
 
 
 def test_level_factor():
-    from src.services.vector_v2 import level_factor
+    from src.services.vector import level_factor
 
     assert level_factor("section") > level_factor("paragraph") > level_factor("sentence")
     assert level_factor("document") < level_factor("paragraph")
 
 
 def test_consistency_factor():
-    from src.services.vector_v2 import consistency_factor
+    from src.services.vector import consistency_factor
 
     assert consistency_factor(0.9) == 1.2
     assert consistency_factor(0.7) == 1.0
@@ -237,12 +237,12 @@ def test_consistency_factor():
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# Retrieval V2 — RRF
+# Retrieval — RRF
 # ════════════════════════════════════════════════════════════════════════════
 
 
 def test_weighted_rrf_fusion():
-    from src.services.retrieval_v2 import weighted_rrf
+    from src.services.retrieval import weighted_rrf
 
     paths = {
         "original:dense": [
@@ -317,7 +317,7 @@ async def test_classify_intent_factual_keyword():
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# Models V2
+# Models
 # ════════════════════════════════════════════════════════════════════════════
 
 

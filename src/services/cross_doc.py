@@ -138,7 +138,7 @@ async def link_chunks_cross_doc(
     For each chunk (sampled), find top-K most similar chunks in OTHER documents
     via Qdrant vector search, then write SIMILAR_TO edges in Neo4j.
 
-    This complements the in-doc SIMILAR_TO from `_link_in_doc` (ingestion_v2).
+    This complements the in-doc SIMILAR_TO from `_link_in_doc` (ingestion).
     """
     from qdrant_client import models as qm
 
@@ -164,7 +164,7 @@ async def link_chunks_cross_doc(
     for chunk_id in chunks:
         # Get this chunk's dense vector + doc_id from Qdrant
         try:
-            from src.services.vector_v2 import to_int_id
+            from src.services.vector import to_int_id
 
             point_id = to_int_id(chunk_id)
             point = await qdrant_client.retrieve(

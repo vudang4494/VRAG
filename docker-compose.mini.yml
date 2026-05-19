@@ -174,7 +174,7 @@ services:
     environment:
       # LLM — Ollama runs on HOST (Metal GPU), not container
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
-      - OLLAMA_MODEL=qwen3.5:4b
+      - OLLAMA_MODEL=qwen3.5:9b
       - OLLAMA_EMBED_MODEL=bge-m3
       - OLLAMA_EMBED_URL=http://host.docker.internal:11434
       # Vector DB

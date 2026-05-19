@@ -72,7 +72,7 @@ class TestRAGAPIEndpoints:
         assert data["object"] == "list"
         assert len(data["data"]) >= 1
         model_ids = [m["id"] for m in data["data"]]
-        assert "qwen3.5:4b" in model_ids
+        assert "qwen3.5:9b" in model_ids
 
     def test_404_routes(self):
         r = httpx.get(f"{BASE}:8800/nonexistent", timeout=5)

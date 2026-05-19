@@ -339,7 +339,7 @@ class ChatMessage(BaseModel):
 
 
 class ChatCompletionRequest(BaseModel):
-    model: str = Field(default="qwen3.5:4b")
+    model: str = Field(default="qwen3.5:9b")
     messages: list[ChatMessage]
     temperature: Annotated[float, Field(ge=0.0, le=2.0)] = 0.3
     max_tokens: Annotated[int, Field(ge=1, le=16384)] = 2048

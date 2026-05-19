@@ -1,0 +1,88 @@
+{
+  "dataset": "vi_benchmark_new10",
+  "description": "New 10 queries for RAG corpus — less-used papers: AgenticRAG, ChunkRAG, AutoSchemaKG, Wikontic, ComposeRAG, FanOutQA, PERank, SetEncoder, KET-RAG, E5-Multilingual",
+  "tenant": "rag51",
+  "version": "1.0",
+  "queries": [
+    {
+      "q_id": "n01",
+      "query": "AgenticRAG khác gì so với standard RAG pipeline?",
+      "category": "comparison",
+      "expected_keywords": ["agent", "plan", "tool", "iterate", "memory"],
+      "expected_docs": ["AgenticRAG"],
+      "notes": "AgenticRAG adds agent loop to standard RAG"
+    },
+    {
+      "q_id": "n02",
+      "query": "ChunkRAG sử dụng phương pháp nào để filter hallucination trong retrieval?",
+      "category": "factual_local",
+      "expected_keywords": ["chunk", "semantic", "rerank", "score", "filter"],
+      "expected_docs": ["ChunkRAG"],
+      "notes": "ChunkRAG scores and filters chunks based on relevance"
+    },
+    {
+      "q_id": "n03",
+      "query": "AutoSchemaKG tự động xây dựng schema cho knowledge graph như thế nào?",
+      "category": "kg_construction",
+      "expected_keywords": ["schema", "ontology", "LLM", "entity type", "relation type"],
+      "expected_docs": ["AutoSchemaKG"],
+      "notes": "AutoSchemaKG uses LLM to infer schema from documents"
+    },
+    {
+      "q_id": "n04",
+      "query": "Wikontic kết hợp Wikipedia với RAG pipeline bằng cách nào?",
+      "category": "factual_local",
+      "expected_keywords": ["Wikipedia", "knowledge base", "entity linking", "contextual"],
+      "expected_docs": ["Wikontic"],
+      "notes": "Wikontic enriches RAG with Wikipedia entities"
+    },
+    {
+      "q_id": "n05",
+      "query": "ComposeRAG tổng hợp retrieval results từ nhiều sources ra sao?",
+      "category": "factual_local",
+      "expected_keywords": ["compose", "merge", "rank", "diversity", "ensemble"],
+      "expected_docs": ["ComposeRAG"],
+      "notes": "ComposeRAG combines multiple retrieval strategies"
+    },
+    {
+      "q_id": "n06",
+      "query": "FanOutQA xử lý questions cần suy luận qua nhiều hops như thế nào?",
+      "category": "multi_hop",
+      "expected_keywords": ["fan-out", "multi-hop", "entity", "path", "reasoning"],
+      "expected_docs": ["FanOutQA"],
+      "notes": "FanOutQA expands queries to multiple entities for multi-hop"
+    },
+    {
+      "q_id": "n07",
+      "query": "So sánh PERank với standard L2R reranking: ưu điểm của PERank là gì?",
+      "category": "comparison",
+      "expected_keywords": ["PERank", "pairwise", "listwise", "ranking", "distribution"],
+      "expected_docs": ["PERank"],
+      "notes": "PERank optimizes ranking with pairwise estimation"
+    },
+    {
+      "q_id": "n08",
+      "query": "SetEncoder khác biệt gì so với bi-encoder truyền thống trong retrieval?",
+      "category": "factual_local",
+      "expected_keywords": ["set", "order-invariant", "bi-encoder", "embedding", "collection"],
+      "expected_docs": ["SetEncoder"],
+      "notes": "SetEncoder produces embeddings for sets of documents"
+    },
+    {
+      "q_id": "n09",
+      "query": "KET-RAG sử dụng kiến thức như thế nào trong quá trình reasoning?",
+      "category": "factual_local",
+      "expected_keywords": ["knowledge", "triplet", "entity", "relation", "aware"],
+      "expected_docs": ["KET-RAG"],
+      "notes": "KET-RAG integrates knowledge triplets into LLM reasoning"
+    },
+    {
+      "q_id": "n10",
+      "query": "E5-Multilingual hỗ trợ bao nhiêu ngôn ngữ và hiệu suất ra sao?",
+      "category": "factual_local",
+      "expected_keywords": ["multilingual", "100+", "cross-lingual", "embedding", "bitext"],
+      "expected_docs": ["E5-Multilingual"],
+      "notes": "E5-Multilingual extends E5 to multilingual scenarios"
+    }
+  ]
+}

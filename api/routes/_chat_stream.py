@@ -164,6 +164,15 @@ async def chat_stream(body: dict[str, Any]):
 
             # 5. Stream generation
             context = format_context(top_reranked)
+
+            # VRAG Tier 3c: optional context compression before LLM gen
+            if settings.context_compression_enabled and context.strip():
+                from src.services.context_compress import compress_context
+
+                context, _stats = await compress_context(
+                    context, rate=settings.context_compression_rate
+                )
+
             prompt = DRAFT_PROMPT.format(
                 query=query,
                 outline="(streaming mode, no separate outline)",

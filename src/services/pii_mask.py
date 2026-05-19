@@ -82,7 +82,7 @@ async def _mask_llm_ner(
     text: str,
     mask_map: MaskMap,
     llm: Any,
-    model: str = "qwen3.5:4b",
+    model: str = "qwen3.5:9b",
     max_chars: int = 3000,
 ) -> str:
     """Use LLM to detect PERSON / ORGANIZATION / ADDRESS, then mask."""
@@ -134,7 +134,7 @@ async def _mask_llm_ner(
 async def mask_pii(
     text: str,
     llm: Any = None,
-    model: str = "qwen3.5:4b",
+    model: str = "qwen3.5:9b",
     use_llm_ner: bool = True,
     existing_map: MaskMap | None = None,
 ) -> tuple[str, MaskMap]:
@@ -159,7 +159,7 @@ async def mask_pii(
 async def mask_chunks(
     chunks: list[dict],
     llm: Any = None,
-    model: str = "qwen3.5:4b",
+    model: str = "qwen3.5:9b",
     use_llm_ner: bool = True,
 ) -> tuple[list[dict], MaskMap]:
     """

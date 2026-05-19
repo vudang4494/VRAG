@@ -45,7 +45,7 @@ help:
 	@echo ""
 	@echo "  === MODELS ==="
 	@echo "  make models          List available Ollama models"
-	@echo "  make pull-model      Pull a model (usage: make pull-model MODEL=qwen3.5:4b)"
+	@echo "  make pull-model      Pull a model (usage: make pull-model MODEL=qwen3.5:9b)"
 	@echo "  make preload-models  Pre-load LLM + embedding models into Ollama"
 	@echo ""
 	@echo "  === DATABASE INIT ==="
@@ -119,7 +119,7 @@ API_INTERNAL_KEY=$$(openssl rand -hex 32 2>/dev/null || python3 -c 'import secre
 WEBUI_SECRET_KEY=$$(openssl rand -base64 32 2>/dev/null || python3 -c 'import secrets; print(secrets.token_hex(32))')\n\
 GRAFANA_PASSWORD=$$(openssl rand -base64 12 2>/dev/null | tr -d '/+=' | cut -c1-16 || python3 -c 'import secrets; print(secrets.token_hex(12))')\n\
 \n\
-OLLAMA_MODEL=qwen3.5:4b\n\
+OLLAMA_MODEL=qwen3.5:9b\n\
 LOG_LEVEL=INFO\n\
 " > .env
 	@echo ".env created with auto-generated secrets."
@@ -192,12 +192,12 @@ models:
 	@curl -sS http://localhost:11434/api/tags | python3 -m json.tool 2>/dev/null || echo "Ollama not ready yet"
 
 pull-model:
-	@if [ -z "$(MODEL)" ]; then echo "Usage: make pull-model MODEL=qwen3.5:4b"; exit 1; fi
+	@if [ -z "$(MODEL)" ]; then echo "Usage: make pull-model MODEL=qwen3.5:9b"; exit 1; fi
 	docker compose exec ollama ollama pull $(MODEL)
 
 preload-models:
 	@echo "Pre-loading models into Ollama..."
-	@docker compose exec -d ollama sh -c "ollama pull qwen3.5:4b && ollama pull bge-m3"
+	@docker compose exec -d ollama sh -c "ollama pull qwen3.5:9b && ollama pull bge-m3"
 	@echo "Models pulling in background. Check: make logs-ollama"
 
 # ==============================================================================
@@ -287,7 +287,7 @@ test-llm:
 	@echo "Testing LLM chat via Ollama (host-native)..."
 	curl -sS http://localhost:11434/v1/chat/completions \
 		-H "Content-Type: application/json" \
-		-d '{"model":"qwen3.5:4b","messages":[{"role":"user","content":"Xin chào, bạn là ai?"}],"max_tokens":100}' \
+		-d '{"model":"qwen3.5:9b","messages":[{"role":"user","content":"Xin chào, bạn là ai?"}],"max_tokens":100}' \
 		| python3 -m json.tool 2>/dev/null || echo "FAILED — Ollama may still be loading models"
 
 test-embed:
@@ -308,7 +308,7 @@ test-rag-e2e:
 	@echo "End-to-end RAG test..."
 	curl -sS http://localhost:8800/v1/chat/completions \
 		-H "Content-Type: application/json" \
-		-d '{"model":"qwen3.5:4b","messages":[{"role":"user","content":"Enterprise AI la gi?"}],"max_tokens":200}' \
+		-d '{"model":"qwen3.5:9b","messages":[{"role":"user","content":"Enterprise AI la gi?"}],"max_tokens":200}' \
 		| python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('choices',[{}])[0].get('message',{}).get('content','NO RESPONSE'))" 2>/dev/null || echo "FAILED"
 
 # ==============================================================================
@@ -388,9 +388,9 @@ v2-init:
 	@bash scripts/init-qdrant.sh
 	@$(MAKE) init-neo4j
 
-v2-smoke:
-	@echo "═══ V2 end-to-end smoke test ═══"
-	$(PYTEST:pytest=python3) scripts/v2_smoke_test.py --api http://localhost:8800 --tenant default
+smoke:
+	@echo "═══ VRAG end-to-end smoke test ═══"
+	$(PYTEST:pytest=python3) scripts/smoke_test.py --api http://localhost:8800 --tenant default
 
 v2-eval:
 	@echo "═══ V2 eval against /api/v3/chat ═══"

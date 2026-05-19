@@ -21,12 +21,24 @@ ssl/*.crt
 logs/
 
 # ── Eval result dumps ───────────────────────────────────────────────────
-# track reports and ablation results, ignore large intermediate dumps
-!eval/results/
+# Track .md reports (proof of evaluation runs); ignore raw .json dumps + logs.
 eval/results/*.log
 eval/results/tmp_*
-# ignore large intermediate JSON but track final results
+eval/results/*.json
 *.eval.json
+
+# ── Large corpus / source documents (not for git) ───────────────────────
+# Research papers and ingest source files — too large to track. Document
+# how to obtain in README. Use volume mount or external storage.
+data/eval/*.pdf
+data/eval/*.docx
+data/eval/*.xlsx
+data/raw/
+
+# ── Local intent centroids (rebuild via scripts/build_intent_centroids.py) ─
+# Bundled into container image at build time; track the file once stable.
+# Uncomment to ignore if you rebuild frequently:
+# config/intent_centroids.npy
 
 # ── Python ──────────────────────────────────────────────────────────────
 __pycache__/

@@ -1,7 +1,7 @@
 FROM --platform=linux/arm64 python:3.12-slim
 
-LABEL maintainer="Enterprise RAG Team"
-LABEL description="Enterprise RAG API V3 — FastAPI + Hybrid GraphRAG + Ollama"
+LABEL maintainer="VRAG Team"
+LABEL description="VRAG API — FastAPI + Hybrid GraphRAG + Ollama"
 
 # ── System deps ───────────────────────────────────────────────────────────────
 # build-essential + libigraph-dev needed for native-extension packages
@@ -22,6 +22,7 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.
 # ── Source ────────────────────────────────────────────────────────────────────
 COPY src/ ./src/
 COPY api/ ./api/
+COPY config/ ./config/
 COPY pyproject.toml .
 
 # ── Non-root user ─────────────────────────────────────────────────────────────

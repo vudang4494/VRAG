@@ -133,7 +133,7 @@ async def generate_chunk_context(
     doc_name: str = "document",
     section: str = "section",
     llm: Any = None,
-    model: str = "qwen3.5:4b",
+    model: str = "qwen3.5:9b",
     max_context_tokens: int = 100,
 ) -> str:
     """

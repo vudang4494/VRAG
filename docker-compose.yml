@@ -320,7 +320,7 @@ services:
     environment:
       # LLM
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
-      - OLLAMA_MODEL=qwen3.5:4b
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen3.5:9b}
       - OLLAMA_EMBED_MODEL=bge-m3
       - OLLAMA_EMBED_URL=http://host.docker.internal:11434
       # Vector DB
@@ -342,16 +342,24 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - MAX_CONCURRENT_REQUESTS=8
       - REQUEST_TIMEOUT_S=180
-      # Pipeline V2 knobs (optional tuning via .env)
-      - PIPELINE_V2_ENABLED=${PIPELINE_V2_ENABLED:-0}
+      # VRAG pipeline knobs
+      # QUERY_REFORMULATIONS hardcoded=0 → zero-LLM Tier 1 (VRAG plan).
+      # Override .env to enforce zero-LLM regardless of user config.
+      # Change here (not .env) to raise reformulations: 0=zero-LLM, 1=+rewrite, 2=+keywords, 3=+hyde, 4=+decompose, 5=+step_back
+      - PIPELINE_V2_ENABLED=${PIPELINE_V2_ENABLED:-1}
       - ENTITY_VOTE_PASSES=${ENTITY_VOTE_PASSES:-3}
-      - QUERY_REFORMULATIONS=${QUERY_REFORMULATIONS:-3}
+      - QUERY_REFORMULATIONS=0
       - QUERY_UNDERSTANDING_TIMEOUT_S=${QUERY_UNDERSTANDING_TIMEOUT_S:-60}
       - GENERATION_DRAFTS=${GENERATION_DRAFTS:-1}
       - GENERATION_OUTLINE_ENABLED=${GENERATION_OUTLINE_ENABLED:-0}
       - GENERATION_JUDGE_ENABLED=${GENERATION_JUDGE_ENABLED:-0}
       - RERANK_STAGE1_ENABLED=${RERANK_STAGE1_ENABLED:-0}
       - RERANK_STAGE3_ENABLED=${RERANK_STAGE3_ENABLED:-0}
+      # VRAG Tier 3b: dynamic early-exit threshold. Stage1 avg conf >= this → skip stage3 LLM judge.
+      - RERANK_EARLY_EXIT_THRESHOLD=${RERANK_EARLY_EXIT_THRESHOLD:-0.85}
+      # VRAG Tier 3c: LLMLingua-2 context compression (~600MB model on first run).
+      - CONTEXT_COMPRESSION_ENABLED=${CONTEXT_COMPRESSION_ENABLED:-1}
+      - CONTEXT_COMPRESSION_RATE=${CONTEXT_COMPRESSION_RATE:-0.4}
       - COMMUNITY_ENABLED=${COMMUNITY_ENABLED:-0}
       - CONSISTENCY_VIEWS_ENABLED=${CONSISTENCY_VIEWS_ENABLED:-1}
       - PII_MASK_ENABLED=${PII_MASK_ENABLED:-1}
@@ -366,7 +374,7 @@ services:
       - ENTITY_EXTRACTOR_PROVIDER=${ENTITY_EXTRACTOR_PROVIDER:-gliner}
       - ENTITY_EXTRACTOR_MODEL=${ENTITY_EXTRACTOR_MODEL:-urchade/gliner_multi-v2.1}
       - ENTITY_EXTRACTOR_THRESHOLD=${ENTITY_EXTRACTOR_THRESHOLD:-0.5}
-      # Validation gate thresholds (tune for qwen3.5:4b reliability)
+      # Validation gate thresholds (tune for qwen3.5:9b reliability)
       - VALIDATION_MIN_GROUNDED_RATIO=${VALIDATION_MIN_GROUNDED_RATIO:-0.80}
       - VALIDATION_MAX_INVALID_ENTITIES=${VALIDATION_MAX_INVALID_ENTITIES:-2}
       - VALIDATION_MIN_CITATION_RATIO=${VALIDATION_MIN_CITATION_RATIO:-0.40}

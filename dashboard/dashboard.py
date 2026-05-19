@@ -280,7 +280,7 @@ CHAT_HISTORY: list[dict] = []
 async def chat_with_rag(
     message: str,
     api_key: str,
-    model: str = "qwen3.5:4b",
+    model: str = "qwen3.5:9b",
     temperature: float = 0.3,
     max_tokens: int = 1024,
     include_sources: bool = True,
@@ -596,8 +596,8 @@ def build_dashboard():
                             placeholder="Optional — uses default if empty",
                         )
                         model_sel = gr.Dropdown(
-                            choices=["qwen3.5:4b", "qwen3.5:9b", "llama3.1:8b"],
-                            value="qwen3.5:4b",
+                            choices=["qwen3.5:9b", "qwen3.5:4b", "llama3.1:8b"],
+                            value="qwen3.5:9b",
                             label="LLM Model",
                         )
                         temp_slider = gr.Slider(0.0, 1.5, value=0.3, step=0.1, label="Temperature")
@@ -686,13 +686,13 @@ def build_dashboard():
                 )
 
             # ── Tab 5: Plugins ─────────────────────────────────────────────────
-            with gr.TabItem("Pipeline V2"):
+            with gr.TabItem("VRAG Pipeline"):
                 try:
-                    from dashboard.v3_panel import build_v3_tab
+                    from dashboard.panel import build_vrag_tab
 
-                    build_v3_tab(api_base=API_BASE)
+                    build_vrag_tab(api_base=API_BASE)
                 except Exception as _e:
-                    gr.Markdown(f"V3 panel unavailable: {_e}")
+                    gr.Markdown(f"VRAG panel unavailable: {_e}")
 
             with gr.TabItem("Plugins"):
                 gr.Markdown("### Available Source Plugins")

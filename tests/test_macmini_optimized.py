@@ -10,7 +10,7 @@ import pytest
 
 # Configure env for Mac Mini
 os.environ.setdefault("OLLAMA_BASE_URL", "http://localhost:11434")
-os.environ.setdefault("OLLAMA_MODEL", "qwen3.5:4b")
+os.environ.setdefault("OLLAMA_MODEL", "qwen3.5:9b")
 os.environ.setdefault("OLLAMA_EMBED_MODEL", "bge-m3")
 os.environ.setdefault("OLLAMA_EMBED_URL", "http://localhost:11434")
 os.environ.setdefault("QDRANT_URL", "http://localhost:6333")
@@ -162,7 +162,7 @@ class TestMacMiniLLMPerformance:
                 r = await client.post(
                     f"{OLLAMA_BASE}/api/generate",
                     json={
-                        "model": "qwen3.5:4b",
+                        "model": "qwen3.5:9b",
                         "prompt": "Tra loi ngan: Kinh te Viet Nam nam 2024 co kha nang tang truong bao nhieu phan tram?",
                         "stream": False,
                         "options": {"temperature": 0.3, "num_predict": 100},
@@ -252,7 +252,7 @@ class TestRAGPipeline:
             r = await client.post(
                 f"{API_BASE}/v1/chat/completions",
                 json={
-                    "model": "qwen3.5:4b",
+                    "model": "qwen3.5:9b",
                     "messages": [{"role": "user", "content": query}],
                     "temperature": 0.3,
                     "max_tokens": 512,
@@ -281,7 +281,7 @@ class TestRAGPipeline:
             r1 = await client.post(
                 f"{API_BASE}/v1/chat/completions",
                 json={
-                    "model": "qwen3.5:4b",
+                    "model": "qwen3.5:9b",
                     "messages": [{"role": "user", "content": query}],
                     "temperature": 0.3,
                     "max_tokens": 256,
@@ -297,7 +297,7 @@ class TestRAGPipeline:
             r2 = await client.post(
                 f"{API_BASE}/v1/chat/completions",
                 json={
-                    "model": "qwen3.5:4b",
+                    "model": "qwen3.5:9b",
                     "messages": [{"role": "user", "content": query}],
                     "temperature": 0.3,
                     "max_tokens": 256,
@@ -536,7 +536,7 @@ class TestStress:
             r = await client.post(
                 f"{API_BASE}/v1/chat/completions",
                 json={
-                    "model": "qwen3.5:4b",
+                    "model": "qwen3.5:9b",
                     "messages": [{"role": "user", "content": TEST_QUERIES[i % len(TEST_QUERIES)]}],
                     "temperature": 0.3,
                     "max_tokens": 128,

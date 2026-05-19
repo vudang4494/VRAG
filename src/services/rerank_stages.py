@@ -169,7 +169,7 @@ async def rerank_stage3(
     query: str,
     candidates: list[dict],
     llm: Any,
-    model: str = "qwen3.5:4b",
+    model: str = "qwen3.5:9b",
     top_k: int = 5,
     concurrent_limit: int = 5,
     per_call_timeout: float = 5.0,
@@ -188,47 +188,6 @@ async def rerank_stage3(
     return scored[:top_k]
 
 
-async def rerank_full_pipeline(
-    query: str,
-    candidates: list[dict],
-    http: httpx.AsyncClient,
-    embed_url: str,
-    llm: Any,
-    embed_model: str = "bge-m3",
-    llm_model: str = "qwen3.5:4b",
-    stage1_top_k: int = 20,
-    stage2_top_k: int = 10,
-    stage3_top_k: int = 5,
-    enable_stage1: bool = True,
-    enable_stage3: bool = True,
-) -> list[dict]:
-    """
-    Run all 3 stages with final scoring.
-
-    Final score = 0.4 * stage1 + 0.3 * stage2 + 0.3 * stage3.
-    """
-    if not candidates:
-        return []
-
-    if enable_stage1:
-        stage1 = await rerank_stage1(query, candidates, top_k=stage1_top_k)
-    else:
-        stage1 = [
-            {**c, "stage1_score": float(c.get("score", 0.0))} for c in candidates[:stage1_top_k]
-        ]
-
-    stage2 = await rerank_stage2(query, stage1, http, embed_url, embed_model, top_k=stage2_top_k)
-
-    if enable_stage3:
-        stage3 = await rerank_stage3(query, stage2, llm, llm_model, top_k=stage3_top_k)
-    else:
-        stage3 = stage2[:stage3_top_k]
-
-    # Compute final
-    for c in stage3:
-        s1 = c.get("stage1_score", 0.0)
-        s2 = c.get("stage2_score", 0.0)
-        s3 = c.get("stage3_score", s2)
-        c["final_score"] = 0.4 * s1 + 0.3 * s2 + 0.3 * s3
-    stage3.sort(key=lambda x: x["final_score"], reverse=True)
-    return stage3
+# Note: rerank_full_pipeline lives in src/services/rerank.py (canonical).
+# This module only exports the individual stage functions, imported by
+# rerank_l2r.py and react_loop.py.

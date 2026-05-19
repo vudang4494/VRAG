@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pipeline V2 — End-to-end smoke test.
+VRAG — End-to-end smoke test.
 
 Workflow:
   1. Health check stack
@@ -12,7 +12,7 @@ Workflow:
   7. Print summary
 
 Usage:
-  python3 scripts/v2_smoke_test.py [--api http://localhost:8800] [--tenant default]
+  python3 scripts/smoke_test.py [--api http://localhost:8800] [--tenant default]
 """
 
 from __future__ import annotations

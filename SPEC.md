@@ -1,14 +1,15 @@
-# Enterprise RAG Stack — Technical Specification v3.0
+# VRAG — Technical Specification
 
-> **ĐÂY LÀ TÀI LIỆU V3.** Nếu bạn đọc V1 (old SPEC.md), hãy quên nó — code thực tế
-> là một system phức tạp hơn nhiều. Document này phản ánh chính xác những gì code làm.
+> **Một sản phẩm duy nhất: VRAG.** Không có v1/v2/v3 trong code. API URL prefix
+> `/api/v3/*` là REST contract version (giữ để không break clients), khác hoàn toàn
+> với product version.
 
 ## 1. Tổng quan
 
-**Name**: Enterprise Local RAG Stack v3.0
+**Name**: VRAG (Vector-Centric Hybrid GraphRAG)
 **Stack**: Hybrid GraphRAG — Vector + Knowledge Graph + Community Summaries
 **Target**: Apple Silicon Mac (M-series, 16GB+ RAM), 100% local, no cloud
-**LLM**: Ollama `qwen3.5:4b` (Metal GPU) + `bge-m3` embedding
+**LLM**: Ollama `qwen3.5:9b` (Metal GPU) + `bge-m3` embedding
 **Entity NER**: GLiNER `urchade/gliner_multi-v2.1` (168M, zero-shot)
 **Benchmarks**: 30-query Vietnamese eval, 62.9% avg doc_recall, 0% HTTP errors
 
@@ -28,7 +29,7 @@
 ┌──────────────────┐  ┌────────────────────────────────────────┐
 │ Ollama (host)    │  │ Docker Containers                       │
 │ Metal GPU        │  │ rag-qdrant    Qdrant 1.13              │
-│ • qwen3.5:4b     │  │ rag-neo4j     Neo4j 5.26 + APOC        │
+│ • qwen3.5:9b     │  │ rag-neo4j     Neo4j 5.26 + APOC        │
 │ • bge-m3         │  │ rag-redis     Redis 7                   │
 │ • GLiNER model   │  └────────────────────────────────────────┘
 └──────────────────┘
@@ -109,7 +110,7 @@ USER QUERY
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 3: Multi-Path Retrieval (retrieval_v2.py)             │
+│  STEP 3: Multi-Path Retrieval (retrieval.py)             │
 │  Intent → strategy map (INTENT_STRATEGY dict):              │
 │                                                             │
 │  factual:      views=[dense, graph_aware, keywords]           │
@@ -140,7 +141,7 @@ USER QUERY
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 4: Weighted RRF Fusion (retrieval_v2.py)              │
+│  STEP 4: Weighted RRF Fusion (retrieval.py)              │
 │                                                             │
 │  RRF_score = path_weight × consistency_factor ×             │
 │               level_factor × domain_reward                  │
@@ -437,7 +438,7 @@ def detect_ood_mixed(candidates, query) -> dict:
 ```bash
 # LLM
 OLLAMA_BASE_URL=http://host.docker.internal:11434
-OLLAMA_MODEL=qwen3.5:4b
+OLLAMA_MODEL=qwen3.5:9b
 OLLAMA_EMBED_MODEL=bge-m3
 OLLAMA_EMBED_URL=http://host.docker.internal:11434
 
@@ -484,8 +485,8 @@ src/services/
 ├── consistency.py           # 5-view self-consistency simulation
 ├── entity_extractor.py     # GLiNER wrapper (zero-shot NER)
 ├── kg.py                   # Neo4j: extract + upsert entities/rels
-├── vector_v2.py            # Qdrant V2: 6 named vectors + sparse
-├── ingestion_v2.py         # Ingestion orchestrator
+├── vector.py               # Qdrant: 6 named vectors + sparse BM25
+├── ingestion.py            # Ingestion orchestrator
 │
 ├── # ── Query Pipeline ──
 ├── query_router.py         # Heuristic query type classifier
@@ -495,8 +496,8 @@ src/services/
 ├── domain_tagger.py        # Domain tagging (8 axes) + reward scoring
 │
 ├── # ── Retrieval ──
-├── retrieval_v2.py          # Multi-path retrieval orchestrator
-├── vector_v2.py            # Qdrant search (single view + multi-view RRF)
+├── retrieval.py          # Multi-path retrieval orchestrator
+├── (vector.py — same file as above; handles search too)
 ├── rerank_stages.py        # 3-stage reranking pipeline
 ├── rerank_l2r.py          # L2R (learn-to-rank) — optional
 ├── hefr_retrieval.py       # Hierarchical fine-grained retrieval
@@ -514,7 +515,7 @@ src/services/
 
 ---
 
-## 11. API Endpoints (api/routes_v3.py)
+## 11. API Endpoints (api/routes/)
 
 | Endpoint | Method | Description |
 |---|---|---|
@@ -626,22 +627,21 @@ Traces for:
 
 ---
 
-## 16. So sánh V1 vs V3
+## 16. Capability Snapshot
 
-| Aspect | V1 (old SPEC) | V3 (actual) |
-|---|---|---|
-| Retrieval paths | 2 (vector + graph) | 9 paths |
-| ReRank | Semantic reranker | 3-stage: cross-encoder + semantic + LLM judge |
-| Query reformulations | None | 6 reformulations (configurable) |
-| Entity extraction | LLM (1-pass) | GLiNER + 3-pass voting |
-| OOD detection | None | Score + keyword overlap |
-| Validation | None | 3 gates: hallucination + entity + citation |
-| Community summaries | None | Leiden/Louvain + LLM summaries |
-| Domain tagging | None | 8-axis domain classification + reward |
-| BM25 | None | Sparse vector trong Qdrant |
-| Temporal filtering | None | Temporal intent → Cypher filter |
-| Multi-view embeddings | None | 5 named vectors (dense/paraphrase/question/summary/keywords) |
+| Aspect | Implementation |
+|---|---|
+| Retrieval paths | Up to 9 parallel (dense × multi-view × reformulations + graph + community + entity_pivot) |
+| Rerank | 3-stage with Dynamic Early-Exit: cross-encoder → semantic → LLM judge (auto-skip ≥0.85) |
+| Query understanding | Zero-LLM Tier 1 (centroid router + GLiNER) by default; 0-5 opt-in LLM reformulations |
+| Entity extraction | GLiNER zero-shot + 3-pass voting at ingest |
+| OOD detection | 17-pattern regex + centroid threshold |
+| Validation | Triple-Gate: hallucination + entity + citation (parallel) |
+| Community summaries | Leiden detection + LLM-generated cluster summaries |
+| Domain tagging | 8-axis classification with 30% reward bonus on match |
+| BM25 | Sparse vector in Qdrant, fused with dense via Weighted RRF |
+| Temporal filtering | Detected temporal intent → Cypher time filter |
+| Multi-view embeddings | 5 named BGE-M3 vectors (dense / paraphrase / question / summary / keywords) + sparse BM25 |
+| Context compression | LLMLingua-2 (classifier-based, multilingual) |
 
----
-
-*Last updated: 2026-05-14 | Code version: V3 (git: main)*
+See [ARCHITECTURE.md](ARCHITECTURE.md) for algorithmic details, [README.md](README.md) for high-level overview.

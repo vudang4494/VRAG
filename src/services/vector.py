@@ -47,7 +47,7 @@ def build_tenant_filter(
     return qm.Filter(must=must)
 
 
-async def upsert_v2(
+async def upsert(
     client: AsyncQdrantClient,
     collection: str,
     points: list[dict],

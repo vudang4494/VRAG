@@ -280,7 +280,7 @@ def create_entity_extractor(
     labels: list[str] | None = None,
     threshold: float = 0.5,
     llm_for_relations: Any = None,
-    relation_model: str = "qwen3.5:4b",
+    relation_model: str = "qwen3.5:9b",
     extract_relations: bool = False,
 ) -> BaseEntityExtractor:
     """

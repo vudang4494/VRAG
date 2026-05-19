@@ -45,6 +45,11 @@ networkx>=3.0
 python-igraph>=0.11.0
 leidenalg>=0.10.0
 
-# ── Pipeline V2 — Entity extraction (separate from semantic LLM) ────────
+# ── VRAG — Entity extraction (separate from semantic LLM) ───────────────
 # GLiNER: zero-shot NER, ~168M params, runs CPU, multilingual incl. Vietnamese.
 gliner>=0.2.0
+
+# ── VRAG Tier 3c — LLMLingua-2 context compression ──────────────────────
+# Classifier-based (no LLM call), CPU-friendly. Compresses context 40-60%.
+# First call downloads ~600MB model from HF; cached afterwards.
+llmlingua>=0.2.2

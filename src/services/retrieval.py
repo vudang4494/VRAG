@@ -68,20 +68,15 @@ INTENT_STRATEGY: dict[str, dict[str, Any]] = {
         "views": ["dense", "graph_aware", "keywords"],
         "use_graph": False,
         "use_community": False,
+        "use_entity_pivot": False,
         "format_preference": None,
         "graph_hops": 0,
-    },
-    "entity_pivot": {
-        "views": ["dense", "keywords", "question"],
-        "use_graph": True,
-        "use_community": False,
-        "format_preference": None,
-        "graph_hops": 1,
     },
     "analytical": {
         "views": ["dense", "graph_aware", "summary", "question"],
         "use_graph": True,
         "use_community": True,
+        "use_entity_pivot": True,
         "format_preference": None,
         "graph_hops": 2,
     },
@@ -89,14 +84,32 @@ INTENT_STRATEGY: dict[str, dict[str, Any]] = {
         "views": ["summary", "graph_aware", "dense"],
         "use_graph": False,
         "use_community": True,
+        "use_entity_pivot": False,
         "format_preference": None,
         "graph_hops": 1,
-        "final_top_k_multiplier": 2,  # summarization needs broad coverage → 2× final_top_k
+        "final_top_k_multiplier": 2,
     },
     "comparison": {
         "views": ["dense", "graph_aware", "question"],
         "use_graph": True,
         "use_community": False,
+        "use_entity_pivot": True,
+        "format_preference": None,
+        "graph_hops": 2,
+    },
+    "multi_hop": {
+        "views": ["dense", "graph_aware", "question"],
+        "use_graph": True,
+        "use_community": True,
+        "use_entity_pivot": True,
+        "format_preference": None,
+        "graph_hops": 2,
+    },
+    "kg_construction": {
+        "views": ["dense", "keywords", "summary"],
+        "use_graph": True,
+        "use_community": True,
+        "use_entity_pivot": True,
         "format_preference": None,
         "graph_hops": 2,
     },
@@ -135,12 +148,15 @@ async def _entity_pivot_path(
     top_k: int = 20,
     temporal_filter: str = "",
     chunk_ids_filter: list[str] | None = None,
+    pre_extracted_entities: list[str] | None = None,
 ) -> tuple[list[dict], list[str]]:
     """
     Entity-pivot retrieval — bridge from query to chunks via shared entities.
 
     This is the path that makes Vector+KG actually deliver value:
       1. Extract entities from the user query (same GLiNER used at ingest).
+         Uses pre_extracted_entities if provided (from Step 2 GLiNER extraction),
+         otherwise falls back to calling the extractor directly.
       2. Cypher: find chunks that CONTAINS_ENTITY any of those entities.
          Includes alias resolution (ALIAS_OF edges).
       3. Score by number of matched entities + tenant filter.
@@ -149,32 +165,45 @@ async def _entity_pivot_path(
     Returns (candidates, query_entity_names) so caller can also include the
     extracted entities in the LLM prompt context.
     """
-    if entity_extractor is None or not query_text.strip():
+    if not query_text.strip():
         return [], []
 
-    try:
-        ents, _ = await entity_extractor.extract(query_text)
-    except Exception as e:
-        logger.debug(f"Query entity extraction failed: {e}")
-        return [], []
+    # Use pre-extracted entities if available (Step 2 GLiNER), otherwise extract now
+    if pre_extracted_entities:
+        from src.services.kg import _sanitize
+        seen: dict[str, str] = {}
+        for name in pre_extracted_entities:
+            key = _sanitize(name).strip().lower()
+            if key and len(key) >= 2 and key not in seen:
+                seen[key] = _sanitize(name)
+        if not seen:
+            return [], []
+        names_lower = list(seen.keys())
+        names_display = [seen[k] for k in names_lower]
+    elif entity_extractor is not None:
+        try:
+            ents, _ = await entity_extractor.extract(query_text)
+        except Exception as e:
+            logger.debug(f"Query entity extraction failed: {e}")
+            return [], []
 
-    if not ents:
-        return [], []
+        if not ents:
+            return [], []
 
-    # Apply the same normalization as ingest-time entity storage (kg.py _sanitize).
-    # "Self-RAG" → "Self_RAG" so Cypher matches the entity node name stored in Neo4j.
-    # The raw GLiNER names are NOT applied to Neo4j during ingest — _sanitize is.
-    from src.services.kg import _sanitize
+        # Apply the same normalization as ingest-time entity storage (kg.py _sanitize).
+        from src.services.kg import _sanitize
 
-    seen: dict[str, str] = {}
-    for e in ents:
-        key = _sanitize(e.name).strip().lower()
-        if key and key not in seen and len(key) >= 2:
-            seen[key] = _sanitize(e.name)  # keep original-case for display
-    if not seen:
+        seen = {}
+        for e in ents:
+            key = _sanitize(e.name).strip().lower()
+            if key and key not in seen and len(key) >= 2:
+                seen[key] = _sanitize(e.name)
+        if not seen:
+            return [], []
+        names_lower = list(seen.keys())
+        names_display = [seen[k] for k in names_lower]
+    else:
         return [], []
-    names_lower = list(seen.keys())
-    names_display = [seen[k] for k in names_lower]
 
     where_clause = "WHERE c.tenant_id = $tid" if tenant_id else ""
     params: dict[str, Any] = {"names": names_lower, "top_k": top_k}
@@ -511,9 +540,8 @@ async def multi_path_retrieve(
             top_k=5,
         )
 
-    # Entity-pivot path — always-on when entity_extractor available.
-    # Bridges from query→entities→chunks, complements vector cosine.
-    # Returns the extracted query entities for later inclusion in context.
+    # Entity-pivot: gated by use_entity_pivot flag per intent strategy.
+    # Uses entities pre-extracted by GLiNER from understand_query (Step 2).
     # Phase 6b: detect temporal intent and filter entity lookup by time range.
     # Phase 3b: 2-phase retrieval with hard limit for supernode protection.
     from src.services.temporal_entities import detect_temporal_intent
@@ -524,56 +552,23 @@ async def multi_path_retrieve(
             f"  temporal intent: {temporal['type']} — filter: {temporal.get('filter_cypher', '')[:80]}"
         )
 
-    # Phase 3b: Hard limit config
+    # VRAG Tier 2 — Vector-Driven Hard Limit config
     graph_scope_size = getattr(settings, "graph_scope_size", 100)
     use_hard_limit = getattr(settings, "use_hard_limit", True)
 
-    # Entity-pivot: run after dense paths to use their results as scope
-    entity_pivot_task = None
-    query_entities_holder: dict[str, list[str]] = {"entities": []}
-    entity_extractor = getattr(clients, "entity_extractor", None)
-    if entity_extractor is not None:
-
-        async def _run_entity_pivot_after_dense():
-            # Wait for dense path results to get scope
-            if use_hard_limit and paths:
-                # Collect chunk IDs from all paths for scope
-                all_chunk_ids: set[str] = set()
-                for path_results in paths.values():
-                    for c in path_results:
-                        all_chunk_ids.add(c.get("chunk_id", ""))
-                chunk_ids_scope = list(all_chunk_ids)[:graph_scope_size]
-            else:
-                chunk_ids_scope = None
-
-            cands, query_ents = await _entity_pivot_path(
-                clients.neo4j,
-                entity_extractor,
-                understanding.get("original", ""),
-                tenant_id,
-                top_k=top_k_per_path,
-                temporal_filter=temporal.get("filter_cypher", ""),
-                chunk_ids_filter=chunk_ids_scope,
-            )
-            query_entities_holder["entities"] = query_ents
-            return cands
-
-        entity_pivot_task = _run_entity_pivot_after_dense()
-
-    # Run all paths in parallel (entity_pivot will use dense results as scope)
-    all_tasks = (
+    # ── Phase 1: run dense + graph + community in parallel ──────────────────
+    phase1_tasks = (
         search_tasks
         + ([graph_task] if graph_task else [])
         + ([community_task] if community_task else [])
-        + ([entity_pivot_task] if entity_pivot_task else [])
     )
-    results = await asyncio.gather(*all_tasks, return_exceptions=True)
+    phase1_results = await asyncio.gather(*phase1_tasks, return_exceptions=True)
 
     # Collect vector search results
     idx = 0
     for r, _ in zip(reformulations, embeds, strict=False):
         for v in views:
-            res = results[idx]
+            res = phase1_results[idx]
             idx += 1
             if isinstance(res, Exception):
                 continue
@@ -582,23 +577,55 @@ async def multi_path_retrieve(
 
     # Graph results
     if graph_task is not None:
-        res = results[idx]
+        res = phase1_results[idx]
         idx += 1
         if not isinstance(res, Exception):
             paths["graph"] = res
 
     # Community results
     if community_task is not None:
-        res = results[idx]
+        res = phase1_results[idx]
         idx += 1
         if not isinstance(res, Exception):
             paths["community"] = res
 
-    # Entity-pivot results (entity-aware retrieval — KG bridge)
-    if entity_pivot_task is not None:
-        res = results[idx]
-        if not isinstance(res, Exception):
-            paths["entity_pivot"] = res
+    # ── Phase 2: entity_pivot with Hard Limit scope from Phase 1 paths ──────
+    # VRAG Tier 2: Neo4j Cypher confined to Top-N chunk IDs from vector retrieval.
+    # Prevents supernode traversal explosion (e.g. entity "AI" linking 10k chunks).
+    query_entities_holder: dict[str, list[str]] = {"entities": []}
+    entity_extractor = getattr(clients, "entity_extractor", None)
+    pre_extracted_entities = understanding.get("entities", []) or []
+    use_entity_pivot = strategy.get("use_entity_pivot", False) or len(pre_extracted_entities) >= 1
+    if entity_extractor is not None and use_entity_pivot:
+        chunk_ids_scope: list[str] | None = None
+        if use_hard_limit and paths:
+            all_chunk_ids: set[str] = set()
+            for path_results in paths.values():
+                for c in path_results:
+                    cid = c.get("chunk_id", "")
+                    if cid:
+                        all_chunk_ids.add(cid)
+            chunk_ids_scope = list(all_chunk_ids)[:graph_scope_size]
+            logger.info(
+                f"  hard_limit: entity_pivot scope = {len(chunk_ids_scope)} chunks "
+                f"(from {len(paths)} retrieval paths)"
+            )
+
+        try:
+            cands, query_ents = await _entity_pivot_path(
+                clients.neo4j,
+                entity_extractor,
+                understanding.get("original", ""),
+                tenant_id,
+                top_k=top_k_per_path,
+                temporal_filter=temporal.get("filter_cypher", ""),
+                chunk_ids_filter=chunk_ids_scope,
+                pre_extracted_entities=pre_extracted_entities,
+            )
+            query_entities_holder["entities"] = query_ents or pre_extracted_entities
+            paths["entity_pivot"] = cands
+        except Exception as e:
+            logger.debug(f"entity_pivot path failed: {e}")
     # Normalize scores per format BEFORE RRF
     all_cands: list[dict] = []
     for v in paths.values():

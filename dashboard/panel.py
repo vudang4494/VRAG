@@ -1,15 +1,15 @@
-"""V3 Panel — Gradio UI cho Pipeline V2 (quality-first GraphRAG).
+"""VRAG Panel — Gradio UI cho VRAG pipeline (quality-first GraphRAG).
 
 Cung cấp 4 sub-tabs:
-  - V3 Chat: gọi /api/v3/chat với view latency breakdown + validation gates
-  - V3 Ingest: upload file → /api/v3/ingest/upload với multi-format support
-  - V3 Health: /api/v3/health/deep — component + dependencies + metrics
-  - V3 Community: trigger /api/v3/community/build
+  - Chat: gọi /api/v3/chat với view latency breakdown + validation gates
+  - Ingest: upload file → /api/v3/ingest/upload với multi-format support
+  - Health: /api/v3/health/deep — component + dependencies + metrics
+  - Community: trigger /api/v3/community/build
 
 Import vào dashboard.py:
-    from dashboard.v3_panel import build_v3_tab
-    with gr.TabItem("Pipeline V2"):
-        build_v3_tab(api_base="http://localhost:8800")
+    from dashboard.panel import build_vrag_tab
+    with gr.TabItem("VRAG Pipeline"):
+        build_vrag_tab(api_base="http://localhost:8800")
 """
 
 from __future__ import annotations
@@ -158,7 +158,7 @@ def health_v3_fn(api_base: str):
     except Exception as e:
         return f"**Lỗi**: {e}", "", "", ""
 
-    status_md = f"## Status: `{data.get('status')}`\n\nPipeline V2 enabled: **{data.get('pipeline_v2_enabled')}**"
+    status_md = f"## Status: `{data.get('status')}`\n\nPipeline enabled: **{data.get('pipeline_v2_enabled')}**"
 
     components = data.get("components", {})
     comp_lines = ["| Component | OK | Detail |", "|---|---|---|"]
@@ -184,12 +184,12 @@ def health_v3_fn(api_base: str):
 
     metrics = data.get("metrics_v2", {})
     metrics_md = (
-        f"**V2 chats total**: {metrics.get('v2_chats_total', 0)}\n"
-        f"**V2 refusal rate**: {metrics.get('v2_refusal_rate', 0):.2%}\n"
-        f"**V2 validation pass rate**: {metrics.get('v2_validation_pass_rate', 0):.2%}\n"
-        f"**V2 avg grounded ratio**: {metrics.get('v2_avg_grounded_ratio', 0):.3f}\n"
-        f"**V2 avg consistency**: {metrics.get('v2_avg_consistency_score', 0):.3f}\n"
-        f"**V2 communities built**: {metrics.get('v2_communities_built', 0)}"
+        f"**Chats total**: {metrics.get('v2_chats_total', 0)}\n"
+        f"**Refusal rate**: {metrics.get('v2_refusal_rate', 0):.2%}\n"
+        f"**Validation pass rate**: {metrics.get('v2_validation_pass_rate', 0):.2%}\n"
+        f"**Avg grounded ratio**: {metrics.get('v2_avg_grounded_ratio', 0):.3f}\n"
+        f"**Avg consistency**: {metrics.get('v2_avg_consistency_score', 0):.3f}\n"
+        f"**Communities built**: {metrics.get('v2_communities_built', 0)}"
     )
 
     return status_md, components_md, deps_md, metrics_md
@@ -230,8 +230,8 @@ def community_v3_fn(
 # ── Builder ────────────────────────────────────────────────────────────────────
 
 
-def build_v3_tab(api_base: str = _DEFAULT_API) -> None:
-    """Build all V3 sub-tabs inside the parent TabItem."""
+def build_vrag_tab(api_base: str = _DEFAULT_API) -> None:
+    """Build all VRAG sub-tabs inside the parent TabItem."""
     gr.Markdown(
         "## Pipeline V2 — Quality-first GraphRAG\n\n"
         "Endpoints: `/api/v3/chat`, `/api/v3/ingest/upload`, `/api/v3/community/build`, `/api/v3/health/deep`.\n"
@@ -240,7 +240,7 @@ def build_v3_tab(api_base: str = _DEFAULT_API) -> None:
 
     with gr.Tabs():
         # ── Chat ───────────────────────────────────────────────────────────────
-        with gr.TabItem("Chat (V3)"):
+        with gr.TabItem("Chat"):
             gr.Markdown("### Hỏi đáp với deliberation + validation gates")
             with gr.Row():
                 with gr.Column(scale=2):
@@ -288,7 +288,7 @@ def build_v3_tab(api_base: str = _DEFAULT_API) -> None:
             )
 
         # ── Ingest ─────────────────────────────────────────────────────────────
-        with gr.TabItem("Ingest (V3)"):
+        with gr.TabItem("Ingest"):
             gr.Markdown(
                 "### Upload tài liệu đa định dạng qua Pipeline V2\n"
                 "Hỗ trợ: PDF, DOCX, XLSX, CSV, TXT, MD, HTML, JSON/JSONL chat, EML email"
@@ -317,7 +317,7 @@ def build_v3_tab(api_base: str = _DEFAULT_API) -> None:
             )
 
         # ── Health ─────────────────────────────────────────────────────────────
-        with gr.TabItem("Health (V3)"):
+        with gr.TabItem("Health"):
             gr.Markdown("### Deep health check Pipeline V2")
             health_btn = gr.Button("Refresh", variant="primary")
             health_status = gr.Markdown()
@@ -338,7 +338,7 @@ def build_v3_tab(api_base: str = _DEFAULT_API) -> None:
             )
 
         # ── Community ──────────────────────────────────────────────────────────
-        with gr.TabItem("Community Build (V3)"):
+        with gr.TabItem("Community Build"):
             gr.Markdown("### Trigger Leiden clustering + LLM community summaries")
             with gr.Row():
                 with gr.Column(scale=1):

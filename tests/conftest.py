@@ -6,7 +6,7 @@ import os
 import pytest
 
 os.environ.setdefault("OLLAMA_BASE_URL", "http://host.docker.internal:11434")
-os.environ.setdefault("OLLAMA_MODEL", "qwen3.5:4b")
+        os.environ.setdefault("OLLAMA_MODEL", "qwen3.5:9b")
 os.environ.setdefault("OLLAMA_EMBED_MODEL", "bge-m3")
 os.environ.setdefault("OLLAMA_EMBED_URL", "http://host.docker.internal:11434")
 os.environ.setdefault("QDRANT_URL", "http://localhost:6333")

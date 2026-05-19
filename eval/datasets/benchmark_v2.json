@@ -1,0 +1,97 @@
+{
+  "name": "VRAG Benchmark v2 — rag51 Tenant",
+  "description": "10 representative queries covering all intent types. Expected intents are based on router pattern matching.",
+  "tenant": "rag51",
+  "queries": [
+    {
+      "id": "f01",
+      "query": "Self-RAG có gì khác so với standard RAG?",
+      "category": "comparison",
+      "intent": "multi_hop",
+      "expected_keywords": ["Self-RAG", "standard RAG", "reflection", "critic", "self-reflection"],
+      "expected_docs": ["Self-RAG.pdf"],
+      "expect_refusal": false
+    },
+    {
+      "id": "e01",
+      "query": "PlanRAG được mô tả trong những nghiên cứu nào?",
+      "category": "entity_pivot",
+      "intent": "entity_pivot",
+      "expected_keywords": ["PlanRAG", "planning", "strategy"],
+      "expected_docs": ["PlanRAG.pdf"],
+      "expect_refusal": false
+    },
+    {
+      "id": "e02",
+      "query": "MINTQA sử dụng phương pháp nào để trả lời multi-hop questions?",
+      "category": "entity_pivot",
+      "intent": "entity_pivot",
+      "expected_keywords": ["MINTQA", "multi-hop", "iteration", "reasoning"],
+      "expected_docs": ["MINTQA.pdf"],
+      "expect_refusal": false
+    },
+    {
+      "id": "m01",
+      "query": "So sánh HippoRAG và ACORN: cái nào hiệu quả hơn cho multi-hop reasoning?",
+      "category": "comparison",
+      "intent": "multi_hop",
+      "expected_keywords": ["HippoRAG", "ACORN", "multi-hop", "reasoning", "comparison"],
+      "expected_docs": ["HippoRAG.pdf", "ACORN.pdf"],
+      "expect_refusal": false
+    },
+    {
+      "id": "m02",
+      "query": "Các phương pháp cải thiện RAG bao gồm những kỹ thuật nào?",
+      "category": "summarization",
+      "intent": "summarization",
+      "expected_keywords": ["RAG", "improvement", "retrieval", "generation", "hybrid"],
+      "expected_docs": ["RAG-Survey-2025.pdf"],
+      "expect_refusal": false
+    },
+    {
+      "id": "a01",
+      "query": "Tại sao multi-hop reasoning vẫn là thách thức lớn với các hệ thống RAG hiện tại?",
+      "category": "analytical",
+      "intent": "analytical",
+      "expected_keywords": ["multi-hop", "reasoning", "challenge", "limitation", "RAG"],
+      "expected_docs": ["RAG-Survey-2025.pdf"],
+      "expect_refusal": false
+    },
+    {
+      "id": "a02",
+      "query": "BGE-M3 embedding model đạt kết quả như thế nào trên các benchmarks đa ngôn ngữ?",
+      "category": "analytical",
+      "intent": "analytical",
+      "expected_keywords": ["BGE-M3", "multilingual", "benchmark", "embedding"],
+      "expected_docs": ["BGE-M3.pdf"],
+      "expect_refusal": false
+    },
+    {
+      "id": "s01",
+      "query": "Tóm tắt các chiến lược chunking được sử dụng trong các hệ thống RAG cải tiến",
+      "category": "summarization",
+      "intent": "summarization",
+      "expected_keywords": ["chunking", "strategy", "semantic", "hierarchical", "RAG"],
+      "expected_docs": ["RAG-Survey-2025.pdf", "DenseX.pdf"],
+      "expect_refusal": false
+    },
+    {
+      "id": "f02",
+      "query": "HippoRAG hoạt động như thế nào với cơ chế indexing và retrieval?",
+      "category": "factual",
+      "intent": "analytical",
+      "expected_keywords": ["HippoRAG", "indexing", "retrieval", "ONT", "knowledge"],
+      "expected_docs": ["HippoRAG.pdf"],
+      "expect_refusal": false
+    },
+    {
+      "id": "ood01",
+      "query": "Cách nấu phở gà ngon nhất là gì?",
+      "category": "out_of_domain",
+      "intent": "out_of_domain",
+      "expected_keywords": [],
+      "expected_docs": [],
+      "expect_refusal": true
+    }
+  ]
+}

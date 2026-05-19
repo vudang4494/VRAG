@@ -1,26 +1,16 @@
 """Query type classifier for intelligent routing between retrieval strategies.
 
-## Algorithm: Rule-Based Priority Classifier
+## Algorithm: Semantic Matcher (BGE-M3 Centroid) + OOD Guard
 
-1. **Out-of-domain guard** (highest priority): if query matches any `_OUT_OF_DOMAIN_PATTERNS` regex → immediate refusal
-2. **Multi-hop** (high priority): if matches any `_MULTI_HOP_PATTERNS` regex → ReAct loop (cross-doc reasoning)
-3. **Summarization**: if matches `_SUMMARIZATION_PATTERNS` → ReAct loop (aggregate)
-4. **Analytical** (lowest): if matches `_ANALYTICAL_PATTERNS` → ReAct loop (causal/why questions)
-5. **Default**: factual → standard retrieval (single-doc, fast)
+1. **Out-of-domain guard** (regex, highest priority): fast short-circuit, no embedding needed
+2. **Semantic intent matching** (centroid dot-product): embed query via BGE-M3, compute
+   cosine similarity with intent centroids, pick the highest-scoring intent
 
-Why rule-based instead of LLM-as-classifier:
-  - Zero latency (no LLM call per query)
-  - Deterministic, reproducible
-  - Easy to audit which pattern triggered which route
-  - Trade-off: hard to cover all Vietnamese/English surface forms
-
-Trade-offs per approach:
-  Rule-based (current): Fast, auditable, requires pattern maintenance
-  LLM classifier (Phase X): More coverage, but +200-500ms latency + cost
-  Trained classifier (Phase X): Best accuracy, needs labeled training data
-
-Priority order is CRITICAL: patterns are checked in exact sequence above.
-More specific patterns should appear before general ones within each group.
+Why semantic instead of rule-based:
+  - Zero maintenance of regex patterns
+  - Handles unseen surface forms, typos, code-mixed queries
+  - Fast: dot product on 1024-dim vector < 1ms
+  - Centroid-based is robust to query phrasing variations
 
 Usage:
     from src.services.query_router import classify_query, should_use_react
@@ -31,98 +21,23 @@ Usage:
 
 from __future__ import annotations
 
+import asyncio
 import re
+from pathlib import Path
+from typing import Any
 
-_MULTI_HOP_PATTERNS = [
-    # Explicit cross-doc signals
-    r"so sánh",
-    r"khác nhau ra sao",
-    r"giống và khác",
-    r"mối liên hệ",
-    r"cả \w+ và \w+",
-    # Cross-doc reasoning signals
-    r"(?i)và \w+ đều",
-    r"(?i)giữa \w+ và \w+",
-    r"(?i)\w+ vs\.?\s*\w+",
-    r"(?i)\w+ versus \w+",
-    # Comparison question patterns (critical: "X khác Y ở điểm nào?" is multi-hop)
-    r"khác.*ở điểm nào",
-    r"ở đâu khác",
-    r"như thế nào.*khác",
-    r"khác nhau",
-    # Multi-step reasoning
-    r"(?i)cả hai",
-    r"(?i)trước tiên.*sau đó",
-    r"(?i)vì.*nên",
-    # Aggregate / summary
-    r"tóm tắt",
-    r"tổng hợp",
-    r"tổng quan",
-    r"liệt kê",
-    r"(?i)các kỹ thuật.*cải thiện",
-    r"(?i)đóng góp chính",
-    r"(?i)phương pháp huấn luyện",
-    # "Which paper/doc mentions X" — needs graph walk
-    r"paper nào",
-    r"bài báo nào",
-    r"doc.*nào",
-    r"document.*nào",
-    r"(?i)(graphrag|knowledge graph|leiden|community detection|đồ thị tri thức)",
-    # Explicit multi-hop question structures (X và Y cùng/tất cả đều)
-    r"(?i)(X và Y|[A-ZÀ-Ỹ]\w+ và [A-ZÀ-Ỹ]\w+) (đều|dùng|cùng|liên quan)",
-    # General multi-hop signals (more permissive)
-    r"(?i)(đều|mọi người|cùng) (dùng|sử dụng|có liên quan)",
-    # Pattern: "X và Y" — two entities in same sentence often means cross-doc
-    r"\w+\s+\w+\s+và\s+\w+",
-    # "hoạt động thông qua" — operational/mechanism questions
-    r"hoạt động thông qua",
-    r"thông qua việc",
-    # "sự khác biệt" or "khác biệt" alone
-    r"sự khác biệt",
-    # "cái gì" after mentioning two things
-    r"gì$",
-    # "cái nào" — comparison/choice questions → multi-hop ReAct
-    r"cái nào",
-    r"nào.*hơn",
-    r"nào.*tốt hơn",
-    r"nào.*hiệu quả hơn",
-    r"nào.*đạt",
-    r"đánh giá.*nào",
-    # "đều là" — multiple things with shared property
-    r"đều là",
-    # "liên quan" — relationship questions
-    r"liên quan",
-    # "công trình" — research papers
-    r"công trình",
-    r"tác giả",
-]
+import numpy as np
 
-_SUMMARIZATION_PATTERNS = [
-    r"tóm tắt",
-    r"tổng hợp",
-    r"tổng quan",
-    r"liệt kê",
-    r"kể",
-    r"mô tả các",
-    r"(?i)what are the main",
-    r"(?i)overview of",
-]
+import httpx
+from loguru import logger
 
-_ANALYTICAL_PATTERNS = [
-    r"tại sao",
-    r"vì sao",
-    r"tại sao",
-    r"bằng cách nào",
-    r"như thế nào",
-    r"hoạt động thế nào",
-    r"có vai trò gì",
-    r"(?i)why does",
-    r"(?i)how does",
-    r"(?i)what is the role",
-    r"(?i)what causes",
-]
+ROOT = Path(__file__).parent.parent.parent  # repo root (src/services/.. → src → repo)
+_CENTROIDS: dict[str, np.ndarray] | None = None
+_SEMANTIC_THRESHOLD: float = 0.45
 
-_OUT_OF_DOMAIN_PATTERNS = [
+# ── OOD patterns — regex only, no embedding needed ──────────────────────────────
+
+_OOD_PATTERNS = [
     # Real-world queries not in academic corpus
     r"thời tiết",
     r"bitcoin",
@@ -134,43 +49,123 @@ _OUT_OF_DOMAIN_PATTERNS = [
     r"(?i)stock price",
     r"(?i)cook (pho|soup|recipe)",
     r"(?i)news",
-    # Explicit non-RAG topics
     r"bóng đá",
     r"(?i)sport",
     r"(?i)football",
     r"(?i)game",
+    r"làm bánh",
+    r"tập gym",
+    r"mua sắm",
+    r"du lịch",
 ]
 
 
-def classify_query(query: str) -> str:
+def _load_centroids() -> dict[str, np.ndarray]:
+    global _CENTROIDS
+    if _CENTROIDS is not None:
+        return _CENTROIDS
+    path = ROOT / "config" / "intent_centroids.npy"
+    if not path.exists():
+        logger.warning(f"intent_centroids.npy not found at {path}, using rule-based fallback")
+        _CENTROIDS = {}
+        return _CENTROIDS
+    data = np.load(path, allow_pickle=True).item()
+    for intent, vec in data.items():
+        data[intent] = np.asarray(vec, dtype=np.float32)
+    _CENTROIDS = data
+    logger.info(f"Loaded {len(_CENTROIDS)} intent centroids from {path}")
+    return _CENTROIDS
+
+
+def _embed_query_sync(query: str, embed_url: str, embed_model: str) -> np.ndarray | None:
+    """Embed a query via Ollama /api/embeddings. Returns None on failure."""
+    try:
+        import requests
+
+        resp = requests.post(
+            f"{embed_url}/api/embeddings",
+            json={"model": embed_model, "prompt": query, "keep_alive": -1},
+            timeout=30,
+        )
+        resp.raise_for_status()
+        return np.asarray(resp.json()["embedding"], dtype=np.float32)
+    except Exception as e:
+        logger.warning(f"Embedding failed: {e}")
+        return None
+
+
+def _match_ood(query: str) -> bool:
+    q = query.strip().lower()
+    return any(re.search(pat, q) for pat in _OOD_PATTERNS)
+
+
+def classify_query(query: str, embed_url: str | None = None, embed_model: str | None = None) -> str:
     """
-    Classify query type using lightweight heuristics.
-    Returns one of: factual | multi_hop | summarization | analytical | out_of_domain
+    Classify query type using semantic centroid matching.
+
+    Returns one of: factual | analytical | comparison | multi_hop | kg_construction | out_of_domain
+
+    If embed_url/embed_model are None, reads from settings (so the call works inside
+    a container where Ollama is at host.docker.internal, not localhost).
     """
-    q = query.strip()
+    if _match_ood(query):
+        return "out_of_domain"
 
-    # Check out-of-domain first (highest priority)
-    for pat in _OUT_OF_DOMAIN_PATTERNS:
-        if re.search(pat, q):
-            return "out_of_domain"
+    centroids = _load_centroids()
+    if not centroids:
+        # Fallback: simple keyword heuristics
+        return _fallback_rule_based(query)
 
-    # Check multi-hop (cross-doc reasoning)
-    for pat in _MULTI_HOP_PATTERNS:
-        if re.search(pat, q):
-            return "multi_hop"
+    if embed_url is None or embed_model is None:
+        try:
+            from src.config import get_settings
+            s = get_settings()
+            embed_url = embed_url or s.ollama_embed_url
+            embed_model = embed_model or s.ollama_embed_model
+        except Exception:
+            embed_url = embed_url or "http://localhost:11434"
+            embed_model = embed_model or "bge-m3"
 
-    # Check summarization
-    for pat in _SUMMARIZATION_PATTERNS:
-        if re.search(pat, q):
-            return "summarization"
+    vec = _embed_query_sync(query, embed_url, embed_model)
+    if vec is None:
+        return _fallback_rule_based(query)
 
-    # Check analytical (why/how)
-    for pat in _ANALYTICAL_PATTERNS:
-        if re.search(pat, q):
-            return "analytical"
+    best_intent = "factual"
+    best_score = -1.0
+    for intent, centroid in centroids.items():
+        # Both are unit-normalized → dot product = cosine similarity
+        score = float(np.dot(vec, centroid))
+        if score > best_score:
+            best_intent, best_score = intent, score
 
-    # Default: factual (single-doc lookup, definition, entity query)
+    if best_score < _SEMANTIC_THRESHOLD:
+        logger.debug(f"Low centroid score {best_score:.3f} for query: {query[:60]}, defaulting to factual")
+        return "factual"
+
+    return best_intent
+
+
+def _fallback_rule_based(query: str) -> str:
+    """Simple keyword fallback when centroid matching is unavailable."""
+    q = query.lower()
+
+    if any(kw in q for kw in ["tóm tắt", "tổng hợp", "tổng quan", "liệt kê"]):
+        return "summarization"
+    if any(kw in q for kw in ["tại sao", "vì sao", "bằng cách nào", "như thế nào"]):
+        return "analytical"
+    if any(kw in q for kw in ["so sánh", "khác nhau", "giống nhau", "ưu điểm", "nhược điểm"]):
+        return "comparison"
+    if any(kw in q for kw in ["mối liên hệ", "ảnh hưởng qua lại", "cả a và b"]):
+        return "multi_hop"
+    if any(kw in q for kw in ["knowledge graph", "schema", "ontology", "xây dựng đồ thị"]):
+        return "kg_construction"
+
     return "factual"
+
+
+# ── ReAct gating ───────────────────────────────────────────────────────────────
+
+_REACT_INTENTS = {"analytical", "comparison", "multi_hop", "kg_construction"}
 
 
 def should_use_react(query_type: str) -> bool:
@@ -178,19 +173,21 @@ def should_use_react(query_type: str) -> bool:
     Decide whether to route to ReAct loop based on query type.
 
     ReAct is beneficial for:
-      - multi_hop: cross-doc reasoning
-      - summarization: aggregate across docs
       - analytical: causal/why questions benefit from step-by-step reasoning
+      - comparison: cross-entity comparison across documents
+      - multi_hop: cross-doc entity reasoning
+      - kg_construction: schema/structure questions
 
     ReAct is NOT needed for:
       - factual: single-doc lookup, direct answer
       - out_of_domain: short-circuit early
+      - summarization: aggregate across docs (handled separately)
     """
-    return query_type in ("multi_hop", "summarization", "analytical")
+    return query_type in _REACT_INTENTS
 
 
 def describe_routing(query_type: str, use_react: bool) -> str:
     """Human-readable description of routing decision."""
     if use_react:
-        return f"ReAct loop ({query_type} query — cross-doc reasoning)"
+        return f"ReAct loop ({query_type} query — multi-step reasoning)"
     return f"Standard retrieval ({query_type} query — single-doc lookup)"

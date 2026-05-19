@@ -1,13 +1,13 @@
-"""Enterprise RAG API — V3 GraphRAG (Apple Silicon optimized).
+"""VRAG API — Hybrid GraphRAG (Apple Silicon optimized).
 
 Architecture:
   - Vector search: Qdrant + BGE-M3 embeddings (1024-dim, 5 named views + graph_aware)
   - Graph: Neo4j knowledge graph (entities, relations, communities, temporal)
   - Entity extraction: GLiNER (zero-shot, 168M params)
-  - LLM: Ollama (Qwen3.5-4B Q4_K_M GGUF, Metal-accelerated, thinking-mode bypassed)
+  - LLM: Ollama (Qwen3.5-9B, Metal-accelerated, thinking-mode bypassed)
   - Cache: Redis semantic cache (embedding-keyed, TTL configurable)
 
-Endpoints live under /api/v3 (see api/routes_v3.py for the full V3 surface):
+Endpoints live under /api/v3 (REST API contract version — see api/routes/):
   chat / chat/stream / chat/react / ingest/upload /
   gaea/refine / hefr/populate / hefr/retrieve / rerank/l2r/test /
   cross_doc/build / community/build / health / health/deep
@@ -30,17 +30,17 @@ from src.models import HealthResponse, ServiceCheck
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
-    logger.info("Starting RAG API V3...")
+    logger.info("Starting VRAG API...")
     logger.info(f"  Ollama:    {settings.ollama_base_url} / {settings.ollama_model}")
     logger.info(f"  Embedding: {settings.ollama_embed_url} / {settings.ollama_embed_model}")
     logger.info(f"  Qdrant:    {settings.qdrant_url}")
     logger.info(f"  Neo4j:     {settings.neo4j_url}")
 
     clients = await init_clients()
-    logger.info("RAG API V3 ready")
+    logger.info("VRAG API ready")
     yield
 
-    logger.info("Shutting down RAG API V3...")
+    logger.info("Shutting down VRAG API...")
     if clients.http:
         await clients.http.aclose()
     if clients.llm and clients.llm._client:
@@ -54,15 +54,15 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(
-    title="Enterprise RAG API V3",
+    title="VRAG API",
     version="3.0.0",
-    description="V3 GraphRAG: multi-view vectors + GAEA + ReAct + L2R + HEFR",
+    description="VRAG — Hybrid GraphRAG: multi-view vectors + GAEA + ReAct + L2R + HEFR",
     lifespan=lifespan,
 )
 
-from api.routes_v3 import router as v3_router  # noqa: E402
+from api.routes import router as v3_router  # noqa: E402
 
-app.include_router(v3_router, prefix="/api/v3", tags=["v3"])
+app.include_router(v3_router, prefix="/api/v3", tags=["vrag"])
 
 from src.metrics import MetricsMiddleware, get_metrics  # noqa: E402
 

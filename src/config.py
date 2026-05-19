@@ -15,7 +15,7 @@ class Settings(BaseSettings):
 
     # ── LLM ─────────────────────────────────────────────────────────────────
     ollama_base_url: str = "http://host.docker.internal:11434"
-    ollama_model: str = "qwen3.5:4b"
+    ollama_model: str = "qwen3.5:9b"
 
     # ── Embedding ───────────────────────────────────────────────────────────
     ollama_embed_model: str = "bge-m3"
@@ -53,6 +53,7 @@ class Settings(BaseSettings):
     retrieval_top_k: int = 8
     retrieval_vector_top_k: int = 20
     retrieval_graph_top_k: int = 15  # reduced from 20 to save memory
+    retrieval_path_top_k: int = 30
     rrf_k: int = 60
 
     # ── Multi-tenancy ────────────────────────────────────────────────────────
@@ -68,9 +69,9 @@ class Settings(BaseSettings):
     # ── Dashboard ───────────────────────────────────────────────────────────
     dashboard_port: int = 7860
 
-    # ── Pipeline V2 — Quality-first GraphRAG ────────────────────────────────
-    # Feature flag — V2 chỉ chạy khi True. V1 vẫn là default.
-    pipeline_v2_enabled: bool = bool(int(os.environ.get("PIPELINE_V2_ENABLED", "0")))
+    # ── VRAG pipeline — Quality-first GraphRAG ──────────────────────────────
+    # Feature flag kept for backward compat with /health endpoint (always True).
+    pipeline_v2_enabled: bool = bool(int(os.environ.get("PIPELINE_V2_ENABLED", "1")))
 
     # Consistency Simulation (ingest time)
     # consistency_views_enabled=False bypasses 4 LLM view generation calls per chunk
@@ -106,21 +107,22 @@ class Settings(BaseSettings):
     paragraph_max_chars: int = 800
     sentence_max_chars: int = 200
 
-    # Query understanding
-    # 6 reformulations = 6 LLM calls. With qwen3.5:4b that's ~30-60s.
-    # Cap reformulations via env when speed matters.
+    # Query understanding — VRAG Tier 1 (Zero-LLM by default)
+    # Default 0 = pure zero-LLM (only GLiNER + centroid router).
+    # Each unit adds 1 LLM reformulation in order:
+    #   1=rewrite, 2=+keywords, 3=+hyde, 4=+decompose, 5=+step_back
+    # With qwen3.5:9b each LLM call is ~10-30s — set higher only when quality matters more than latency.
     query_understanding_enabled: bool = bool(
         int(os.environ.get("QUERY_UNDERSTANDING_ENABLED", "1"))
     )
-    query_reformulations: int = int(os.environ.get("QUERY_REFORMULATIONS", "3"))
+    query_reformulations: int = int(os.environ.get("QUERY_REFORMULATIONS", "0"))
     query_understanding_timeout_s: float = float(
         os.environ.get("QUERY_UNDERSTANDING_TIMEOUT_S", "60")
     )
 
     # Multi-path retrieval
-    retrieval_v2_path_top_k: int = 30
-    retrieval_v2_views: list[str] = ["dense", "question", "summary", "keywords"]
-    retrieval_v2_use_sparse: bool = True
+    retrieval_views: list[str] = ["dense", "question", "summary", "keywords"]
+    retrieval_use_sparse: bool = True
 
     # Rerank stages
     # Stage 1 cross-encoder: needs ~600MB model from HF. Disabled by default
@@ -136,9 +138,23 @@ class Settings(BaseSettings):
     rerank_stage3_enabled: bool = bool(int(os.environ.get("RERANK_STAGE3_ENABLED", "0")))
     rerank_stage3_top_k: int = 10
     final_top_k: int = 5
+    # VRAG Tier 3b: Dynamic Early-Exit threshold. If stage1 (cross-encoder)
+    # avg confidence on top-N >= this, skip stage3 LLM judge. Set to 1.1 to disable.
+    rerank_early_exit_threshold: float = float(
+        os.environ.get("RERANK_EARLY_EXIT_THRESHOLD", "0.85")
+    )
+
+    # VRAG Tier 3c: LLMLingua-2 context compression. Reduces context tokens
+    # before LLM gen for ~30-50% gen-time savings. First call downloads ~600MB.
+    context_compression_enabled: bool = bool(
+        int(os.environ.get("CONTEXT_COMPRESSION_ENABLED", "0"))
+    )
+    context_compression_rate: float = float(
+        os.environ.get("CONTEXT_COMPRESSION_RATE", "0.4")
+    )
 
     # Generation deliberation
-    # Defaults tuned for qwen3.5:4b CPU/Metal speed. Enable richer modes via env
+    # Defaults tuned for qwen3.5:9b CPU/Metal speed. Enable richer modes via env
     # when on GPU. Each draft is 1 LLM call; judge = 1 more; outline = 1 more.
     generation_outline_enabled: bool = bool(int(os.environ.get("GENERATION_OUTLINE_ENABLED", "0")))
     generation_drafts: int = int(os.environ.get("GENERATION_DRAFTS", "1"))

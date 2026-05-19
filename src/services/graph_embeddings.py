@@ -118,7 +118,7 @@ async def aggregate_entity_embedding(
         return None
 
     # Fetch embeddings from Qdrant
-    from src.services.vector_v2 import to_int_id
+    from src.services.vector import to_int_id
 
     point_ids = [to_int_id(r["chunk_id"]) for r in rows]
     weights = np.array([float(r["weight"]) for r in rows])
@@ -206,7 +206,7 @@ async def fetch_chunk_embeddings(
     """Bulk fetch dense embeddings for chunk_ids."""
     if not chunk_ids:
         return {}
-    from src.services.vector_v2 import to_int_id
+    from src.services.vector import to_int_id
 
     id_map = {to_int_id(cid): cid for cid in chunk_ids}
     try:
@@ -328,7 +328,7 @@ async def batch_refine_tenant(
     """
     from qdrant_client import models as qm
 
-    from src.services.vector_v2 import to_int_id
+    from src.services.vector import to_int_id
 
     # Step 1: build entity cache
     entity_cache = await build_entity_embedding_cache(

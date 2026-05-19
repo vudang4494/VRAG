@@ -1,0 +1,344 @@
+{
+  "dataset": "vi_benchmark_v2",
+  "description": "Benchmark for 51-paper RAG corpus — RAG systems, embeddings, knowledge graphs, reranking, multi-hop reasoning",
+  "tenant": "rag51",
+  "version": "2.0",
+  "queries": [
+    {
+      "q_id": "f01",
+      "query": "LightRAG sử dụng cơ chế dual-level retrieval như thế nào?",
+      "category": "factual_local",
+      "expected_keywords": ["dual-level", "entity", "relationship", "graph", "vector"],
+      "expected_docs": ["LightRAG"],
+      "notes": "LightRAG paper defines dual-level retrieval as key contribution"
+    },
+    {
+      "q_id": "f02",
+      "query": "RAPTOR xây dựng cây tóm tắt từ dưới lên bằng phương pháp nào?",
+      "category": "factual_local",
+      "expected_keywords": ["cluster", "summarize", "recursive", "tree", "bottom-up"],
+      "expected_docs": ["RAPTOR"],
+      "notes": "RAPTOR = Recursive Abstractive Processing for Tree-Organized Retrieval"
+    },
+    {
+      "q_id": "f03",
+      "query": "HippoRAG kết hợp kiến thức từ nhiều documents bằng cách nào?",
+      "category": "factual_local",
+      "expected_keywords": ["hippocampal", "PageRank", "knowledge graph", "neocortex", "indexing"],
+      "expected_docs": ["HippoRAG"],
+      "notes": "HippoRAG uses Personalized PageRank on KG built from entity extraction"
+    },
+    {
+      "q_id": "f04",
+      "query": "Self-RAG sử dụng reflection tokens để làm gì?",
+      "category": "factual_local",
+      "expected_keywords": ["reflection", "retrieve", "ISREL", "ISSUP", "critique"],
+      "expected_docs": ["Self-RAG"],
+      "notes": "Self-RAG introduces special tokens: Retrieve, ISREL, ISUP, ISUSE"
+    },
+    {
+      "q_id": "f05",
+      "query": "BGE-M3 hỗ trợ bao nhiêu ngôn ngữ và sử dụng phương pháp huấn luyện gì?",
+      "category": "factual_local",
+      "expected_keywords": ["multilingual", "100+", "self-knowledge distillation", "dense", "sparse"],
+      "expected_docs": ["BGE-M3"],
+      "notes": "BGE-M3 supports 100+ languages, uses self-knowledge distillation"
+    },
+    {
+      "q_id": "f06",
+      "query": "Late interaction trong ColBERT hoạt động như thế nào?",
+      "category": "factual_local",
+      "expected_keywords": ["late interaction", "MaxSim", "token-level", "query", "document"],
+      "expected_docs": ["ModernBERT-ColBERT"],
+      "notes": "ColBERT uses late interaction — per-token MaxSim between query and document"
+    },
+    {
+      "q_id": "f07",
+      "query": "E5 embedding model được huấn luyện bằng phương pháp nào?",
+      "category": "factual_local",
+      "expected_keywords": ["contrastive", "weakly-supervised", "CCPairs", "text pair"],
+      "expected_docs": ["E5"],
+      "notes": "E5 uses weakly-supervised contrastive pre-training on CCPairs dataset"
+    },
+    {
+      "q_id": "f08",
+      "query": "iText2KG xây dựng knowledge graph từ papers bằng 4 modules nào?",
+      "category": "factual_local",
+      "expected_keywords": ["Document Distiller", "Entity Extractor", "Relation Extractor", "Graph Integrator"],
+      "expected_docs": ["iText2KG"],
+      "notes": "iText2KG has 4 modules: distiller, entity extractor, relation extractor, graph integrator"
+    },
+    {
+      "q_id": "m01",
+      "query": "So sánh LightRAG và HippoRAG: cái nào tốt hơn cho multi-hop queries và tại sao?",
+      "category": "multi_hop",
+      "expected_keywords": ["LightRAG", "HippoRAG", "multi-hop", "entity", "PageRank"],
+      "expected_docs": ["LightRAG", "HippoRAG"],
+      "notes": "LightRAG uses dual-level, HippoRAG uses Personalized PageRank — compare approaches"
+    },
+    {
+      "q_id": "m02",
+      "query": "Thuật toán Leiden phân cụm cộng đồng khác gì so với Louvain?",
+      "category": "multi_hop",
+      "expected_keywords": ["Leiden", "Louvain", "community detection", "quality function", "connected"],
+      "expected_docs": ["LightRAG"],
+      "notes": "GraphRAG paper compares Leiden vs Louvain — Leiden guarantees connected communities"
+    },
+    {
+      "q_id": "m03",
+      "query": "RAPTOR và GraphRAG khác nhau như thế nào trong việc tổ chức tài liệu?",
+      "category": "multi_hop",
+      "expected_keywords": ["RAPTOR", "GraphRAG", "tree", "community", "summarization"],
+      "expected_docs": ["RAPTOR", "LightRAG"],
+      "notes": "RAPTOR uses hierarchical tree summarization, GraphRAG uses community detection"
+    },
+    {
+      "q_id": "m04",
+      "query": "HyDE tạo hypothetical document như thế nào để cải thiện retrieval?",
+      "category": "multi_hop",
+      "expected_keywords": ["HyDE", "hypothetical", "document embedding", "dense retrieval"],
+      "expected_docs": ["AstuteRAG"],
+      "notes": "HyDE = Hypothetical Document Embeddings — LLM generates hypothetical answer"
+    },
+    {
+      "q_id": "c01",
+      "query": "So sánh ColBERT late interaction với BGE-M3 dense retrieval: cái nào chính xác hơn, cái nào nhanh hơn?",
+      "category": "comparison",
+      "expected_keywords": ["ColBERT", "BGE-M3", "late interaction", "dense", "reranking"],
+      "expected_docs": ["ModernBERT-ColBERT", "BGE-M3"],
+      "notes": "ColBERT late interaction more precise but slower; BGE-M3 faster for initial retrieval"
+    },
+    {
+      "q_id": "c02",
+      "query": "Self-RAG vs standard RAG: ưu điểm của reflection tokens là gì?",
+      "category": "comparison",
+      "expected_keywords": ["Self-RAG", "reflection tokens", "retrieve", "critique", "adaptive"],
+      "expected_docs": ["Self-RAG"],
+      "notes": "Self-RAG adaptively decides when to retrieve using reflection tokens"
+    },
+    {
+      "q_id": "c03",
+      "query": "GraphRAG và standard vector RAG khác nhau thế nào trên benchmarks text?",
+      "category": "comparison",
+      "expected_keywords": ["GraphRAG", "RAG", "local", "global", "entity", "community"],
+      "expected_docs": ["RAG-vs-GraphRAG"],
+      "notes": "RAG-vs-GraphRAG paper shows GraphRAG excels on global sensemaking tasks"
+    },
+    {
+      "q_id": "c04",
+      "query": "BiXSE cải thiện dense retrieval bằng cách nào so với InfoNCE loss thông thường?",
+      "category": "comparison",
+      "expected_keywords": ["BiXSE", "graded relevance", "binary cross-entropy", "InfoNCE"],
+      "expected_docs": ["BiXSE"],
+      "notes": "BiXSE uses BCE over LLM-generated graded relevance instead of binary InfoNCE"
+    },
+    {
+      "q_id": "c05",
+      "query": "So sánh KET-RAG với GraphRAG về indexing cost và retrieval quality",
+      "category": "comparison",
+      "expected_keywords": ["KET-RAG", "GraphRAG", "indexing cost", "knowledge graph", "retrieval"],
+      "expected_docs": ["KET-RAG"],
+      "notes": "KET-RAG reduces indexing cost by 20x vs GraphRAG while maintaining quality"
+    },
+    {
+      "q_id": "s01",
+      "query": "Tóm tắt các phương pháp cải thiện hệ thống RAG trong các nghiên cứu gần đây",
+      "category": "summarization",
+      "expected_keywords": ["RAG", "improvement", "retrieval", "generation", "hybrid"],
+      "expected_docs": ["RAG-Survey-2025", "ChunkRAG", "SemanticChunking"],
+      "notes": "Survey covers: query decomposition, chunking, reranking, generation optimization"
+    },
+    {
+      "q_id": "s02",
+      "query": "Các phương pháp embedding hiện đại (2024-2025) bao gồm những gì?",
+      "category": "summarization",
+      "expected_keywords": ["embedding", "dense", "multi-vector", "sparse", "late interaction"],
+      "expected_docs": ["BGE-M3", "E5", "BiXSE", "LLM-QL"],
+      "notes": "Modern embeddings: BGE-M3 multi-functionality, E5 contrastive, BiXSE graded, LLM-QL"
+    },
+    {
+      "q_id": "s03",
+      "query": "Các benchmark đánh giá multi-hop QA (FanOutQA, MINTQA) khác nhau thế nào?",
+      "category": "summarization",
+      "expected_keywords": ["FanOutQA", "MINTQA", "multi-hop", "benchmark", "Wikipedia"],
+      "expected_docs": ["FanOutQA"],
+      "notes": "FanOutQA uses Wikipedia; MINTQA tests new and tail knowledge"
+    },
+    {
+      "q_id": "a01",
+      "query": "Đánh giá: chiến lược chunking nào hiệu quả nhất cho RAG?",
+      "category": "analytical",
+      "expected_keywords": ["chunking", "semantic", "fixed-size", "proposition", "context"],
+      "expected_docs": ["SemanticChunking", "ChunkRAG", "DenseX"],
+      "notes": "Semantic chunking vs fixed-size — SemanticChunking paper finds semantic not always better"
+    },
+    {
+      "q_id": "a02",
+      "query": "RAG systems nên dùng cross-encoder hay bi-encoder cho reranking?",
+      "category": "analytical",
+      "expected_keywords": ["cross-encoder", "bi-encoder", "reranking", "efficiency", "accuracy"],
+      "expected_docs": ["SetEncoder", "PERank", "ModernBERT-ColBERT"],
+      "notes": "Cross-encoder more accurate but slower; bi-encoder faster for initial retrieval"
+    },
+    {
+      "q_id": "a03",
+      "query": "Tại sao retrieval granularity (proposition vs passage) ảnh hưởng đến QA performance?",
+      "category": "analytical",
+      "expected_keywords": ["proposition", "passage", "granularity", "retrieval", "atomic"],
+      "expected_docs": ["DenseX"],
+      "notes": "DenseX paper finds proposition-level retrieval outperforms passage-level"
+    },
+    {
+      "q_id": "a04",
+      "query": "Late chunking (chunk sau khi embed) khác early chunking ở điểm nào?",
+      "category": "analytical",
+      "expected_keywords": ["late chunking", "early chunking", "contextual", "embedding", "pooling"],
+      "expected_docs": ["SemanticChunking"],
+      "notes": "Late chunking preserves context from surrounding chunks in the embedding"
+    },
+    {
+      "q_id": "a05",
+      "query": "Các phương pháp nào dùng LLM để cải thiện reranking?",
+      "category": "analytical",
+      "expected_keywords": ["LLM", "reranking", "listwise", " distillation", "cross-encoder"],
+      "expected_docs": ["RankDistillLLM"],
+      "notes": "Rank-DistiLLM distills LLM reranking capability into efficient cross-encoder"
+    },
+    {
+      "q_id": "e01",
+      "query": "Entity nào xuất hiện trong nhiều papers nhất trong corpus?",
+      "category": "entity_pivot",
+      "expected_keywords": ["entity", "cross-document", "RAG", "GraphRAG", "embedding"],
+      "expected_docs": ["LightRAG", "Self-RAG", "RAG-vs-GraphRAG", "RAG-Survey-2025"],
+      "notes": "'RAG' should appear across all RAG-system papers — test cross-doc entity bridging"
+    },
+    {
+      "q_id": "e02",
+      "query": "Thuật toán community detection nào được dùng phổ biến nhất trong GraphRAG papers?",
+      "category": "entity_pivot",
+      "expected_keywords": ["Leiden", "Louvain", "community detection", "GraphRAG"],
+      "expected_docs": ["LightRAG"],
+      "notes": "Leiden algorithm is most commonly used in GraphRAG systems"
+    },
+    {
+      "q_id": "e03",
+      "query": "Mối quan hệ giữa ColBERT và ModernBERT trong biomedical retrieval là gì?",
+      "category": "entity_pivot",
+      "expected_keywords": ["ModernBERT", "ColBERT", "biomedical", "reranking", "retrieval"],
+      "expected_docs": ["ModernBERT-ColBERT"],
+      "notes": "ModernBERT provides initial retrieval, ColBERT provides fine-grained reranking"
+    },
+    {
+      "q_id": "v01",
+      "query": "Embedding model nào tốt nhất cho tiếng Việt theo các benchmarks gần đây?",
+      "category": "vietnamese_complex",
+      "expected_keywords": ["multilingual", "BGE-M3", "E5", "Vietnamese", "MTEB"],
+      "expected_docs": ["BGE-M3", "E5-Multilingual"],
+      "notes": "BGE-M3 and E5-multilingual both support Vietnamese on MTEB benchmark"
+    },
+    {
+      "q_id": "v02",
+      "query": "Làm sao để đánh giá RAG system một cách toàn diện?",
+      "category": "vietnamese_complex",
+      "expected_keywords": ["evaluation", "RAGAS", "faithfulness", "relevance", "context"],
+      "expected_docs": ["MedRAG-Benchmark"],
+      "notes": "RAGAS-style evaluation: faithfulness, answer relevance, context relevance"
+    },
+    {
+      "q_id": "v03",
+      "query": "Mô hình nào được sử dụng để extract entities từ văn bản trong HippoRAG và iText2KG?",
+      "category": "vietnamese_complex",
+      "expected_keywords": ["entity extraction", "LLM", "GLiNER", "HippoRAG", "iText2KG"],
+      "expected_docs": ["HippoRAG", "iText2KG"],
+      "notes": "Both use LLM-based entity extraction — HippoRAG uses LLM, iText2KG uses LLM"
+    },
+    {
+      "q_id": "v04",
+      "query": "Hệ thống RAG nào phù hợp nhất cho corpus 50+ papers về cùng một domain?",
+      "category": "vietnamese_complex",
+      "expected_keywords": ["GraphRAG", "LightRAG", "HippoRAG", "community", "entity"],
+      "expected_docs": ["LightRAG", "HippoRAG", "RAG-vs-GraphRAG"],
+      "notes": "Graph-based RAG (LightRAG, HippoRAG) best for dense corpus with shared entities"
+    },
+    {
+      "q_id": "o01",
+      "query": "Công thức nấu phở Hà Nội ngon nhất là gì?",
+      "category": "out_of_domain",
+      "expected_keywords": [],
+      "expected_docs": [],
+      "notes": "Out-of-domain — food/cooking, should be refused"
+    },
+    {
+      "q_id": "o02",
+      "query": "Bitcoin sẽ lên hay xuống trong tuần tới?",
+      "category": "out_of_domain",
+      "expected_keywords": [],
+      "expected_docs": [],
+      "notes": "Out-of-domain — financial prediction, should be refused"
+    },
+    {
+      "q_id": "o03",
+      "query": "Ai là tổng thống Hoa Kỳ năm 2026?",
+      "category": "out_of_domain",
+      "expected_keywords": [],
+      "expected_docs": [],
+      "notes": "Out-of-domain — real-world knowledge, should be refused"
+    },
+    {
+      "q_id": "kg01",
+      "query": "Knowledge Graph construction pipeline bao gồm những bước nào từ raw text đến graph?",
+      "category": "kg_construction",
+      "expected_keywords": ["entity extraction", "relation extraction", "knowledge graph", "LLM", "Neo4j"],
+      "expected_docs": ["iText2KG", "AutoSchemaKG", "Wikontic"],
+      "notes": "KG construction: NER → relation extraction → entity linking → graph storage"
+    },
+    {
+      "q_id": "kg02",
+      "query": "Wikontic khác gì iText2KG trong việc xây dựng knowledge graph?",
+      "category": "kg_construction",
+      "expected_keywords": ["Wikontic", "Wikidata", "ontology", "constraint", "schema"],
+      "expected_docs": ["Wikontic", "iText2KG"],
+      "notes": "Wikontic aligns to Wikidata ontology; iText2KG is schema-agnostic"
+    },
+    {
+      "q_id": "kg03",
+      "query": "AutoSchemaKG xây dựng schema động bằng cách nào từ web-scale corpus?",
+      "category": "kg_construction",
+      "expected_keywords": ["AutoSchemaKG", "schema induction", "LLM", "ATLAS", "web-scale"],
+      "expected_docs": ["AutoSchemaKG"],
+      "notes": "AutoSchemaKG uses LLM to simultaneously extract triples and induce schemas"
+    },
+    {
+      "q_id": "rerank01",
+      "query": "SetEncoder cải thiện reranking listwise bằng cách nào với inter-passage attention?",
+      "category": "reranking",
+      "expected_keywords": ["SetEncoder", "inter-passage", "permutation-invariant", "reranking", "attention"],
+      "expected_docs": ["SetEncoder"],
+      "notes": "SetEncoder uses inter-passage attention — permutation invariant, handles variable input size"
+    },
+    {
+      "q_id": "rerank02",
+      "query": "PERank nào đạt hiệu quả cao nhất trong passage reranking với LLM?",
+      "category": "reranking",
+      "expected_keywords": ["PERank", "passage embedding", "listwise", "LLM", "reranking"],
+      "expected_docs": ["PERank"],
+      "notes": "PERank uses passage embeddings as context for efficient LLM-based reranking"
+    },
+    {
+      "q_id": "agentic01",
+      "query": "MAO-ARAG sử dụng multi-agent orchestration cho RAG như thế nào?",
+      "category": "agentic_rag",
+      "expected_keywords": ["MAO-ARAG", "multi-agent", "orchestration", "planner", "executor"],
+      "expected_docs": ["AgenticRAG"],
+      "notes": "MAO-ARAG uses planner agent to select executor agents dynamically"
+    },
+    {
+      "q_id": "agentic02",
+      "query": "ComposeRAG modular architecture gồm những components nào?",
+      "category": "agentic_rag",
+      "expected_keywords": ["ComposeRAG", "modular", "decomposition", "verification", "self-reflection"],
+      "expected_docs": ["ComposeRAG"],
+      "notes": "ComposeRAG decomposes into: question decomposition, retrieval decision, answer verification"
+    }
+  ]
+}

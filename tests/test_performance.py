@@ -21,7 +21,7 @@ class TestLLMPerformance:
         r = httpx.post(
             f"{OLLAMA}/v1/chat/completions",
             json={
-                "model": "qwen3.5:4b",
+                "model": "qwen3.5:9b",
                 "messages": [{"role": "user", "content": prompt}],
                 "max_tokens": 80,
                 "temperature": 0.3,
@@ -41,7 +41,7 @@ class TestLLMPerformance:
             r = httpx.post(
                 f"{OLLAMA}/v1/chat/completions",
                 json={
-                    "model": "qwen3.5:4b",
+                    "model": "qwen3.5:9b",
                     "messages": [{"role": "user", "content": f"Q{i}"}],
                     "max_tokens": 40,
                 },
@@ -69,7 +69,7 @@ class TestLLMPerformance:
             r = httpx.post(
                 f"{OLLAMA}/v1/chat/completions",
                 json={
-                    "model": "qwen3.5:4b",
+                    "model": "qwen3.5:9b",
                     "messages": [{"role": "user", "content": f"Q{i}"}],
                     "max_tokens": 40,
                 },
@@ -134,7 +134,7 @@ class TestRAGPerformance:
             r = httpx.post(
                 f"{BASE}/v1/chat/completions",
                 json={
-                    "model": "qwen3.5:4b",
+                    "model": "qwen3.5:9b",
                     "messages": [{"role": "user", "content": f"Question {i}: explain RAG"}],
                     "max_tokens": 80,
                 },
@@ -156,7 +156,7 @@ class TestRAGPerformance:
             r = httpx.post(
                 f"{BASE}/v1/chat/completions",
                 json={
-                    "model": "qwen3.5:4b",
+                    "model": "qwen3.5:9b",
                     "messages": [{"role": "user", "content": f"Q{i}"}],
                     "max_tokens": 40,
                 },
@@ -185,7 +185,7 @@ class TestCachePerformance:
             r = httpx.post(
                 f"{BASE}/v1/chat/completions",
                 json={
-                    "model": "qwen3.5:4b",
+                    "model": "qwen3.5:9b",
                     "messages": [{"role": "user", "content": query}],
                     "max_tokens": 80,
                 },

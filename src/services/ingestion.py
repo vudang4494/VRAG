@@ -33,7 +33,7 @@ from src.services.kg import (
     upsert_chunk_and_entities,
 )
 from src.services.pii_mask import mask_chunks
-from src.services.vector import upsert_v2
+from src.services.vector import upsert
 
 
 def _doc_hash(content: bytes) -> str:
@@ -373,7 +373,7 @@ async def ingest_document(
             }
         )
 
-    qdrant_task = upsert_v2(clients.qdrant, settings.qdrant_collection, qdrant_points)
+    qdrant_task = upsert(clients.qdrant, settings.qdrant_collection, qdrant_points)
 
     async def _neo4j_writes():
         total_e = 0

@@ -134,7 +134,7 @@ async def chat(body: dict[str, Any]):
     for attempt in range(max_retries + 1):
         # 2. Multi-path retrieval
         t0 = time.monotonic()
-        top_k_per_path = settings.retrieval_v2_path_top_k * (1 + attempt)
+        top_k_per_path = settings.retrieval_path_top_k * (1 + attempt)
         candidates = await multi_path_retrieve(
             understanding,
             clients,
@@ -195,7 +195,8 @@ async def chat(body: dict[str, Any]):
             stage2_top_k=settings.rerank_stage3_top_k,
             stage3_top_k=settings.final_top_k,
             enable_stage1=settings.rerank_stage1_enabled,
-            enable_stage3=False,
+            enable_stage3=settings.rerank_stage3_enabled,
+            early_exit_threshold=settings.rerank_early_exit_threshold,
         )
         top_reranked = await rerank_l2r(
             query=understanding.get("rewrite") or query,
@@ -213,6 +214,25 @@ async def chat(body: dict[str, Any]):
 
         # 4. Context assembly
         context = format_context(top_reranked)
+
+        # 4b. VRAG Tier 3c: LLMLingua-2 context compression (opt-in via env).
+        # Compresses once; the compressed string is reused across outline/draft/refine/validate.
+        if settings.context_compression_enabled and context.strip():
+            from src.services.context_compress import compress_context
+
+            t0_compress = time.monotonic()
+            context, compress_stats = await compress_context(
+                context, rate=settings.context_compression_rate
+            )
+            latency[f"context_compression_attempt{attempt}_ms"] = (
+                time.monotonic() - t0_compress
+            ) * 1000
+            if compress_stats.get("compressed"):
+                logger.info(
+                    f"  context_compression: {compress_stats.get('original_tokens', 0)} → "
+                    f"{compress_stats.get('compressed_tokens', 0)} tokens "
+                    f"(ratio={compress_stats.get('ratio', 'n/a')})"
+                )
 
         # 5. Generation: outline → drafts → judge
         t0 = time.monotonic()

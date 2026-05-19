@@ -1,7 +1,7 @@
 """ReAct Loop — explicit multi-step Thought→Action→Observation reasoning.
 
 Phase 2 novel contribution: makes LLM reasoning traceable + helps small LLM
-(qwen3.5:4b) by decomposing complex queries into discrete sub-tasks.
+(qwen3.5:9b) by decomposing complex queries into discrete sub-tasks.
 
 Each step:
   1. THOUGHT: LLM decides next action based on history
@@ -218,7 +218,7 @@ class ReActAction:
         if not query:
             return {"chunks_added": 0, "message": "empty query"}
         from src.services.embedding import embed_single
-        from src.services.vector_v2 import build_tenant_filter, search_single_view
+        from src.services.vector import build_tenant_filter, search_single_view
 
         try:
             q_vec = await embed_single(

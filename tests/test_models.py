@@ -17,7 +17,7 @@ class TestOllamaServer:
 
     def test_qwen_model_available(self):
         names = [m["name"] for m in httpx.get(f"{OLLAMA}/api/tags", timeout=10).json()["models"]]
-        assert "qwen3.5:4b" in names, f"qwen3.5:4b not in {names}"
+        assert "qwen3.5:9b" in names, f"qwen3.5:9b not in {names}"
 
     def test_bge_model_available(self):
         names = [m["name"] for m in httpx.get(f"{OLLAMA}/api/tags", timeout=10).json()["models"]]
@@ -31,7 +31,7 @@ class TestLLMInference:
         r = httpx.post(
             f"{OLLAMA}/v1/chat/completions",
             json={
-                "model": "qwen3.5:4b",
+                "model": "qwen3.5:9b",
                 "messages": [{"role": "user", "content": "Xin chao"}],
                 "max_tokens": 60,
                 "temperature": 0.3,
@@ -48,7 +48,7 @@ class TestLLMInference:
         r = httpx.post(
             f"{OLLAMA}/v1/chat/completions",
             json={
-                "model": "qwen3.5:4b",
+                "model": "qwen3.5:9b",
                 "messages": [{"role": "user", "content": "What is AI?"}],
                 "max_tokens": 80,
             },
@@ -62,7 +62,7 @@ class TestLLMInference:
         r = httpx.post(
             f"{OLLAMA}/v1/chat/completions",
             json={
-                "model": "qwen3.5:4b",
+                "model": "qwen3.5:9b",
                 "messages": [{"role": "user", "content": "Count 1 to 5"}],
                 "max_tokens": 50,
                 "temperature": 0.0,
@@ -76,7 +76,7 @@ class TestLLMInference:
         r = httpx.post(
             f"{OLLAMA}/v1/chat/completions",
             json={
-                "model": "qwen3.5:4b",
+                "model": "qwen3.5:9b",
                 "messages": [
                     {"role": "system", "content": "Answer only with the word HELLO."},
                     {"role": "user", "content": "Hi!"},
@@ -92,7 +92,7 @@ class TestLLMInference:
         r = httpx.post(
             f"{OLLAMA}/v1/chat/completions",
             json={
-                "model": "qwen3.5:4b",
+                "model": "qwen3.5:9b",
                 "messages": [
                     {"role": "user", "content": "My name is Minh."},
                     {"role": "assistant", "content": "Hello Minh!"},
@@ -111,7 +111,7 @@ class TestLLMInference:
         r = httpx.post(
             f"{OLLAMA}/v1/chat/completions",
             json={
-                "model": "qwen3.5:4b",
+                "model": "qwen3.5:9b",
                 "messages": [{"role": "user", "content": "?"}],
                 "max_tokens": 20,
             },

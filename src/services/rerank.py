@@ -203,11 +203,16 @@ async def rerank_full_pipeline(
     stage3_top_k: int = 5,
     enable_stage1: bool = True,
     enable_stage3: bool = True,
+    early_exit_threshold: float = 0.85,
 ) -> list[dict]:
     """
-    Run all 3 stages with final scoring.
+    VRAG Tier 3b: 3-stage rerank with Dynamic Early-Exit.
 
     Final score = 0.4 * stage1 + 0.3 * stage2 + 0.3 * stage3.
+
+    Early-Exit: nếu avg(top-stage3_top_k stage1 scores) >= early_exit_threshold,
+    auto-skip stage3 LLM judge (gọt 50% rerank time, theo caitien.md plan).
+    Set early_exit_threshold=1.1 để tắt early-exit.
     """
     if not candidates:
         return []
@@ -221,7 +226,20 @@ async def rerank_full_pipeline(
 
     stage2 = await rerank_stage2(query, stage1, http, embed_url, embed_model, top_k=stage2_top_k)
 
-    if enable_stage3:
+    # Dynamic Early-Exit: only meaningful when stage1 produced real cross-encoder scores.
+    skip_stage3 = False
+    if enable_stage1 and enable_stage3 and stage2:
+        top_scores = [c.get("stage1_score", 0.0) for c in stage2[:stage3_top_k]]
+        if top_scores:
+            avg_conf = sum(top_scores) / len(top_scores)
+            if avg_conf >= early_exit_threshold:
+                skip_stage3 = True
+                logger.info(
+                    f"  rerank early-exit: stage1 avg_conf={avg_conf:.3f} >= "
+                    f"{early_exit_threshold} — skipping stage3 LLM judge"
+                )
+
+    if enable_stage3 and not skip_stage3:
         stage3 = await rerank_stage3(query, stage2, llm, llm_model, top_k=stage3_top_k)
     else:
         stage3 = stage2[:stage3_top_k]
@@ -230,7 +248,7 @@ async def rerank_full_pipeline(
     for c in stage3:
         s1 = c.get("stage1_score", 0.0)
         s2 = c.get("stage2_score", 0.0)
-        s3 = c.get("stage3_score", s2)
+        s3 = c.get("stage3_score", s2)  # fallback to s2 when stage3 skipped
         c["final_score"] = 0.4 * s1 + 0.3 * s2 + 0.3 * s3
     stage3.sort(key=lambda x: x["final_score"], reverse=True)
     return stage3
