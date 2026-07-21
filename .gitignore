@@ -1,0 +1,95 @@
+# ── Secrets ─────────────────────────────────────────────────────────────
+.env
+.env.local
+.env.production
+.env.*.local
+.env.bak.*
+.env.backup*
+# API key files (RAGAS / cloud LLM judge)
+.openai.key
+.anthropic.key
+.*_api_key
+*.api_key
+secrets/
+
+# ── Claude Code workspace ───────────────────────────────────────────────
+# Intent: track what the project needs to run and reason about itself;
+# keep machine-local settings and personal notes out.
+#
+# This block used to say "track skills and agents" / "CLAUDE.md is the entry
+# point — track it" directly above rules that ignored all three. The comments
+# described the intent; the rules did the opposite. Rules now match the intent.
+# NOTE: gitignore has no inline comments — `#` only starts one at line start.
+# Keep each comment on its own line or the pattern silently matches nothing.
+
+.agents/
+# never commit a venv (a skill venv once reached 949M)
+**/.venv/
+
+# ── Backups + state ─────────────────────────────────────────────────────
+backups/
+
+# ── SSL certs (private keys) ────────────────────────────────────────────
+ssl/*.pem
+ssl/*.key
+ssl/*.crt
+
+# ── Logs ────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Eval result dumps ───────────────────────────────────────────────────
+# Track .md reports + key raw .json dumps for reproducibility / reviewer
+# transparency. Ignore logs, temp files, and small smoke test artifacts.
+eval/results/*.log
+eval/results/tmp_*
+eval/results/*_smoke*.json
+*.eval.json
+# Explicitly track the official benchmark + RAGAS raw data
+# (use git add -f if not already committed)
+
+# ── Large corpus / source documents (not for git) ───────────────────────
+# Research papers and ingest source files — too large to track. Document
+# how to obtain in README. Use volume mount or external storage.
+data/eval/*.pdf
+data/eval/*.docx
+data/eval/*.xlsx
+data/raw/
+
+# ── Local intent centroids (rebuild via scripts/build_intent_centroids.py) ─
+# Bundled into container image at build time; track the file once stable.
+# Uncomment to ignore if you rebuild frequently:
+# config/intent_centroids.npy
+
+# ── Python ──────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+.pytest_cache/
+
+# ── HuggingFace model cache ─────────────────────────────────────────────
+.cache/
+.hf_cache/
+.ruff_cache/
+
+# ── IDE ─────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── OS ──────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Docker overrides ────────────────────────────────────────────────────
+docker-compose.override.yml
+
+# ── Data corpus local (PDF benchmark — không commit) ────────────────────
+data/

@@ -1,0 +1,54 @@
+# ==============================================================================
+# RAG API Dockerfile — Mac Mini M4 Optimized (Minimal)
+# - python:3.12-slim (smallest base)
+# - No Langfuse (saves ~200MB)
+# - uvloop for async speed
+# - Single worker (Ollama is bottleneck, not FastAPI)
+# ==============================================================================
+
+FROM --platform=linux/arm64 python:3.12-slim
+
+LABEL maintainer="Enterprise RAG Team"
+LABEL description="RAG API — FastAPI + uvloop + Hybrid GraphRAG (Mac Mini M4 optimized)"
+
+WORKDIR /app
+
+# ── System deps (minimal) ────────────────────────────────────────────────────
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean \
+    && pip install --no-cache-dir uv
+
+# ── Python deps (layer cached, minimal deps) ────────────────────────────────
+COPY api/requirements.mini.txt /tmp/requirements.txt
+RUN uv pip install --system --no-cache -r /tmp/requirements.txt && rm /tmp/requirements.txt
+
+# ── Source code ─────────────────────────────────────────────────────────────
+COPY src/ ./src/
+COPY api/ ./api/
+COPY plugins/ ./plugins/
+COPY pyproject.toml .
+
+# ── Non-root user ───────────────────────────────────────────────────────────
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
+EXPOSE 8800
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
+    CMD curl -fsS http://localhost:8800/health || exit 1
+
+# Single worker — Ollama (Metal GPU) is the bottleneck, not FastAPI
+# uvloop handles all async I/O efficiently
+CMD ["uvicorn", "api.main:app", \
+     "--host", "0.0.0.0", \
+     "--port", "8800", \
+     "--workers", "1", \
+     "--proxy-headers", \
+     "--forwarded-allow-ips=*", \
+     "--log-level", "info", \
+     "--loop", "uvloop", \
+     "--limit-concurrency", "6", \
+     "--limit-max-requests", "1000", \
+     "--timeout-keep-alive", "30"]

@@ -1,0 +1,123 @@
+[project]
+name = "enterprise-rag-stack"
+version = "2.0.0"
+description = "Self-hosted Hybrid GraphRAG + Vector search platform with Ollama"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Enterprise Team", email = "team@example.com"}
+]
+keywords = ["rag", "graphrag", "llm", "ollama", "qdrant", "neo4j", "enterprise"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.7.0",
+    "python-multipart>=0.0.20",
+    "openai>=1.59.0",
+    "httpx>=0.28.0",
+    "qdrant-client>=1.12.0",
+    "neo4j>=5.27.0",
+    "langfuse>=2.59.0",
+    "redis[hiredis]>=5.2.0",
+    "loguru>=0.7.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.25.0",
+    "pytest-cov>=6.0.0",
+    "httpx>=0.28.0",
+    "ruff>=0.9.0",
+    "mypy>=1.14.0",
+]
+ingestion = [
+    "docling>=2.14.0",
+    "pypdf>=5.1.0",
+    "python-docx>=1.1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+# VRAG is an application run from source, not a distributable library. Docker installs
+# api/requirements.txt and runs the copied tree; host dev runs uvicorn from the repo root.
+# Code lives in src/ and api/ (not a package dir named enterprise_rag_stack), so hatchling
+# cannot build a wheel — and nothing needs one. Tell uv to install deps only.
+package = false
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "DTZ", "T10", "ISC"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Every entry here is a deliberate style choice, not a silenced bug. Do not add one to
+# hide a real defect: `make lint` is the gate two syntax-error scripts slipped past for
+# two months, and it is only worth having if it stays honest.
+#   N806   UPPER_CASE constants declared inside a function — normal Python; ruff only
+#          sees "variable in function".
+#   DTZ005 datetime.now() without tz in report writers — the local wall-clock stamp is
+#          what a human reading the report wants.
+#   F841   benchmark scripts keep intermediates that are printed conditionally.
+#   W291   benchmark_eval.py emits Markdown; two trailing spaces are a hard line break,
+#          so "fixing" them would silently reflow the generated report.
+"__init__.py" = ["F401"]
+    "src/services/retrieval.py" = ["N806"]
+    "src/services/vector.py" = ["N806"]
+    "api/routes/_health.py" = ["F401"]
+    "api/routes/_ingest.py" = ["B008"]
+    "api/routes/_admin.py" = ["F401"]
+    "dashboard/*.py" = ["F401", "I001", "N806", "F541", "E741", "F811"]
+    "src/audit.py" = ["UP042"]
+    "src/models.py" = ["UP042"]
+    "src/services/chunk_quality.py" = ["N806"]
+    "src/services/chunkers/chat_chunker.py" = ["B007", "F401"]
+    "src/services/chunkers/xlsx_chunker.py" = ["B007"]
+    "src/services/consistency.py" = ["I001", "F401"]
+    "src/services/domain_tagger.py" = ["UP037", "C420", "N806"]
+    "src/services/react_loop.py" = ["F401", "F841"]
+    "src/services/temporal_entities.py" = ["DTZ005"]
+    "src/metrics.py" = ["F401", "F841"]
+    "src/services/community.py" = ["F841"]
+    "tests/test_performance.py" = ["B007"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+warn_return_any = true
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["*/tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]

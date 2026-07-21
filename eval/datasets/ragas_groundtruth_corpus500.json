@@ -1,0 +1,449 @@
+[
+  {
+    "question": "What net revenues and net earnings did The Goldman Sachs Group, Inc. report for the year ended December 31, 2025?",
+    "reference_answer": "Net revenues of $58.28 billion and net earnings of $17.18 billion for the year ended December 31, 2025.",
+    "reference_contexts": [
+      "The Goldman Sachs Group, Inc. (NYSE: GS) today reported net revenues of $ 58.28 billion and net earnings of $ 17.18 billion for the year ended December 31, 2025."
+    ],
+    "category": "finance",
+    "qtype": "numeric",
+    "source": "2025-q4-results.pdf",
+    "chunk_id": "doc_33c917c48545b52d::paragraph::1"
+  },
+  {
+    "question": "In Alphabet's fourth quarter and fiscal year 2025 results, how much did consolidated Alphabet revenues grow to, and how much did Google Cloud revenues increase to?",
+    "reference_answer": "Consolidated Alphabet revenues increased 18% to $113.8 billion, and Google Cloud revenues increased 48% to $17.7 billion.",
+    "reference_contexts": [
+      "Consolidated Alphabet revenues increased 18%, or 17% in constant currency, to $113.8 billion",
+      "Google Cloud saw a continued increase in customer demand as revenues increased 48% to $17.7 billion"
+    ],
+    "category": "finance",
+    "qtype": "multi_hop",
+    "source": "2025q4-alphabet-earnings-release.pdf",
+    "chunk_id": "doc_8bb2778772fc60c0::paragraph::1"
+  },
+  {
+    "question": "What was Meta's revenue for the fourth quarter and for the full year 2025?",
+    "reference_answer": "Revenue was $59.89 billion for the fourth quarter and $200.97 billion for the full year 2025.",
+    "reference_contexts": [
+      "Revenue – Revenue was $59.89 billion and $200.97 billion, representing increases of 24% and 22% year-over- year for the fourth quarter and full year 2025, respectively."
+    ],
+    "category": "finance",
+    "qtype": "numeric",
+    "source": "meta-reports-fourth-quarter-and-full-year-2025-results-2026.pdf",
+    "chunk_id": "doc_1471845e48997966::paragraph::3"
+  },
+  {
+    "question": "According to Adobe's fourth quarter earnings release, what were Adobe's diluted earnings per share on a GAAP and a non-GAAP basis, and approximately how many shares did Adobe repurchase during the quarter?",
+    "reference_answer": "Diluted earnings per share was $4.45 on a GAAP basis and $5.50 on a non-GAAP basis, and Adobe repurchased approximately 7.2 million shares during the quarter.",
+    "reference_contexts": [
+      "Diluted earnings per share was $4.45 on a GAAP basis and $5.50 on a non-GAAP basis.",
+      "Adobe repurchased approximately 7.2 million shares during the quarter."
+    ],
+    "category": "finance",
+    "qtype": "numeric",
+    "source": "a54gu6y5tegrrf.pdf",
+    "chunk_id": "doc_43ba7d63654e2a9f::paragraph::2"
+  },
+  {
+    "question": "How much capital did AIG return to shareholders for the full year 2025, and how was it split between share repurchases and dividends?",
+    "reference_answer": "AIG returned $6.8 billion of capital, including $5.8 billion of share repurchases and approximately $1.0 billion of dividends.",
+    "reference_contexts": [
+      "For the full year, we returned $6.8 billion of capital to shareholders, including $5.8 billion of share repurchases and approximately $1.0 billion of dividends."
+    ],
+    "category": "finance",
+    "qtype": "numeric",
+    "source": "aig-reports-4q25-results.pdf",
+    "chunk_id": "doc_94839adb47f4a2c4::paragraph::3"
+  },
+  {
+    "question": "What overall group revenue did Lenovo Group report for the third quarter of fiscal year 2025/26?",
+    "reference_answer": "An all-time fiscal quarter high of US$22.2 billion, up 18% year-on-year.",
+    "reference_contexts": [
+      "overall group revenue reached an all-time fiscal quarter high of US$22.2 billion, up 18% year-on-year"
+    ],
+    "category": "finance",
+    "qtype": "numeric",
+    "source": "press_2526_q3.pdf",
+    "chunk_id": "doc_65781540f3af5239::paragraph::1"
+  },
+  {
+    "question": "What were The Home Depot's sales for the fourth quarter of fiscal 2025, and how did they compare with the fourth quarter of fiscal 2024?",
+    "reference_answer": "Sales were $38.2 billion, a decrease of $1.5 billion, or 3.8% from the fourth quarter of fiscal 2024.",
+    "reference_contexts": [
+      "Sales for the fourth quarter of fiscal 2025 were $38.2 billion, a decrease of $1.5 billion, or 3.8% from the fourth quarter of fiscal 2024."
+    ],
+    "category": "finance",
+    "qtype": "numeric",
+    "source": "q4-2025-earnings-release.pdf",
+    "chunk_id": "doc_5c5c445f1ba7cb41::paragraph::1"
+  },
+  {
+    "question": "According to Nareit's 2022 Global REIT brochure, how many countries and regions have enacted REIT legislation, and what share of global GDP do they account for?",
+    "reference_answer": "41 countries and regions, accounting for 85% of global GDP with a combined population of nearly 5 billion people.",
+    "reference_contexts": [
+      "There are currently 41 countries and regions, accounting for 85% of global GDP with a combined population of nearly 5 billion people, that have enacted REIT legislation."
+    ],
+    "category": "finance",
+    "qtype": "numeric",
+    "source": "2022-global-reit-brochure.pdf",
+    "chunk_id": "doc_69397f699201995f::paragraph::1"
+  },
+  {
+    "question": "What is Healthy People 2030, and which office leads it?",
+    "reference_answer": "Healthy People 2030 is an initiative led by the Office of Disease Prevention and Health Promotion within the U.S. Department of Health and Human Services (HHS) that sets data-driven national objectives for the nation's health and well-being over the next decade.",
+    "reference_contexts": [
+      "Healthy People 2030 is an initiative led by the Office of Disease Prevention and Health Promotion within the U.S. Department of Health and Human Services (HHS) that sets data-driven national objectives for the nation’s health and well-being over the next decade"
+    ],
+    "category": "health",
+    "qtype": "definitional",
+    "source": "ahr_2025annual_comprehensivereport_final-web.pdf",
+    "chunk_id": "doc_de645aba51c3e8a3::paragraph::1"
+  },
+  {
+    "question": "According to the NewYork-Presbyterian Patient and Visitor Guide, with which two medical schools is NewYork-Presbyterian Hospital affiliated?",
+    "reference_answer": "Weill Cornell Medicine and Columbia University Vagelos College of Physicians and Surgeons.",
+    "reference_contexts": [
+      "NewYork-Presbyterian Hospital is the only academic medical center in the nation affiliated with two world- class medical schools, Weill Cornell Medicine and Columbia University Vagelos College of Physicians and Surgeons."
+    ],
+    "category": "health",
+    "qtype": "factual",
+    "source": "columbia_during_stay.pdf",
+    "chunk_id": "doc_fefd1b22060a9f42::paragraph::1"
+  },
+  {
+    "question": "How many U.S. adults were surveyed in the 'A View from 100 Days' national poll by the Harvard T.H. Chan School of Public Health and the de Beaumont Foundation, and over what dates was it conducted?",
+    "reference_answer": "A nationally representative sample of 3343 U.S. adults ages 18 and older, conducted March 10 – 31, 2025.",
+    "reference_contexts": [
+      "was conducted March 10 – 31, 2025, among a probability -based, nationally representative sample of 3343 U.S. adults ages 18 and older"
+    ],
+    "category": "health",
+    "qtype": "numeric",
+    "source": "dbf-hsph_100dayspollreport_apr-29-2025_final.pdf",
+    "chunk_id": "doc_b30cd9f8afab9f68::paragraph::1"
+  },
+  {
+    "question": "St. Luke's Health is part of CommonSpirit Health; through the alignment of which two organizations, and in what year, was CommonSpirit formed?",
+    "reference_answer": "CommonSpirit Health was formed in 2019 through the alignment of Catholic Health Initiatives and Dignity Health.",
+    "reference_contexts": [
+      "St. Luke’s Health is a part of CommonSpirit Health, one of the largest nonprofit Catholic health systems in the United States. Formed in 2019 through the alignment of Catholic Health Initiatives and Dignity Health, CommonSpirit is dedicated to improving health for all people."
+    ],
+    "category": "health",
+    "qtype": "multi_hop",
+    "source": "stlukes-health-woodlands-hospital-patient-guide.pdf",
+    "chunk_id": "doc_027932ec4ad29ca5::paragraph::10"
+  },
+  {
+    "question": "According to this Medicare Benefit Policy Manual section, from what date of service may Medicare cover certain FDA-approved and IRB-approved investigational devices?",
+    "reference_answer": "For dates of service on or after November 1, 1995.",
+    "reference_contexts": [
+      "For dates of service on or after November 1, 1995, Medicare may cover certain FDA- approved and Institutional Review Board (IRB)-approved investigational devices"
+    ],
+    "category": "health",
+    "qtype": "factual",
+    "source": "bp102c14.pdf",
+    "chunk_id": "doc_7a5a98496bad9f52::paragraph::2"
+  },
+  {
+    "question": "In the healthcare regulatory compliance guide's UL Standards Quick Reference, what does the UL 60601-1 standard cover?",
+    "reference_answer": "UL 60601-1 is a shock-prevention measure required for all devices that can potentially come in contact with patients and staff.",
+    "reference_contexts": [
+      "UL 60601-1 Shock-prevention measure required for all devices that can potentially come in contact with patients and staff."
+    ],
+    "category": "health",
+    "qtype": "definitional",
+    "source": "regulatory-compliance-guide-for-healthcare-en.pdf",
+    "chunk_id": "doc_d895111328deae9c::paragraph::5"
+  },
+  {
+    "question": "According to the Chapter 6400 Regulatory Compliance Guide, what does 55 Pa. Code Ch. 6400 establish?",
+    "reference_answer": "It establishes the minimum requirements to operate a community home for individuals with intellectual disabilities or autism in the Commonwealth of Pennsylvania.",
+    "reference_contexts": [
+      "55 Pa. Code Ch. 6400 (Relating to Community Homes for Individuals with Intellectual Disabilities or Autism) establishes the minimum requirements to operate a community home for individuals with intellectual disabilities or autism in the Commonwealth of Pennsylvania."
+    ],
+    "category": "regulatory",
+    "qtype": "definitional",
+    "source": "6400-regulatory-compliance-guide-rcg-february-14-2023-editio.pdf",
+    "chunk_id": "doc_6b5322e67a44507c::paragraph::2"
+  },
+  {
+    "question": "On what date was the BBNJ Agreement (on the Conservation and Sustainable Use of Marine Biological Diversity of Areas beyond National Jurisdiction) adopted?",
+    "reference_answer": "The BBNJ Agreement was adopted on 19 June 2023.",
+    "reference_contexts": [
+      "(“BBNJ Agreement”) was adopted on 19 June 2023."
+    ],
+    "category": "regulatory",
+    "qtype": "factual",
+    "source": "bbnjagreementfactsheet4eias.pdf",
+    "chunk_id": "doc_e634cb7cb6968c91::paragraph::1"
+  },
+  {
+    "question": "What is the title and edition of the ISO 9001 standard published on 2015-09-15?",
+    "reference_answer": "ISO 9001, titled 'Quality management systems — Requirements', Fifth edition, dated 2015-09-15.",
+    "reference_contexts": [
+      "ISO 9001 Fifth edition 2015-09-15",
+      "Quality management systems — Requir ements"
+    ],
+    "category": "regulatory",
+    "qtype": "definitional",
+    "source": "iso-9001-2015-fifth-edition.pdf",
+    "chunk_id": "doc_8a988fdce00a1c19::section::0"
+  },
+  {
+    "question": "According to Section 1-3-4 of the Code of Alabama 1975, when does the fiscal year of the government commence and end?",
+    "reference_answer": "It shall commence on the first day of October and end on the thirtieth day of September.",
+    "reference_contexts": [
+      "the fiscal year of the government shall commence on the first day of October and end on the thirtieth day of September"
+    ],
+    "category": "regulatory",
+    "qtype": "factual",
+    "source": "28-the-municipal-budget-and-auditing-process_revised-07-21-2.pdf",
+    "chunk_id": "doc_c961f304f477a816::paragraph::3"
+  },
+  {
+    "question": "In the OCC's fiscal year 2025 Annual Report, what does a reference to '2025' mean unless otherwise noted?",
+    "reference_answer": "All references to 2025 refer to the fiscal year (FY) ending September 30, 2025.",
+    "reference_contexts": [
+      "Unless otherwise noted, all references to 2025 in this report refer to the FY ending September 30, 2025."
+    ],
+    "category": "regulatory",
+    "qtype": "factual",
+    "source": "2025-annual-report.pdf",
+    "chunk_id": "doc_27a2b76c275884dd::paragraph::1"
+  },
+  {
+    "question": "According to Tennessee's FY2026 Annual Report on Municipal Budgets, how many Tennessee municipalities' annual operating budgets does the Division of Local Government Finance review and approve?",
+    "reference_answer": "342 municipalities.",
+    "reference_contexts": [
+      "The Comptroller’s Division of Local Government Finance (LGF) reviews and approves annual operating budgets for Tennessee’s 342 municipalities."
+    ],
+    "category": "regulatory",
+    "qtype": "numeric",
+    "source": "fy2026municipalitybudgetreviewsreport.pdf",
+    "chunk_id": "doc_d83d2250ba5f3a7a::paragraph::1"
+  },
+  {
+    "question": "According to the June 2020 report on clean electricity, by when must global carbon emissions be halved to limit warming to 1.5°C?",
+    "reference_answer": "Global carbon emissions must be halved by 2030 to limit warming to 1.5°C.",
+    "reference_contexts": [
+      "Global carbon emissions must be halved by 2030 to limit warming to 1.5°C and avoid catastrophic climate impacts."
+    ],
+    "category": "energy",
+    "qtype": "numeric",
+    "source": "2035-report.pdf",
+    "chunk_id": "doc_292c11df76397c34::paragraph::1"
+  },
+  {
+    "question": "What are the three 2030 goals stated in Microsoft's 2025 Environmental Sustainability Report, and in what year were they announced?",
+    "reference_answer": "To be carbon negative, water positive, and zero waste (while protecting ecosystems); the goals were announced in 2020.",
+    "reference_contexts": [
+      "towards our ambitious 2030 goals: to be carbon negative, water positive, and zero waste, while protecting ecosystems. Since we announced our goals in 2020"
+    ],
+    "category": "energy",
+    "qtype": "list",
+    "source": "2025-microsoft-environmental-sustainability-report.pdf",
+    "chunk_id": "doc_7c20672f907103da::paragraph::1"
+  },
+  {
+    "question": "In BMW Group's first nine months of 2025, what share of units delivered were all-electric vehicles (BEVs), and what share were electrified vehicles (BEV and PHEV)?",
+    "reference_answer": "All-electric vehicles (BEVs) rose to 18.0% (from 16.8% in 2024), and electrified vehicles (BEV and PHEV) rose to 26.2%.",
+    "reference_contexts": [
+      "All-electric vehicles (BEVs 1) accounted for an increased proportion of units delivered in the first nine months, rising to 18.0% (2024: 16.8%).",
+      "the share of electrified vehicles (BEV and PHEV models) rising to 26.2% for the nine-month period."
+    ],
+    "category": "energy",
+    "qtype": "numeric",
+    "source": "bmw_q3-2025_en.pdf",
+    "chunk_id": "doc_b97e9d479af1d123::paragraph::8"
+  },
+  {
+    "question": "According to this CR2032 datasheet, what are the battery's chemical system, nominal voltage, and typical capacity?",
+    "reference_answer": "Chemical system: Lithium / Manganese Dioxide (Li/MnO2); nominal voltage: 3.0 Volts; typical capacity: 235 mAh (to 2.0 volts).",
+    "reference_contexts": [
+      "Chemical System: Lithium / Manganese Dioxide (Li/MnO2)",
+      "Nominal Voltage: 3.0 Volts",
+      "Typical Capacity: 235 mAh (to 2.0 volts)"
+    ],
+    "category": "energy",
+    "qtype": "list",
+    "source": "cr2032.pdf",
+    "chunk_id": "doc_ff05548e1efc6164::paragraph::1"
+  },
+  {
+    "question": "What target year does WWF's 'The Energy Report' set for reaching 100% renewable energy?",
+    "reference_answer": "2050 — the report is titled '100% Renewable Energy by 2050'.",
+    "reference_contexts": [
+      "THE ENERGY REPORT 100% RENEWABLE ENERGY BY 2050"
+    ],
+    "category": "energy",
+    "qtype": "factual",
+    "source": "the_energy_report_lowres_111110.pdf",
+    "chunk_id": "doc_1b5e3ea0be681545::paragraph::1"
+  },
+  {
+    "question": "When did the Cayman Islands Government establish the Home Affairs portfolio as a stand-alone ministry?",
+    "reference_answer": "In April 2021.",
+    "reference_contexts": [
+      "In April 2021, the Cayman Islands Government established the Home Affairs portfolio as a stand-alone ministry"
+    ],
+    "category": "policy",
+    "qtype": "factual",
+    "source": "2022-annual-report-ministry-of-home-affairs.pdf",
+    "chunk_id": "doc_f2ddb781475c97eb::paragraph::2"
+  },
+  {
+    "question": "Who wrote the foreword and who edited the Project 2025 'Mandate for Leadership'?",
+    "reference_answer": "The foreword was by Kevin D. Roberts, PhD, and it was edited by Paul Dans and Steven Groves.",
+    "reference_contexts": [
+      "Foreword by Kevin D. Roberts, PhD Edited by Paul Dans and Steven Groves"
+    ],
+    "category": "policy",
+    "qtype": "factual",
+    "source": "2025_mandateforleadership_full.pdf",
+    "chunk_id": "doc_ee184bb5f98d76bf::paragraph::2"
+  },
+  {
+    "question": "What is the stated vision of Ghana's National Artificial Intelligence Strategy 2025-2035?",
+    "reference_answer": "To harness AI for inclusive growth across all sectors and to improve the lives of people in Ghana, becoming a trailblazer for AI leadership in Africa and beyond.",
+    "reference_contexts": [
+      "To harness AI for inclusive growth across all sectors and to improve the lives of people in Ghana, becoming a trailblazer for AI leadership in Africa and beyond."
+    ],
+    "category": "policy",
+    "qtype": "factual",
+    "source": "ghana-ai-strat.pdf",
+    "chunk_id": "doc_ff8d1f06aa8d0c4e::paragraph::1"
+  },
+  {
+    "question": "According to this Federal Reserve report, what three objectives does the nation's monetary policy that the Federal Reserve conducts promote?",
+    "reference_answer": "Maximum employment, stable prices, and moderate long-term interest rates.",
+    "reference_contexts": [
+      "conducts the nation's monetary policy to promote maximum employment, stable prices, and moderate long-term interest rates in the U.S. economy"
+    ],
+    "category": "policy",
+    "qtype": "list",
+    "source": "quarterly-report-20251121.pdf",
+    "chunk_id": "doc_30c536d3463f4bcc::paragraph::3"
+  },
+  {
+    "question": "In what month and year was 'America's AI Action Plan' published, and by whom?",
+    "reference_answer": "It was published in July 2025 by The White House.",
+    "reference_contexts": [
+      "AMERICA’S AI ACTION PLAN JULY 2025 THE WHITE HOUSE"
+    ],
+    "category": "policy",
+    "qtype": "factual",
+    "source": "americas-ai-action-plan.pdf",
+    "chunk_id": "doc_91d56ab3ddefe43f::section::0"
+  },
+  {
+    "question": "Quyết định số 43/2007/QĐ-BGDĐT ban hành Quy chế đào tạo đại học và cao đẳng hệ chính quy theo hệ thống tín chỉ có hiệu lực kể từ ngày nào?",
+    "reference_answer": "Có hiệu lực kể từ ngày 31 tháng 8 năm 2007.",
+    "reference_contexts": [
+      "có hi ệu lực kể từ ngày 31 tháng 8 n ăm 2007"
+    ],
+    "category": "vietnamese",
+    "qtype": "factual",
+    "source": "20151015_thao_vbhn-2017_4_15102015.pdf",
+    "chunk_id": "doc_f9ea05a2ab0d4a64::paragraph::1"
+  },
+  {
+    "question": "Theo báo cáo tổng quan chính sách bảo hiểm xã hội, tính đến cuối năm 2020 có khoảng bao nhiêu người tham gia BHXH tự nguyện ở Việt Nam?",
+    "reference_answer": "Khoảng 1.013.000 người tính đến cuối năm 2020, rất nhỏ so với 35 triệu lao động phi chính thức.",
+    "reference_contexts": [
+      "tính đến cuối năm 2020, số người tham gia BHXH tự nguyện đạt khoảng 1.013.000 người, rất nhỏ so với 35 triệu lao động phi chính thức"
+    ],
+    "category": "vietnamese",
+    "qtype": "numeric",
+    "source": "5bb-c3-a1o-20c-c3-a1o-20t-c3-b3m-20t-e1-ba-aft-5d-20t-e1-bb-.pdf",
+    "chunk_id": "doc_f578d090a4aa3535::paragraph::1"
+  },
+  {
+    "question": "Chương trình đào tạo thạc sĩ ngành Quản trị Kinh doanh của Trường Đại học Nha Trang có tổng số bao nhiêu tín chỉ và thời gian đào tạo bao lâu?",
+    "reference_answer": "Tổng số tín chỉ 60 và thời gian đào tạo 2 năm.",
+    "reference_contexts": [
+      "Tổng số tín chỉ 60 Thời gian đào tạo 2 năm"
+    ],
+    "category": "vietnamese",
+    "qtype": "numeric",
+    "source": "8340101_nc_k64.pdf",
+    "chunk_id": "doc_4817653ba451ed9b::paragraph::1"
+  },
+  {
+    "question": "Theo tài liệu này, chủ nhân phải trả cho 'nhân viên hưởng hoa hồng phục vụ' (tipped employees) mức lương tối thiểu là bao nhiêu một giờ?",
+    "reference_answer": "Tối thiểu là $2.13 một giờ.",
+    "reference_contexts": [
+      "Chủ nhân phải trả cho “nhân viên hưởng hoa hồng phục vụ” tối thiểu là $2.13 một giờ"
+    ],
+    "category": "vietnamese",
+    "qtype": "numeric",
+    "source": "minwageviet.pdf",
+    "chunk_id": "doc_23ee13def67e4f95::paragraph::3"
+  },
+  {
+    "question": "Theo tài liệu chính sách BHXH, BHYT năm 2025, Bảo hiểm xã hội Việt Nam là đơn vị trực thuộc cơ quan nào và tổ chức thực hiện mấy chính sách an sinh xã hội?",
+    "reference_answer": "BHXH Việt Nam là đơn vị đặc thù thuộc Bộ Tài Chính, tổ chức thực hiện 03 chính sách an sinh xã hội (BHXH, bảo hiểm thất nghiệp và bảo hiểm y tế).",
+    "reference_contexts": [
+      "Bảo hiểm xã hội (BHXH) Việt Nam là đơn vị đặc thù thuộc Bộ Tài Chính (Theo Quyết định 391/QĐ-BTC). Tổ chức thực hiện 03 chính sách an sinh xã hội"
+    ],
+    "category": "vietnamese",
+    "qtype": "definitional",
+    "source": "chinh-20sach-20bhxh_bhyt_2025.pdf",
+    "chunk_id": "doc_d45e6e0b688fe6b3::paragraph::1"
+  },
+  {
+    "question": "Theo báo cáo thường niên 2024, vốn điều lệ của Công ty Cổ phần Thủy điện Định Bình (mã cổ phiếu TDB) là bao nhiêu?",
+    "reference_answer": "Tám mươi hai tỷ ba trăm triệu đồng.",
+    "reference_contexts": [
+      "Tên công ty: CÔNG TY CỔ PHẦN THỦY ĐIỆN ĐỊNH BÌNH",
+      "Vốn điều lệ: <IP_53e9da9b> (Tám mươi hai tỷ ba trăm triệu đồng chẵn)"
+    ],
+    "category": "vietnamese",
+    "qtype": "numeric",
+    "source": "tdb_baocaothuongnien_2024.pdf",
+    "chunk_id": "doc_2026ce1dd2bb9e78::paragraph::2"
+  },
+  {
+    "question": "Theo Điều 18 Bộ luật Lao động năm 2019, ai là người có thẩm quyền trực tiếp giao kết hợp đồng lao động?",
+    "reference_answer": "Người lao động trực tiếp giao kết hợp đồng lao động (trừ trường hợp quy định tại mục 2).",
+    "reference_contexts": [
+      "Theo quy định tại Điều 18 Bộ luật Lao động năm 2019 về thẩm quyền giao kết hợp đồng lao động thì: 1. Người lao động trực tiếp giao kết hợp đồng lao động, trừ trường hợp quy định tại mục 2 dưới đây."
+    ],
+    "category": "vietnamese",
+    "qtype": "factual",
+    "source": "t-c3-acnh_hu-e1-bb-91ng_h-e1-bb-8fi_-c4-91-c3-a1p_b-e1-bb-99.pdf",
+    "chunk_id": "doc_4152658aca193172::paragraph::3"
+  },
+  {
+    "question": "In the study 'Is Economics Research Replicable?', for what fraction of papers required to provide replication files did the authors obtain data and code, compared with papers not required to provide them?",
+    "reference_answer": "Data and code replication files were obtained for 29 of 35 papers (83%) that were required to provide them, compared with 11 of 26 papers (42%) that were not required.",
+    "reference_contexts": [
+      "we obtain data and code replication ﬁles for 29 of 35 papers (83%) that are required to provide such ﬁles as a condition of publication, compared to 11 of 26 papers (42%) that are not required to provide data and code replication ﬁles."
+    ],
+    "category": "other",
+    "qtype": "numeric",
+    "source": "2015083pap.pdf",
+    "chunk_id": "doc_1ce25cf90186a9a5::paragraph::4"
+  },
+  {
+    "question": "Who was awarded the Nobel Prize in Physics 2025, and for what discovery?",
+    "reference_answer": "John Clarke, Michel Devoret and John Martinis, for the discovery of macroscopic quantum mechanical tunnelling and energy quantisation in an electric circuit.",
+    "reference_contexts": [
+      "The Royal Swedish Academy of Sciences has decided to award the Nobel Prize in Physics 2025 jointly to John Clarke, Michel Devoret and John Martinis “for the discovery of macroscopic quantum mechanical tunnelling and energy quantisation in an electric circuit”"
+    ],
+    "category": "other",
+    "qtype": "factual",
+    "source": "advanced-physicsprize2025.pdf",
+    "chunk_id": "doc_1b54246a991116af::paragraph::2"
+  },
+  {
+    "question": "According to the AI report citing a 2017 PwC report, approximately how much will AI contribute to the global economy by 2030?",
+    "reference_answer": "Approximately $15.7 trillion to the global economy by 2030.",
+    "reference_contexts": [
+      "According to a 2017 PwC report, AI will contribute approximately $15.7 trillion to the global economy by 2030."
+    ],
+    "category": "other",
+    "qtype": "numeric",
+    "source": "ai-report-finalized-ready-to-print.pdf",
+    "chunk_id": "doc_a8b223d225c52a74::paragraph::3"
+  }
+]

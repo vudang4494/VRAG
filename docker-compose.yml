@@ -1,0 +1,615 @@
+# ==============================================================================
+# Enterprise RAG Stack v2.0 — Apple Silicon Mac Optimized
+# Hardware: MacBook (Apple Silicon, 16GB RAM) + Ollama + Qdrant + Neo4j
+# Stack: Ollama (Qwen3-4B Q4_K_M GGUF) + BGE-M3 Embeddings + Hybrid GraphRAG
+# ==============================================================================
+
+networks:
+  rag-internal:
+    driver: bridge
+    name: rag-internal
+  rag-public:
+    driver: bridge
+    name: rag-public
+
+volumes:
+  qdrant_data:
+    driver: local
+  neo4j_data:
+    driver: local
+  neo4j_logs:
+    driver: local
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  langfuse_db:
+    driver: local
+  langfuse_clickhouse:
+    driver: local
+  openwebui_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  hf_cache:
+    driver: local
+
+services:
+
+  # ============================================================================
+  # INFRASTRUCTURE — DBs + Cache
+  # ============================================================================
+
+  qdrant:
+    image: qdrant/qdrant:v1.13.0
+    container_name: rag-qdrant
+    restart: unless-stopped
+    environment:
+      - QDRANT__SERVICE__ENABLE_TLS=false
+      - QDRANT__LOG_LEVEL=INFO
+    volumes:
+      - qdrant_data:/qdrant/storage
+    ports:
+      - "127.0.0.1:6333:6333"
+      - "127.0.0.1:6334:6334"
+    healthcheck:
+      test: ["CMD", "/qdrant/qdrant", "--version"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - rag-internal
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  neo4j:
+    image: neo4j:5.26-community
+    container_name: rag-neo4j
+    restart: unless-stopped
+    environment:
+      - NEO4J_AUTH=none
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*
+      - NEO4J_dbms_memory_heap_max__size=1G
+      - NEO4J_dbms_memory_pagecache_size=512M
+      - NEO4J_server_default__listen__address=0.0.0.0
+      - NEO4J_server_memory_heap_initial__size=512M
+      - NEO4J_dbms_transaction_timeout=30s
+      - NEO4J_dbms_lock_acquisition_timeout=10s
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - ./scripts:/scripts:ro
+    ports:
+      - "127.0.0.1:7474:7474"
+      - "127.0.0.1:7687:7687"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O /dev/null -q http://localhost:7474 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+    networks:
+      - rag-internal
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: rag-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=raguser
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=ragdb
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --locale=C
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U raguser -d ragdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - rag-internal
+    command:
+      - postgres
+      - -c
+      - max_connections=100
+      - -c
+      - shared_buffers=384MB
+      - -c
+      - work_mem=16MB
+      - -c
+      - maintenance_work_mem=128MB
+      - -c
+      - effective_cache_size=1GB
+      - -c
+      - random_page_cost=1.1
+      - -c
+      - synchronous_commit=off
+      - -c
+      - fsync=off
+      - -c
+      - full_page_writes=off
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "3"
+
+  redis:
+    image: redis:7-alpine
+    container_name: rag-redis
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD}
+      - --maxmemory
+      - 256mb
+      - --maxmemory-policy
+      - allkeys-lru
+      - --save
+      - "300 100"
+      - --appendonly
+      - "no"
+      - --tcp-backlog
+      - "128"
+      - --timeout
+      - "30"
+      - --tcp-keepalive
+      - "60"
+    volumes:
+      - redis_data:/data
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rag-internal
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # ============================================================================
+  # OBSERVABILITY — Langfuse v3
+  # ============================================================================
+
+  langfuse-db:
+    image: postgres:16-alpine
+    container_name: rag-langfuse-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=langfuse
+      - POSTGRES_PASSWORD=${LANGFUSE_DB_PASSWORD}
+      - POSTGRES_DB=langfuse
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - langfuse_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U langfuse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rag-internal
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  langfuse-clickhouse:
+    image: clickhouse/clickhouse-server:24.3-alpine
+    container_name: rag-langfuse-clickhouse
+    restart: unless-stopped
+    user: "101:101"
+    environment:
+      - CLICKHOUSE_DB=default
+      - CLICKHOUSE_USER=clickhouse
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
+    volumes:
+      - langfuse_clickhouse:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "-q", "SELECT 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 15
+      start_period: 120s
+    networks:
+      - rag-internal
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  langfuse:
+    image: langfuse/langfuse:3
+    container_name: rag-langfuse
+    restart: unless-stopped
+    depends_on:
+      langfuse-db:
+        condition: service_healthy
+      langfuse-clickhouse:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://langfuse:${LANGFUSE_DB_PASSWORD}@langfuse-db:5432/langfuse
+      - DIRECT_URL=postgresql://langfuse:${LANGFUSE_DB_PASSWORD}@langfuse-db:5432/langfuse
+      - NEXTAUTH_SECRET=${LANGFUSE_NEXTAUTH_SECRET}
+      - SALT=${LANGFUSE_SALT}
+      - ENCRYPTION_KEY=${LANGFUSE_ENCRYPTION_KEY}
+      - NEXTAUTH_URL=http://localhost:3000
+      - TELEMETRY_ENABLED=false
+      - LANGFUSE_INIT_ORG_ID=enterprise
+      - LANGFUSE_INIT_ORG_NAME=Enterprise
+      - LANGFUSE_INIT_PROJECT_ID=rag-prod
+      - LANGFUSE_INIT_PROJECT_NAME=RAG Production
+      - LANGFUSE_INIT_USER_EMAIL=${ADMIN_EMAIL}
+      - LANGFUSE_INIT_USER_NAME=Admin
+      - LANGFUSE_INIT_USER_PASSWORD=${LANGFUSE_ADMIN_PASSWORD}
+      - CLICKHOUSE_MIGRATION_URL=clickhouse://langfuse-clickhouse:9000
+      - CLICKHOUSE_URL=http://langfuse-clickhouse:8123
+      - CLICKHOUSE_USER=clickhouse
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
+      - CLICKHOUSE_CLUSTER_ENABLED=false
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      - rag-internal
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # ============================================================================
+  # APPLICATION — RAG API + Dashboard
+  # ============================================================================
+
+  rag-api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    container_name: rag-api
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+        reservations:
+          memory: 4G
+    environment:
+      # LLM — tiered roles, single model on M4 LAB, swap to bigger on GPU.
+      # Pinned deliberately (not ${OLLAMA_MODEL:-...}) so the deployed container is
+      # reproducible and immune to whatever a given dev box has in .env.
+      # That makes this file a SECOND source of truth after src/config.py, which is
+      # how these two silently drifted apart before. The pin is allowed; the silence
+      # is not — api/main.py logs a config banner at startup marking every value that
+      # differs from the src/config.py default, so an override here is visible in the
+      # logs of every run. Keep it that way: if you change a model, change it in
+      # src/config.py too, or accept that the banner will flag it on every boot.
+      # Override at runtime: OLLAMA_MODEL=gemma3:12b docker compose up -d
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - OLLAMA_MODEL=gemma4:e4b
+      - LIGHT_LLM=gemma4:e4b
+      - HEAVY_LLM=gemma4:e4b
+      - OLLAMA_EMBED_MODEL=bge-m3
+      - OLLAMA_EMBED_URL=http://host.docker.internal:11434
+      # Vector DB
+      - QDRANT_URL=http://qdrant:6333
+      - QDRANT_COLLECTION=enterprise_kb
+      # Knowledge Graph
+      - NEO4J_URL=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=
+      # State
+      - POSTGRES_URL=postgresql://raguser:${POSTGRES_PASSWORD}@postgres:5432/ragdb
+      - REDIS_URL=redis://default:${REDIS_PASSWORD}@redis:6379/0
+      # Observability
+      - LANGFUSE_HOST=http://langfuse:3000
+      - LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY:-}
+      - LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY:-}
+      # App tuning
+      - APP_ENV=production
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - MAX_CONCURRENT_REQUESTS=8
+      - REQUEST_TIMEOUT_S=180
+      # VRAG pipeline knobs
+      # QUERY_REFORMULATIONS hardcoded=0 → zero-LLM Tier 1 (VRAG plan).
+      # Override .env to enforce zero-LLM regardless of user config.
+      # Change here (not .env) to raise reformulations: 0=zero-LLM, 1=+rewrite, 2=+keywords, 3=+hyde, 4=+decompose, 5=+step_back
+      - PIPELINE_V2_ENABLED=${PIPELINE_V2_ENABLED:-1}
+      - ENTITY_VOTE_PASSES=${ENTITY_VOTE_PASSES:-3}
+      - QUERY_REFORMULATIONS=0
+      - QUERY_UNDERSTANDING_TIMEOUT_S=${QUERY_UNDERSTANDING_TIMEOUT_S:-60}
+      # Perf-locked: do NOT inherit from .env. These multi-draft/outline/judge
+      # features cascade 4× LLM cost per query (~30s overhead) for marginal
+      # quality lift. Override via shell env at runtime if needed for special
+      # quality runs.
+      - GENERATION_DRAFTS=1
+      - GENERATION_OUTLINE_ENABLED=0
+      - GENERATION_JUDGE_ENABLED=0
+      - RERANK_STAGE1_ENABLED=${RERANK_STAGE1_ENABLED:-0}
+      - RERANK_STAGE3_ENABLED=${RERANK_STAGE3_ENABLED:-0}
+      # VRAG Tier 3b: dynamic early-exit threshold. Stage1 avg conf >= this → skip stage3 LLM judge.
+      - RERANK_EARLY_EXIT_THRESHOLD=${RERANK_EARLY_EXIT_THRESHOLD:-0.85}
+      # VRAG Tier 3c: LLMLingua-2 context compression (~600MB model on first run).
+      # Default 0 to match src/config.py. It read :-1 here while src/config.py said 0,
+      # so docs disagreed about whether compression was on and neither side was
+      # checkable. Note it is a no-op either way today: the `llmlingua` package is not
+      # installed, the ImportError is swallowed, and compress_context() returns the
+      # context unchanged. Install the dep before expecting this flag to do anything.
+      - CONTEXT_COMPRESSION_ENABLED=${CONTEXT_COMPRESSION_ENABLED:-0}
+      - CONTEXT_COMPRESSION_RATE=${CONTEXT_COMPRESSION_RATE:-0.4}
+      # VRAG Tier 3: Entity-cosine cross-doc path (L1 TF-IDF + L3 MMR + L5 chunk scope)
+      - ENTITY_COSINE_ENABLED=${ENTITY_COSINE_ENABLED:-1}
+      - ENTITY_COSINE_TOP_K_ENTITIES=${ENTITY_COSINE_TOP_K_ENTITIES:-20}
+      - ENTITY_COSINE_MMR_LAMBDA=${ENTITY_COSINE_MMR_LAMBDA:-0.6}
+      # Phase 2.1: HippoRAG 2 Personalized PageRank — multi-hop recall fix.
+      - PPR_ENABLED=${PPR_ENABLED:-1}
+      - PPR_ALPHA=${PPR_ALPHA:-0.5}
+      # Entity-gate: primary cross-doc entity scoping (replaces doc-gate).
+      # Validated 2026-05-21: recall 0.699 (≈A 0.702), validation +6.3pp, p50 same.
+      - ENTITY_GATE_ENABLED=${ENTITY_GATE_ENABLED:-1}
+      - ENTITY_GATE_TOP_K_ENTITIES=${ENTITY_GATE_TOP_K_ENTITIES:-50}
+      - ENTITY_GATE_SEED_CHUNKS=${ENTITY_GATE_SEED_CHUNKS:-200}
+      - ENTITY_GATE_SCORE_FLOOR=${ENTITY_GATE_SCORE_FLOOR:-0.20}
+      - COMMUNITY_ENABLED=${COMMUNITY_ENABLED:-0}
+      - CONSISTENCY_VIEWS_ENABLED=${CONSISTENCY_VIEWS_ENABLED:-1}
+      - DOC_CONTEXT_PREFIX_ENABLED=${DOC_CONTEXT_PREFIX_ENABLED:-1}
+      # ReAct optimization: workflow engine (per-intent state machine) +
+      # strict trigger gate. No LLM in the planning path → predictable,
+      # loop-safe, model-agnostic. REACT_WORKFLOW=1 takes precedence over
+      # REACT_RULE_BASED. Both off → legacy LLM-driven planner.
+      - REACT_WORKFLOW=${REACT_WORKFLOW:-1}
+      - REACT_RULE_BASED=${REACT_RULE_BASED:-1}
+      - REACT_STRICT_GATE=${REACT_STRICT_GATE:-1}
+      - PII_MASK_ENABLED=${PII_MASK_ENABLED:-1}
+      # LLM-NER PII: opt-in (1 LLM call/doc-window). Default OFF — on gemma-class
+      # local models it costs minutes/doc. Regex pass still masks structured PII.
+      # Enable (PII_LLM_NER_ENABLED=1) only with a fast/GPU model.
+      - PII_LLM_NER_ENABLED=${PII_LLM_NER_ENABLED:-0}
+      - CHUNK_LEVELS_ENABLED=${CHUNK_LEVELS_ENABLED:-paragraph,section}
+      # GLiNER entity extractor — disable HF progress bars to avoid tqdm._lock async issue
+      - HF_HUB_DISABLE_PROGRESS_BARS=1
+      - TQDM_DISABLE=1
+      - TRANSFORMERS_VERBOSITY=error
+      # HF cache writable by appuser (1000:1000) — must be set, not just mounted volume
+      - HF_HOME=/app/.hf_cache
+      - ENTITY_EXTRACTOR_PROVIDER=${ENTITY_EXTRACTOR_PROVIDER:-gliner}
+      - ENTITY_EXTRACTOR_MODEL=${ENTITY_EXTRACTOR_MODEL:-urchade/gliner_multi-v2.1}
+      - ENTITY_EXTRACTOR_THRESHOLD=${ENTITY_EXTRACTOR_THRESHOLD:-0.5}
+      # Validation gate thresholds — relaxed for 4B-class generators on M4.
+      # A 4B model cannot reliably reach 0.80 grounded / 0.70 citation in VN
+      # → too many retries kill p50. Override upward when on GPU + 14B+.
+      - VALIDATION_MIN_GROUNDED_RATIO=${VALIDATION_MIN_GROUNDED_RATIO:-0.60}
+      - VALIDATION_MAX_INVALID_ENTITIES=${VALIDATION_MAX_INVALID_ENTITIES:-3}
+      - VALIDATION_MIN_CITATION_RATIO=${VALIDATION_MIN_CITATION_RATIO:-0.50}
+      # Generation budget — keep small for 4B; raise on GPU.
+      # Trimmed 1024→512: VN answers rarely exceed 400 tokens. Bump back via
+      # shell env when generating long-form research-style synthesis.
+      - GENERATION_MAX_TOKENS=${GENERATION_MAX_TOKENS:-512}
+      # Refinement adds one full LLM pass per query (~10-15s on 4B). Disabled
+      # by default for small-model latency; re-enable on GPU where it pays off.
+      # Perf-locked OFF: refine pass = +1 LLM call (~14s) for marginal polish.
+      - GENERATION_REFINE_ENABLED=0
+    ports:
+      - "127.0.0.1:8800:8800"
+    volumes:
+      - hf_cache:/app/.hf_cache  # persist GLiNER model across container recreates
+    networks:
+      - rag-internal
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8800/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # ============================================================================
+  # DASHBOARD — Gradio Visualization Hub
+  # ============================================================================
+
+  rag-dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile
+    container_name: rag-dashboard
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:7860:7860"
+    environment:
+      - API_BASE=http://rag-api:8800
+      - OLLAMA_BASE=http://host.docker.internal:11434
+      - NEO4J_URL=http://neo4j:7474
+      - QDRANT_URL=http://qdrant:6333
+    volumes:
+      - /tmp/rag_graphs:/tmp
+    networks:
+      - rag-internal
+    depends_on:
+      - rag-api
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # ============================================================================
+  # FRONTEND — Open WebUI
+  # ============================================================================
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: rag-open-webui
+    restart: unless-stopped
+    depends_on:
+      - rag-api
+    environment:
+      - OPENAI_API_BASE_URL=http://rag-api:8800/v1
+      - OPENAI_API_KEY=${API_INTERNAL_KEY}
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - WEBUI_AUTH=true
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
+      - WEBUI_NAME=Enterprise RAG
+      - DEFAULT_USER_ROLE=user
+      - ENABLE_SIGNUP=false
+      - ENABLE_RAG_WEB_SEARCH=false
+      - ENABLE_IMAGE_GENERATION=false
+      - OLLAMA_MODELS=/models
+    volumes:
+      - openwebui_data:/app/backend/data
+    networks:
+      - rag-internal
+      - rag-public
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # ============================================================================
+  # REVERSE PROXY — Nginx
+  # ============================================================================
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: rag-nginx
+    restart: unless-stopped
+    depends_on:
+      - open-webui
+      - rag-api
+      - langfuse
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    ports:
+      - "80:80"
+    networks:
+      - rag-public
+      - rag-internal
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # ============================================================================
+  # MONITORING — Prometheus + Grafana
+  # ============================================================================
+
+  prometheus:
+    image: prom/prometheus:v3.0.0
+    container_name: rag-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --web.enable-lifecycle
+      - --query.max-concurrency=5
+      - --query.timeout=30s
+    ports:
+      - "127.0.0.1:9090:9090"
+    networks:
+      - rag-internal
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  grafana:
+    image: grafana/grafana:11.4.0
+    container_name: rag-grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_FEATURE_TOGGLES_ENABLE=publicDashboards
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "127.0.0.1:3001:3000"
+    networks:
+      - rag-internal
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"

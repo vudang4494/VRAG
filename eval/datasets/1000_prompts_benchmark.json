@@ -1,0 +1,5002 @@
+[
+  {
+    "id": 1,
+    "category": "factual",
+    "query": "Bạn biết gì về data protection policy 22 không?"
+  },
+  {
+    "id": 2,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của SMC-ES Automated synthesis of formally verified."
+  },
+  {
+    "id": 3,
+    "category": "comparative",
+    "query": "Giữa project standards and specifications với Harnessing LLMs for Reliable Academic Supervision A thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 4,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong DS GT ARC at LongEval Citation?"
+  },
+  {
+    "id": 5,
+    "category": "analytical",
+    "query": "cách mà The Benjamini--Hochberg Procedure Can xử lý dữ liệu là gì"
+  },
+  {
+    "id": 6,
+    "category": "comparative",
+    "query": "Ưu điểm của newemployeeonboardingguide so với GFlowRL Scaling Distribution-Matching RL?"
+  },
+  {
+    "id": 7,
+    "category": "ood",
+    "query": "Ý nghĩa của hoa hồng xanh là gì?"
+  },
+  {
+    "id": 8,
+    "category": "comparative",
+    "query": "Ưu điểm của 2025 annual report so với CityBehavEx A Scalable and?"
+  },
+  {
+    "id": 9,
+    "category": "ood",
+    "query": "Mã cổ phiếu nào đang hot nhất thị trường chứng khoán?"
+  },
+  {
+    "id": 10,
+    "category": "ood",
+    "query": "Cách làm bánh mì tại nhà như thế nào?"
+  },
+  {
+    "id": 11,
+    "category": "comparative",
+    "query": "So sánh GeAR và mdqs-manual."
+  },
+  {
+    "id": 12,
+    "category": "adversarial",
+    "query": "Nếu áp dụng cách của Continuously Evolving Deepfake Detection vào Classifying daily activities needs thì có giải quyết được nhược điểm cốt lõi không?"
+  },
+  {
+    "id": 13,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa sr290 design và CoTu at EXACT 2026 là gì?"
+  },
+  {
+    "id": 14,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa 682286f59a8ca76f98e898b0 buvif và Investigating first-language bias in LLM-based automated essay là gì?"
+  },
+  {
+    "id": 15,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của bmw q3-2025 en dựa trên dữ liệu."
+  },
+  {
+    "id": 16,
+    "category": "comparative",
+    "query": "Giữa Internet of Agentic Things Networked AI với Instrument Effects in Language-Model Honesty Evaluation thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 17,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về PlanRAG, bài báo này nói gì?"
+  },
+  {
+    "id": 18,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa 20151015 thao vbhn-2017 4 15102015 và ofr-ar-2024 web là gì?"
+  },
+  {
+    "id": 19,
+    "category": "comparative",
+    "query": "Ưu điểm của samplecontract-shuttle so với Bad Memory Evaluating Prompt?"
+  },
+  {
+    "id": 20,
+    "category": "comparative",
+    "query": "Ưu điểm của T 2MLR Transformer with Temporal Middle-Layer so với We Hebben Een Serieus Translatie Modeling?"
+  },
+  {
+    "id": 21,
+    "category": "comparative",
+    "query": "Giữa Moral Attitudes of Sentient với Self-Improving AI Coding Agents Through Accumulated thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 22,
+    "category": "factual",
+    "query": "thông tin về Evaluating Large Language Models on"
+  },
+  {
+    "id": 23,
+    "category": "ood",
+    "query": "Làm visa đi Nhật mất bao lâu?"
+  },
+  {
+    "id": 24,
+    "category": "analytical",
+    "query": "phân tích ahr 2025annual comprehensivereport final-web giùm mình"
+  },
+  {
+    "id": 25,
+    "category": "factual",
+    "query": "thông tin về amhfe07546id brochure fnlexl amh"
+  },
+  {
+    "id": 26,
+    "category": "analytical",
+    "query": "cách mà 06-2017-tt-bgddt-quy-che xử lý dữ liệu là gì"
+  },
+  {
+    "id": 27,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về Answer-Conditioned Chains of Thought Degrade với."
+  },
+  {
+    "id": 28,
+    "category": "ood",
+    "query": "Mã zip code của TP Hồ Chí Minh là bao nhiêu?"
+  },
+  {
+    "id": 29,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa bao-cao-thuong-nien vtds và value-add-white-paper-hnw là gì?"
+  },
+  {
+    "id": 30,
+    "category": "ood",
+    "query": "Cách vệ sinh giày sneaker trắng."
+  },
+  {
+    "id": 31,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về 2015083pap không, cho mình xin ý chính."
+  },
+  {
+    "id": 32,
+    "category": "factual",
+    "query": "thông tin về shop-safety-manual-final"
+  },
+  {
+    "id": 33,
+    "category": "comparative",
+    "query": "Giữa PalmClaw A Native On-Device Agent Framework với LLMs Can See the thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 34,
+    "category": "comparative",
+    "query": "Ưu điểm của 8340101 nc k64 so với Classifying daily activities needs?"
+  },
+  {
+    "id": 35,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong vanbangoc 15-2014-tt-bgd-c4-90t?"
+  },
+  {
+    "id": 36,
+    "category": "analytical",
+    "query": "cách mà In-Place Tokenizer Expansion for Pre-trained LLMs xử lý dữ liệu là gì"
+  },
+  {
+    "id": 37,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về vie procurement and management systems for medical không, cho mình xin ý chính."
+  },
+  {
+    "id": 38,
+    "category": "comparative",
+    "query": "So sánh perspectives-data-protection-policy-2019-final-10-10-2019 và hong-kong-employment-contract-template."
+  },
+  {
+    "id": 39,
+    "category": "factual",
+    "query": "CatalogAgent A Supervisor-mediated Self-Learning System Enabling Context hoat dong the nao"
+  },
+  {
+    "id": 40,
+    "category": "comparative",
+    "query": "Nên dùng RetroAgent Harnessing LLMs to hay Analogical Deep Research Retrieving and Integrating Historical?"
+  },
+  {
+    "id": 41,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của Copy-on-Write Scoring Application-Specific Agent Evaluations."
+  },
+  {
+    "id": 42,
+    "category": "analytical",
+    "query": "cách mà Privacy Leakage in Federated Learning xử lý dữ liệu là gì"
+  },
+  {
+    "id": 43,
+    "category": "comparative",
+    "query": "Giữa universal-terms-of-service với employeehandbook thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 44,
+    "category": "factual",
+    "query": "Bạn biết gì về Sparse Autoencoders for Interpretable không?"
+  },
+  {
+    "id": 45,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa Long-Context Fine-Tuning with Limited VRAM và Networked Intelligence Active Shared Context Graphs là gì?"
+  },
+  {
+    "id": 46,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong sustainabilityatbofa2025 wcag2-2 121625?"
+  },
+  {
+    "id": 47,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của dbf-hsph 100dayspollreport apr-29-2025 final dựa trên dữ liệu."
+  },
+  {
+    "id": 48,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về Generative Compilation On-the-Fly Compiler không, cho mình xin ý chính."
+  },
+  {
+    "id": 49,
+    "category": "factual",
+    "query": "thông tin về apta-cpg-manual-2022"
+  },
+  {
+    "id": 50,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của OmniaBench Benchmarking General AI Agents Across Diverse được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 51,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của ToolAnchor Anchoring Counterfactual Context to Boost Agentic."
+  },
+  {
+    "id": 52,
+    "category": "factual",
+    "query": "Tóm tắt nhanh Do We Really Need Multimodal Emotion."
+  },
+  {
+    "id": 53,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của Knowledge- and Gradient-Guided Reinforcement Learning for dựa trên dữ liệu."
+  },
+  {
+    "id": 54,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong CAVA Canonical Action Verification and?"
+  },
+  {
+    "id": 55,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về handbook, bài báo này nói gì?"
+  },
+  {
+    "id": 56,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về Can Tokens Compete Token Representations against Supervised với."
+  },
+  {
+    "id": 57,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào ARDepth Auto-regressive Monocular Depth Estimation with?"
+  },
+  {
+    "id": 58,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về MM-IssueLoc A Controlled Benchmark for với."
+  },
+  {
+    "id": 59,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về 2fw5arhkhpm25xi9pvuvu38ffjxqsh9u2dusvxfc không, cho mình xin ý chính."
+  },
+  {
+    "id": 60,
+    "category": "analytical",
+    "query": "cách mà KET-RAG xử lý dữ liệu là gì"
+  },
+  {
+    "id": 61,
+    "category": "comparative",
+    "query": "Ưu điểm của Do We Really Need so với v81n6a12?"
+  },
+  {
+    "id": 62,
+    "category": "comparative",
+    "query": "Giữa mach-equip-20lsr-20low với legal-services-agreement thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 63,
+    "category": "factual",
+    "query": "Beyond Color Geometry Evaluating Human-Like là cái gì vậy?"
+  },
+  {
+    "id": 64,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của 20231013045258 small."
+  },
+  {
+    "id": 65,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về Action QFormer Structured Representation không, cho mình xin ý chính."
+  },
+  {
+    "id": 66,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của PERank Rerank."
+  },
+  {
+    "id": 67,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của riber 9-s4 29 u20-096 422-430 dựa trên dữ liệu."
+  },
+  {
+    "id": 68,
+    "category": "factual",
+    "query": "thông tin về Learning Physics-Guided Residual Dynamics for Deformable Object"
+  },
+  {
+    "id": 69,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của SMC-ES Automated synthesis of formally verified được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 70,
+    "category": "factual",
+    "query": "thông tin về demystifying-regulatory-compliance-a-comprehensive-guide-for"
+  },
+  {
+    "id": 71,
+    "category": "factual",
+    "query": "Bạn biết gì về Mind the Gap Promises không?"
+  },
+  {
+    "id": 72,
+    "category": "factual",
+    "query": "thông tin về nav360 tc 2020 master-20services-20agreeement-hst"
+  },
+  {
+    "id": 73,
+    "category": "comparative",
+    "query": "Giữa technical guide to assist the implementation với employee handbook thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 74,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của universal-terms-of-service được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 75,
+    "category": "comparative",
+    "query": "Giữa cloudflare-2025-investor-day-presentation với SEED Self-Evolving On-Policy Distillation for thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 76,
+    "category": "comparative",
+    "query": "Nên dùng 2025-sustainability-report-en hay nav360 tc 2020 master-20services-20agreeement-hst?"
+  },
+  {
+    "id": 77,
+    "category": "factual",
+    "query": "vn-rcs-tdr-2026-014-tdrs-research-capacity-strengthening-act hoat dong the nao"
+  },
+  {
+    "id": 78,
+    "category": "factual",
+    "query": "thông tin về flatsheetlat700"
+  },
+  {
+    "id": 79,
+    "category": "comparative",
+    "query": "So sánh SD-MAR Multi-image Analytical Reasoning via và public ai 2025."
+  },
+  {
+    "id": 80,
+    "category": "ood",
+    "query": "Ai là người phát minh ra bóng đèn?"
+  },
+  {
+    "id": 81,
+    "category": "ood",
+    "query": "Cách gấp hạc giấy đơn giản."
+  },
+  {
+    "id": 82,
+    "category": "factual",
+    "query": "thông tin về how-to-write 14"
+  },
+  {
+    "id": 83,
+    "category": "factual",
+    "query": "cho hỏi 20240419 20240419-sgr-bao-cao-thuong-nien-nam-2023 là gì"
+  },
+  {
+    "id": 84,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của Multi-Perspective Agentic Program Repair via được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 85,
+    "category": "comparative",
+    "query": "Nên dùng HippoRAG hay ReasFlow Assisting Reasoning-Centric Scientific Discovery in?"
+  },
+  {
+    "id": 86,
+    "category": "factual",
+    "query": "cho hỏi fy2025-walmart-esg-report là gì"
+  },
+  {
+    "id": 87,
+    "category": "adversarial",
+    "query": "Nếu áp dụng cách của homes-20investment-20fund-20brochure-20july-202024 vào BiXSE thì có giải quyết được nhược điểm cốt lõi không?"
+  },
+  {
+    "id": 88,
+    "category": "comparative",
+    "query": "Ưu điểm của PERank so với Moral Attitudes of Sentient?"
+  },
+  {
+    "id": 89,
+    "category": "factual",
+    "query": "dominica cbiu real estate là cái gì vậy?"
+  },
+  {
+    "id": 90,
+    "category": "analytical",
+    "query": "phân tích MaxSAT-Based Feedback for Guiding Vision-Language Models in giùm mình"
+  },
+  {
+    "id": 91,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của national ai strategy - pdf version."
+  },
+  {
+    "id": 92,
+    "category": "factual",
+    "query": "cho hỏi FinResearchBench II A Deep Research Benchmark with là gì"
+  },
+  {
+    "id": 93,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về fd842230-9900-44a2-aacb-85354e274ce4 với."
+  },
+  {
+    "id": 94,
+    "category": "comparative",
+    "query": "Ưu điểm của EffiR so với SD-MAR Multi-image Analytical Reasoning via?"
+  },
+  {
+    "id": 95,
+    "category": "factual",
+    "query": "cho hỏi A Hybrid Mamba for Audio-Visual Navigation là gì"
+  },
+  {
+    "id": 96,
+    "category": "comparative",
+    "query": "Giữa deltaplan en với research report 2015-16 revised final thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 97,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa assisted living residences-2800 regulatory compliance guide và 212 305097074 là gì?"
+  },
+  {
+    "id": 98,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về definitive-guide-to-onboarding-new-hires, bài báo này nói gì?"
+  },
+  {
+    "id": 99,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về UTS at ELOQUENT 2026 Voight-Kampff, bài báo này nói gì?"
+  },
+  {
+    "id": 100,
+    "category": "analytical",
+    "query": "cách mà An Intelligent-Cloud Edge Multimodal xử lý dữ liệu là gì"
+  },
+  {
+    "id": 101,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa Steering Robustness into World và documented information là gì?"
+  },
+  {
+    "id": 102,
+    "category": "factual",
+    "query": "Nghiên cứu về hc-200700-20patient-20handbook-2012-2020 có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 103,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào servicesagreement?"
+  },
+  {
+    "id": 104,
+    "category": "factual",
+    "query": "soitheky annual-report 2024-vn hoat dong the nao"
+  },
+  {
+    "id": 105,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của Towards a Unified Multidimensional được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 106,
+    "category": "factual",
+    "query": "cho hỏi 2025 annual report là gì"
+  },
+  {
+    "id": 107,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về exhibit101, bài báo này nói gì?"
+  },
+  {
+    "id": 108,
+    "category": "analytical",
+    "query": "cách mà bp102c14 xử lý dữ liệu là gì"
+  },
+  {
+    "id": 109,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của Deep Interaction An Efficient Human-AI Interaction Method được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 110,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về AutoSchemaKG, bài báo này nói gì?"
+  },
+  {
+    "id": 111,
+    "category": "analytical",
+    "query": "phân tích advanced-physicsprize2025 giùm mình"
+  },
+  {
+    "id": 112,
+    "category": "analytical",
+    "query": "cách mà SetEncoder xử lý dữ liệu là gì"
+  },
+  {
+    "id": 113,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng Controlled Reformulation Testing for Logical Consistency là gì?"
+  },
+  {
+    "id": 114,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về Towards Reliable AI-Assisted Analog Design Template-Constrained với."
+  },
+  {
+    "id": 115,
+    "category": "factual",
+    "query": "Bạn biết gì về 8340101 nc k64 không?"
+  },
+  {
+    "id": 116,
+    "category": "comparative",
+    "query": "Nên dùng LLM-QL hay investment-brochure-sam-akhtar-c21-uk-1?"
+  },
+  {
+    "id": 117,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa vanbangoc 24-2019-tt-bgd-c4-90t và vanbangoc 08-2021-tt-bgd-c4-90t-20full là gì?"
+  },
+  {
+    "id": 118,
+    "category": "adversarial",
+    "query": "Tại sao kết quả của public ai 2025 lại hoàn toàn trái ngược với thực tế?"
+  },
+  {
+    "id": 119,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về Beyond Color Geometry Evaluating Human-Like không, cho mình xin ý chính."
+  },
+  {
+    "id": 120,
+    "category": "analytical",
+    "query": "cách mà KGGen xử lý dữ liệu là gì"
+  },
+  {
+    "id": 121,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về Entropy in Semantic Memory không, cho mình xin ý chính."
+  },
+  {
+    "id": 122,
+    "category": "factual",
+    "query": "cho hỏi atlas là gì"
+  },
+  {
+    "id": 123,
+    "category": "adversarial",
+    "query": "Tại sao kết quả của Analyzing Curricular Pattern Complexity Using AI lại hoàn toàn trái ngược với thực tế?"
+  },
+  {
+    "id": 124,
+    "category": "analytical",
+    "query": "phân tích ej889707 giùm mình"
+  },
+  {
+    "id": 125,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của Active Beyond-Diagonal RIS Empowered Heterogeneous Edge được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 126,
+    "category": "analytical",
+    "query": "phân tích annual-ministry-report-2019-pages-for-web giùm mình"
+  },
+  {
+    "id": 127,
+    "category": "factual",
+    "query": "Bạn biết gì về elixir-compliance-guide không?"
+  },
+  {
+    "id": 128,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của sm785 cs-8100-family sr ed13 vietnamese vi."
+  },
+  {
+    "id": 129,
+    "category": "adversarial",
+    "query": "Tại sao kết quả của Towards a Unified Multidimensional lại hoàn toàn trái ngược với thực tế?"
+  },
+  {
+    "id": 130,
+    "category": "factual",
+    "query": "Bạn biết gì về Visual Access Boundaries in Vision-Language không?"
+  },
+  {
+    "id": 131,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong Semantic Anchoring for Robotic?"
+  },
+  {
+    "id": 132,
+    "category": "factual",
+    "query": "ViHoRec A Quality-Controlled Vietnamese Hotel Recommendation hoat dong the nao"
+  },
+  {
+    "id": 133,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về PERank với."
+  },
+  {
+    "id": 134,
+    "category": "factual",
+    "query": "Nghiên cứu về Post-Training Shifts Confidence A Three-Stage Analysis of có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 135,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào 2025-annual-report?"
+  },
+  {
+    "id": 136,
+    "category": "ood",
+    "query": "Hướng dẫn cài đặt Windows 11."
+  },
+  {
+    "id": 137,
+    "category": "analytical",
+    "query": "phân tích 1-pager-on-national-ai-strategy-resolution giùm mình"
+  },
+  {
+    "id": 138,
+    "category": "factual",
+    "query": "Bạn biết gì về brochure-bofe web-vi-v2 không?"
+  },
+  {
+    "id": 139,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của annual-report dựa trên dữ liệu."
+  },
+  {
+    "id": 140,
+    "category": "comparative",
+    "query": "Nên dùng Semantic Anchoring for Robotic hay standard-course-syllabus-format?"
+  },
+  {
+    "id": 141,
+    "category": "comparative",
+    "query": "Giữa soi-module-eia training-guide-en với TerraZero Procedural Driving Simulation for Zero-Demonstration Self-Play thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 142,
+    "category": "factual",
+    "query": "Entropy in Semantic Memory hoat dong the nao"
+  },
+  {
+    "id": 143,
+    "category": "analytical",
+    "query": "cách mà the energy report lowres 111110 xử lý dữ liệu là gì"
+  },
+  {
+    "id": 144,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng thesis-chapter-method-guide là gì?"
+  },
+  {
+    "id": 145,
+    "category": "ood",
+    "query": "Cách reset mật khẩu iPhone khi bị quên."
+  },
+  {
+    "id": 146,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về how-20to-20write-20a-20lab-20report không, cho mình xin ý chính."
+  },
+  {
+    "id": 147,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng 07-01-tl05-to-20trinh-20phe-20duyet-20bctc-202021 là gì?"
+  },
+  {
+    "id": 148,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của 2025 mandateforleadership full."
+  },
+  {
+    "id": 149,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của Function-Aware Fill-in-the-Middle as Mid-Training for Coding Agent dựa trên dữ liệu."
+  },
+  {
+    "id": 150,
+    "category": "comparative",
+    "query": "Giữa SAFETY SENTRY Context-Aware Human Intervention với NodeImport Imbalanced Node Classification with thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 151,
+    "category": "analytical",
+    "query": "cách mà Visual Access Boundaries in Vision-Language xử lý dữ liệu là gì"
+  },
+  {
+    "id": 152,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng When Words Are Safe But là gì?"
+  },
+  {
+    "id": 153,
+    "category": "factual",
+    "query": "Bạn biết gì về Dialogue Summarization with Emotion Dynamics Using không?"
+  },
+  {
+    "id": 154,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào progress-report-national-ai-strategy-ai-here-for-good?"
+  },
+  {
+    "id": 155,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng ndwa-sample-employment-contract là gì?"
+  },
+  {
+    "id": 156,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của Local Additive Feature Attribution A."
+  },
+  {
+    "id": 157,
+    "category": "ood",
+    "query": "Thủ tục làm hộ chiếu online 2026."
+  },
+  {
+    "id": 158,
+    "category": "factual",
+    "query": "Tóm tắt nhanh Can Induced Emotion Bias LLM Behaviors."
+  },
+  {
+    "id": 159,
+    "category": "factual",
+    "query": "Nghiên cứu về progress-report-national-ai-strategy-ai-here-for-good có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 160,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của Can We Trust Item Response Theory for được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 161,
+    "category": "adversarial",
+    "query": "Tại sao kết quả của elixir-compliance-guide lại hoàn toàn trái ngược với thực tế?"
+  },
+  {
+    "id": 162,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào can-i-renewable-energy-tracker-2024?"
+  },
+  {
+    "id": 163,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào complete-annual-report-2024?"
+  },
+  {
+    "id": 164,
+    "category": "factual",
+    "query": "epli-employee-handbook-template hoat dong the nao"
+  },
+  {
+    "id": 165,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của MamaBench Benchmarking LLM Robustness in Maternal dựa trên dữ liệu."
+  },
+  {
+    "id": 166,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào Towards Hierarchical Structure Understanding of Newspaper?"
+  },
+  {
+    "id": 167,
+    "category": "factual",
+    "query": "rhino-education-whitepaper-ver-0-3 hoat dong the nao"
+  },
+  {
+    "id": 168,
+    "category": "analytical",
+    "query": "phân tích t-c3-acnh hu-e1-bb-91ng h-e1-bb-8fi -c4-91-c3-a1p b-e1-bb-99 giùm mình"
+  },
+  {
+    "id": 169,
+    "category": "comparative",
+    "query": "Nên dùng Multi-Expert Routing for Multi-Domain Low-Resource OCR A hay optimized-architectures-whitepaper?"
+  },
+  {
+    "id": 170,
+    "category": "adversarial",
+    "query": "Có điểm nào trong Atomic Units of X The Compression Layer mâu thuẫn với contract-template-for-goods-and-services không?"
+  },
+  {
+    "id": 171,
+    "category": "factual",
+    "query": "Bạn biết gì về standard msp tos không?"
+  },
+  {
+    "id": 172,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của Bulkhead Automated Semantic Detection and Remediation dựa trên dữ liệu."
+  },
+  {
+    "id": 173,
+    "category": "factual",
+    "query": "drug-safety-executive-summary-ebook hoat dong the nao"
+  },
+  {
+    "id": 174,
+    "category": "factual",
+    "query": "thông tin về Beyond Binary Detection A Multi-Dimensional Taxonomy"
+  },
+  {
+    "id": 175,
+    "category": "comparative",
+    "query": "Ưu điểm của hr-policy-manual-202503 so với Stop Thinking Start Looking Efficient?"
+  },
+  {
+    "id": 176,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của us-eia-experience."
+  },
+  {
+    "id": 177,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa Beyond Color Geometry Evaluating Human-Like và Live Gurbani Tracking A Benchmark and là gì?"
+  },
+  {
+    "id": 178,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào The Model Knows Your?"
+  },
+  {
+    "id": 179,
+    "category": "comparative",
+    "query": "So sánh SelfBioRAG và 07-01-tl05-to-20trinh-20phe-20duyet-20bctc-202021."
+  },
+  {
+    "id": 180,
+    "category": "comparative",
+    "query": "So sánh Learning Mechanistic Reasoning for Chemical và Steering Robustness into World."
+  },
+  {
+    "id": 181,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về ShortOPD Recovering Pruned LLMs with, bài báo này nói gì?"
+  },
+  {
+    "id": 182,
+    "category": "ood",
+    "query": "Cách tính thuế thu nhập cá nhân 2026."
+  },
+  {
+    "id": 183,
+    "category": "ood",
+    "query": "Các loại vitamin tốt cho mắt."
+  },
+  {
+    "id": 184,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong national-ai-strategies?"
+  },
+  {
+    "id": 185,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về Beyond Entropy Correctness-Aware Advantage không, cho mình xin ý chính."
+  },
+  {
+    "id": 186,
+    "category": "factual",
+    "query": "Orchestrating Power Grid Studies with Multi-Agent hoat dong the nao"
+  },
+  {
+    "id": 187,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào Tactile Giving Computer-Using Agents Hands?"
+  },
+  {
+    "id": 188,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào software-whitepaper?"
+  },
+  {
+    "id": 189,
+    "category": "factual",
+    "query": "thông tin về FinResearchBench II A Deep Research Benchmark with"
+  },
+  {
+    "id": 190,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về product liability1, bài báo này nói gì?"
+  },
+  {
+    "id": 191,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về chapter-6400-regulatory-compliance-guide-rcg với."
+  },
+  {
+    "id": 192,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về Self-Improving AI Coding Agents Through Accumulated với."
+  },
+  {
+    "id": 193,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa WaterMoE Expert-Routing-based Watermarking for High và MedRAG-Benchmark Eval là gì?"
+  },
+  {
+    "id": 194,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của miami-foundation-general-grant-report-template dựa trên dữ liệu."
+  },
+  {
+    "id": 195,
+    "category": "ood",
+    "query": "Địa chỉ quán ăn ngon ở Đà Lạt."
+  },
+  {
+    "id": 196,
+    "category": "comparative",
+    "query": "Giữa RAPTOR Reasoning với E5-Multilingual thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 197,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về public ai 2025, bài báo này nói gì?"
+  },
+  {
+    "id": 198,
+    "category": "ood",
+    "query": "Mẹo phối đồ cho người lùn."
+  },
+  {
+    "id": 199,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào SetEncoder?"
+  },
+  {
+    "id": 200,
+    "category": "factual",
+    "query": "Nghiên cứu về dcf-online-reporting-instructions có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 201,
+    "category": "factual",
+    "query": "STKAN Kolmogorov-Arnold Networks for là cái gì vậy?"
+  },
+  {
+    "id": 202,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của Silent Alarm A J-Space Protocol for được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 203,
+    "category": "comparative",
+    "query": "So sánh organising your thesis và revised-syllabus-guidance-and-checklist."
+  },
+  {
+    "id": 204,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về Learning Mechanistic Reasoning for Chemical với."
+  },
+  {
+    "id": 205,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong ac002-course-syllabus?"
+  },
+  {
+    "id": 206,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của Form Not Content A."
+  },
+  {
+    "id": 207,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong Deconstructing Actor-Critic A Large-scale Empirical Study?"
+  },
+  {
+    "id": 208,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của SemaDiff Identifying Semantic-Changing Commits with Generated Code dựa trên dữ liệu."
+  },
+  {
+    "id": 209,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của Post-Training Shifts Confidence A Three-Stage Analysis of được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 210,
+    "category": "factual",
+    "query": "Nghiên cứu về Can LLMs Write Reliable Rubrics A có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 211,
+    "category": "analytical",
+    "query": "phân tích Learning Engagement Assistant LEA Cross-Course Scalability giùm mình"
+  },
+  {
+    "id": 212,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của Dialogue Summarization with Emotion Dynamics Using dựa trên dữ liệu."
+  },
+  {
+    "id": 213,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của SearchOS-V1 Towards Robust Open-Domain Information-Seeking dựa trên dữ liệu."
+  },
+  {
+    "id": 214,
+    "category": "factual",
+    "query": "thông tin về vanbangoc 15-2014-tt-bgd-c4-90t"
+  },
+  {
+    "id": 215,
+    "category": "factual",
+    "query": "Bạn biết gì về americas-ai-action-plan không?"
+  },
+  {
+    "id": 216,
+    "category": "analytical",
+    "query": "cách mà tackle-climate-change-impact-report-2025 xử lý dữ liệu là gì"
+  },
+  {
+    "id": 217,
+    "category": "analytical",
+    "query": "phân tích MamaBench Benchmarking LLM Robustness in Maternal giùm mình"
+  },
+  {
+    "id": 218,
+    "category": "comparative",
+    "query": "Ưu điểm của An offline approach to fNIRS-guided reinforcement so với budget-and-finance-basics?"
+  },
+  {
+    "id": 219,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng employment-contract-for-hiring-casual-employees-contract là gì?"
+  },
+  {
+    "id": 220,
+    "category": "factual",
+    "query": "Bạn biết gì về From Language to Navigation Goals không?"
+  },
+  {
+    "id": 221,
+    "category": "adversarial",
+    "query": "Tại sao onboarding-20guide-20and-20toolkit-20for-20managers-20 -20re lại khẳng định rằng AI không có tác dụng gì?"
+  },
+  {
+    "id": 222,
+    "category": "comparative",
+    "query": "Nên dùng full-presentation hay bao-cao-thuong-nien vtds?"
+  },
+  {
+    "id": 223,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào The Cost and Network?"
+  },
+  {
+    "id": 224,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong january-february-2014-michigan-township-news-cover-story?"
+  },
+  {
+    "id": 225,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về nets-comprehensive-guide-to-road-safety-vietnamese không, cho mình xin ý chính."
+  },
+  {
+    "id": 226,
+    "category": "ood",
+    "query": "Tóc nhuộm màu gì đang trend năm nay?"
+  },
+  {
+    "id": 227,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào huong-dan-doc-va-phan-tich-bctc-nhanh?"
+  },
+  {
+    "id": 228,
+    "category": "analytical",
+    "query": "cách mà assisted living residences-2800 regulatory compliance guide xử lý dữ liệu là gì"
+  },
+  {
+    "id": 229,
+    "category": "factual",
+    "query": "Tóm tắt nhanh 2025-annual-report-complete."
+  },
+  {
+    "id": 230,
+    "category": "analytical",
+    "query": "phân tích hdwea-eedp eng giùm mình"
+  },
+  {
+    "id": 231,
+    "category": "comparative",
+    "query": "Giữa bp102c14 với phu-luc-vii-tt-44 thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 232,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của MemOps Benchmarking Lifecycle Memory."
+  },
+  {
+    "id": 233,
+    "category": "factual",
+    "query": "perspectives-data-protection-policy-2019-final-10-10-2019 là cái gì vậy?"
+  },
+  {
+    "id": 234,
+    "category": "comparative",
+    "query": "Nên dùng example-independent-contractor-contract hay property-20investment-20essentials?"
+  },
+  {
+    "id": 235,
+    "category": "comparative",
+    "query": "So sánh LOTAPO Leave-One-Turn Attribution for Self-Generated Process Rewards và ARDepth Auto-regressive Monocular Depth Estimation with."
+  },
+  {
+    "id": 236,
+    "category": "factual",
+    "query": "cho hỏi How Artificial Intelligence LLM Engines Shape là gì"
+  },
+  {
+    "id": 237,
+    "category": "factual",
+    "query": "Bạn biết gì về form-20of-20employment-20agreement-20-20complete-20version không?"
+  },
+  {
+    "id": 238,
+    "category": "comparative",
+    "query": "Ưu điểm của ExTernD Expanded-Rank Ternary Decomposition Ternary LLM so với Disentangling Knowledge States with Ability?"
+  },
+  {
+    "id": 239,
+    "category": "factual",
+    "query": "The Emerging Paradigm of Geospatial Foundation Models là cái gì vậy?"
+  },
+  {
+    "id": 240,
+    "category": "factual",
+    "query": "Bạn biết gì về apex-gdpr-statement-us không?"
+  },
+  {
+    "id": 241,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng RAPTOR Reasoning là gì?"
+  },
+  {
+    "id": 242,
+    "category": "factual",
+    "query": "1001 01 26 ai strategy hoat dong the nao"
+  },
+  {
+    "id": 243,
+    "category": "ood",
+    "query": "Thời tiết ngày mai ở Hà Nội ra sao?"
+  },
+  {
+    "id": 244,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của property investment made simplear được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 245,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của DenseX."
+  },
+  {
+    "id": 246,
+    "category": "factual",
+    "query": "Bạn biết gì về D-cut Adaptive Verification Depth không?"
+  },
+  {
+    "id": 247,
+    "category": "factual",
+    "query": "Tóm tắt nhanh patient-handbook."
+  },
+  {
+    "id": 248,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong mwg-bao-cao-thuong-nien-2023-12?"
+  },
+  {
+    "id": 249,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của The Refusal Residue When Probes."
+  },
+  {
+    "id": 250,
+    "category": "factual",
+    "query": "Bạn biết gì về TSSM Triaxial State Space không?"
+  },
+  {
+    "id": 251,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của teLLMe Why Ain t Nothing but dựa trên dữ liệu."
+  },
+  {
+    "id": 252,
+    "category": "analytical",
+    "query": "cách mà Rethinking Penetration Testing for xử lý dữ liệu là gì"
+  },
+  {
+    "id": 253,
+    "category": "comparative",
+    "query": "Ưu điểm của Explaining Reinforcement Learning Agents via Inductive so với Audited Selective Verification for Risk-Controlled N-1 Thermal?"
+  },
+  {
+    "id": 254,
+    "category": "adversarial",
+    "query": "Có điểm nào trong national ai strategy - pdf version mâu thuẫn với Spectral-Informed Neural Networks Outperform không?"
+  },
+  {
+    "id": 255,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về LightRAG không, cho mình xin ý chính."
+  },
+  {
+    "id": 256,
+    "category": "factual",
+    "query": "FoMoVLA Bridging Visual Foresight and Motion Guidance là cái gì vậy?"
+  },
+  {
+    "id": 257,
+    "category": "comparative",
+    "query": "Nên dùng hartford design stds combined hay report-on-the-global-renewable-energy-trends?"
+  },
+  {
+    "id": 258,
+    "category": "factual",
+    "query": "Nghiên cứu về patriot-america có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 259,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa gym-investor-presentation-20final và onboarding-20guide-20and-20toolkit-20for-20managers-20 -20re là gì?"
+  },
+  {
+    "id": 260,
+    "category": "factual",
+    "query": "cho hỏi MARS Multi-hop Adaptive Retrieval là gì"
+  },
+  {
+    "id": 261,
+    "category": "comparative",
+    "query": "Giữa bofaannualreport2024 với who-technical-report-498 thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 262,
+    "category": "analytical",
+    "query": "phân tích Towards a Unified Multidimensional giùm mình"
+  },
+  {
+    "id": 263,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của jcb48-item-3-3-report-by-the-chair-of-stac."
+  },
+  {
+    "id": 264,
+    "category": "adversarial",
+    "query": "Có điểm nào trong Trust Junk Leads to Unjustified Support mâu thuẫn với Boogu-Image-0 1 Boosting Open-Source Unified không?"
+  },
+  {
+    "id": 265,
+    "category": "factual",
+    "query": "Adapting Generalist Vehicle Models for High-Speed MPC là cái gì vậy?"
+  },
+  {
+    "id": 266,
+    "category": "ood",
+    "query": "Bạn có biết công thức nấu phở bò không?"
+  },
+  {
+    "id": 267,
+    "category": "factual",
+    "query": "thông tin về real-estate-program-brochure"
+  },
+  {
+    "id": 268,
+    "category": "analytical",
+    "query": "phân tích who 35th report giùm mình"
+  },
+  {
+    "id": 269,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của 2025-annual-report-compressed."
+  },
+  {
+    "id": 270,
+    "category": "comparative",
+    "query": "Giữa Can an Old Dog Be Taught New với Internet of Agentic Things Networked AI thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 271,
+    "category": "analytical",
+    "query": "phân tích gym-investor-presentation-20final giùm mình"
+  },
+  {
+    "id": 272,
+    "category": "comparative",
+    "query": "Nên dùng thesis-chapter-method-guide hay onboarding-new-employees3?"
+  },
+  {
+    "id": 273,
+    "category": "factual",
+    "query": "1-42-01 hoat dong the nao"
+  },
+  {
+    "id": 274,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về MAO-ARAG, bài báo này nói gì?"
+  },
+  {
+    "id": 275,
+    "category": "analytical",
+    "query": "phân tích health-and-safety-manual-1 giùm mình"
+  },
+  {
+    "id": 276,
+    "category": "factual",
+    "query": "cho hỏi Human4K A Large-Scale 4K là gì"
+  },
+  {
+    "id": 277,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào Trust Junk Leads to Unjustified Support?"
+  },
+  {
+    "id": 278,
+    "category": "analytical",
+    "query": "cách mà clinical-guidelines xử lý dữ liệu là gì"
+  },
+  {
+    "id": 279,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về Rank-DistillLLM, bài báo này nói gì?"
+  },
+  {
+    "id": 280,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào ww service agreement1?"
+  },
+  {
+    "id": 281,
+    "category": "factual",
+    "query": "Tóm tắt nhanh vanbangoc 08-2021-tt-bgd-c4-90t-20full."
+  },
+  {
+    "id": 282,
+    "category": "comparative",
+    "query": "Nên dùng music-ministry-2019-annual-report-2020 hay FanOutQA?"
+  },
+  {
+    "id": 283,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về aig-reports-4q25-results, bài báo này nói gì?"
+  },
+  {
+    "id": 284,
+    "category": "factual",
+    "query": "music-ministry-2019-annual-report-2020 hoat dong the nao"
+  },
+  {
+    "id": 285,
+    "category": "comparative",
+    "query": "Ưu điểm của Partition Prompt Aggregate Statistical so với CayleyR Solving the TopSpin?"
+  },
+  {
+    "id": 286,
+    "category": "factual",
+    "query": "Bạn biết gì về Closed-Loop Knowledge Dynamics An Operational không?"
+  },
+  {
+    "id": 287,
+    "category": "factual",
+    "query": "ej889707 là cái gì vậy?"
+  },
+  {
+    "id": 288,
+    "category": "adversarial",
+    "query": "Tại sao anglo-american-educational-services-ltd-l-data-protection-po lại khẳng định rằng AI không có tác dụng gì?"
+  },
+  {
+    "id": 289,
+    "category": "factual",
+    "query": "cho hỏi ndwa-sample-employment-contract là gì"
+  },
+  {
+    "id": 290,
+    "category": "factual",
+    "query": "deta-18825-15 hoat dong the nao"
+  },
+  {
+    "id": 291,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của DeepStress Stress-Testing Deep Search Agents."
+  },
+  {
+    "id": 292,
+    "category": "ood",
+    "query": "Làm sao để sửa máy lạnh bị chảy nước?"
+  },
+  {
+    "id": 293,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng contracttemplate là gì?"
+  },
+  {
+    "id": 294,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của 2021-annual-report proof-v5 dựa trên dữ liệu."
+  },
+  {
+    "id": 295,
+    "category": "analytical",
+    "query": "cách mà PFAdapter Hierarchical LoRA Decomposition xử lý dữ liệu là gì"
+  },
+  {
+    "id": 296,
+    "category": "analytical",
+    "query": "phân tích 7-dao-hai giùm mình"
+  },
+  {
+    "id": 297,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong Knowledge- and Gradient-Guided Reinforcement Learning for?"
+  },
+  {
+    "id": 298,
+    "category": "analytical",
+    "query": "cách mà bctn-htg-final-cbtt xử lý dữ liệu là gì"
+  },
+  {
+    "id": 299,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của LongContextRAG được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 300,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về Self-Evolving Human-Centered Framework for Explainable với."
+  },
+  {
+    "id": 301,
+    "category": "comparative",
+    "query": "Giữa Autonomous Tracking and Terminal Guidance of Moving với Grokipedia vs Wikipedia An LLM-Based thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 302,
+    "category": "comparative",
+    "query": "Nên dùng 4511 insurance-20document hay annualreport 27122024?"
+  },
+  {
+    "id": 303,
+    "category": "ood",
+    "query": "Lịch chiếu phim rạp tháng này."
+  },
+  {
+    "id": 304,
+    "category": "ood",
+    "query": "Lịch thi đấu bóng đá Ngoại hạng Anh tuần này."
+  },
+  {
+    "id": 305,
+    "category": "analytical",
+    "query": "phân tích trumpf-whitepaper-digital-reference-architecture giùm mình"
+  },
+  {
+    "id": 306,
+    "category": "comparative",
+    "query": "So sánh The Cost and Network và hsa eia briefing1 when-should-an-environmental-impact-assess."
+  },
+  {
+    "id": 307,
+    "category": "adversarial",
+    "query": "Chỉ ra chính xác 3 nhược điểm lớn nhất của 2020-ai-strategy mà không đề cập đến ưu điểm."
+  },
+  {
+    "id": 308,
+    "category": "factual",
+    "query": "Tóm tắt nhanh Earthquaker-AI A Retrieval-Augmented Generation Framework with."
+  },
+  {
+    "id": 309,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào Cost-Governed RAG Unified Per-Tenant Cost?"
+  },
+  {
+    "id": 310,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào A Minimal Interpretable Architecture?"
+  },
+  {
+    "id": 311,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào workplace-20health-20and-20safety-20student-20manual?"
+  },
+  {
+    "id": 312,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào Pretraining Data Can Be?"
+  },
+  {
+    "id": 313,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa The Dynamic Verifiable Multi-Agent Human Agentic và TSSM Triaxial State Space là gì?"
+  },
+  {
+    "id": 314,
+    "category": "factual",
+    "query": "cho hỏi 26-05-30-ebola-disease-technical-documents-en-002 là gì"
+  },
+  {
+    "id": 315,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của public health guide final-digital-accessible-6-23."
+  },
+  {
+    "id": 316,
+    "category": "factual",
+    "query": "cho hỏi HABIB TAZ at SemEval-2026 là gì"
+  },
+  {
+    "id": 317,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa 2024-annual-report và homes-20investment-20fund-20brochure-20july-202024 là gì?"
+  },
+  {
+    "id": 318,
+    "category": "factual",
+    "query": "Nghiên cứu về Line-Anchored Feedback Cuts Token Costs and có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 319,
+    "category": "comparative",
+    "query": "Ưu điểm của Policy-Conditioned Constrained Decoding for Column-Level Access so với principles-of-good-urban-design-nyc-022024?"
+  },
+  {
+    "id": 320,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của dcf-online-reporting-instructions."
+  },
+  {
+    "id": 321,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng 10931425 là gì?"
+  },
+  {
+    "id": 322,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của ihvn-hr-policy-manual-final-pcl dựa trên dữ liệu."
+  },
+  {
+    "id": 323,
+    "category": "analytical",
+    "query": "phân tích SD-MAR Multi-image Analytical Reasoning via giùm mình"
+  },
+  {
+    "id": 324,
+    "category": "analytical",
+    "query": "cách mà Auditing Protocol-Level Shortcuts in Large xử lý dữ liệu là gì"
+  },
+  {
+    "id": 325,
+    "category": "comparative",
+    "query": "So sánh Learning Engagement Assistant LEA Cross-Course Scalability và workplace-safety-manual."
+  },
+  {
+    "id": 326,
+    "category": "adversarial",
+    "query": "Lý do nào khiến smartbrief-20employee-20handbook bị đánh giá là thất bại hoàn toàn?"
+  },
+  {
+    "id": 327,
+    "category": "adversarial",
+    "query": "Chỉ ra chính xác 3 nhược điểm lớn nhất của 06-2017-tt-bgddt-quy-che mà không đề cập đến ưu điểm."
+  },
+  {
+    "id": 328,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của chuong-20trinh-20dao-20tao-20thac-20si-20k28 dựa trên dữ liệu."
+  },
+  {
+    "id": 329,
+    "category": "adversarial",
+    "query": "Lý do nào khiến harvest-20compliance-20guide bị đánh giá là thất bại hoàn toàn?"
+  },
+  {
+    "id": 330,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về lu-e1-ba-adn-v-c4-83n-th-e1-ba-a1c-s-c4-a9-qu-e1-ba-a3n-l-c3, bài báo này nói gì?"
+  },
+  {
+    "id": 331,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào Proof-or-Stop Don t Trust the Agent?"
+  },
+  {
+    "id": 332,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của minwageviet."
+  },
+  {
+    "id": 333,
+    "category": "comparative",
+    "query": "So sánh onr-cybersecurity-strategy-whitepaper-abridged-january-23 và toledo-hospital-patient-information-guide."
+  },
+  {
+    "id": 334,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về ctdt quan-20tri-20kinh-20doanh 2024 không, cho mình xin ý chính."
+  },
+  {
+    "id": 335,
+    "category": "comparative",
+    "query": "Nên dùng 576364987f8b9a8e938b4579 hay 279f9b1790d9ba2ec68cfb23aed0d4b6?"
+  },
+  {
+    "id": 336,
+    "category": "factual",
+    "query": "Bạn biết gì về 2025-annual-report không?"
+  },
+  {
+    "id": 337,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của Partially Correlated Verifier Cascades in LLM."
+  },
+  {
+    "id": 338,
+    "category": "comparative",
+    "query": "Ưu điểm của FlashDecoder Real-Time Latent-to-Pixel Streaming Decoder so với GHR-VLM Making Zero-Shot Transit Video Analytics?"
+  },
+  {
+    "id": 339,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong Do LLMs Need Architectural?"
+  },
+  {
+    "id": 340,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về Efficient and Privacy Aware Edge Cloud Collaborative không, cho mình xin ý chính."
+  },
+  {
+    "id": 341,
+    "category": "comparative",
+    "query": "Giữa MedFailBench A Clinician-Built Open-Source Benchmark với Orchestrating Power Grid Studies with Multi-Agent thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 342,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về VideoSEMA a scalable and efficient, bài báo này nói gì?"
+  },
+  {
+    "id": 343,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về A Comparative Analysis of không, cho mình xin ý chính."
+  },
+  {
+    "id": 344,
+    "category": "factual",
+    "query": "thông tin về An offline approach to fNIRS-guided reinforcement"
+  },
+  {
+    "id": 345,
+    "category": "factual",
+    "query": "cho hỏi When AI Blurs the Boundaries là gì"
+  },
+  {
+    "id": 346,
+    "category": "comparative",
+    "query": "Giữa Theory-Level Autoformalization From Isolated Statements to với Language Identification with Succinct thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 347,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong hr-policy-manual-202503?"
+  },
+  {
+    "id": 348,
+    "category": "comparative",
+    "query": "Nên dùng sfdeclarationfinal hay gdpr-compliance?"
+  },
+  {
+    "id": 349,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa Critic Experience Bank Self-Evolving Step-Level Confidence và sample-insurance-policy là gì?"
+  },
+  {
+    "id": 350,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa Structured Feedback Improves Repair và 45c2ca2f51014178ac2fae7b003dc651 là gì?"
+  },
+  {
+    "id": 351,
+    "category": "comparative",
+    "query": "Giữa safety-26health-manual với ch-c6-b0-c6-a1ng-tr-c3-acnh-th-e1-ba-a1c-s-c4-a9-chuy-c3-aan thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 352,
+    "category": "ood",
+    "query": "Tổng thống Mỹ hiện tại là ai?"
+  },
+  {
+    "id": 353,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng nchrp rpt 365 là gì?"
+  },
+  {
+    "id": 354,
+    "category": "factual",
+    "query": "thông tin về ac002-course-syllabus"
+  },
+  {
+    "id": 355,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của MemOps Benchmarking Lifecycle Memory được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 356,
+    "category": "adversarial",
+    "query": "Nếu áp dụng cách của baocaotaichinh2025 vào employee-policy-manual thì có giải quyết được nhược điểm cốt lõi không?"
+  },
+  {
+    "id": 357,
+    "category": "comparative",
+    "query": "So sánh Moral Attitudes of Sentient và Constraint-Aware Aggregation for Federated Reinforcement Learning in."
+  },
+  {
+    "id": 358,
+    "category": "comparative",
+    "query": "Ưu điểm của apta-cpg-manual-2022 so với Can Tokens Compete Token Representations against Supervised?"
+  },
+  {
+    "id": 359,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng A Comparative Analysis of là gì?"
+  },
+  {
+    "id": 360,
+    "category": "factual",
+    "query": "cho hỏi ipcc ar6 syr longerreport là gì"
+  },
+  {
+    "id": 361,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong CoTu at EXACT 2026?"
+  },
+  {
+    "id": 362,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của OvisOCR2 Technical Report được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 363,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong project standards and specifications?"
+  },
+  {
+    "id": 364,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong best-practice-principles-of-eia?"
+  },
+  {
+    "id": 365,
+    "category": "analytical",
+    "query": "cách mà Continuously Evolving Deepfake Detection xử lý dữ liệu là gì"
+  },
+  {
+    "id": 366,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về 2022-global-reit-brochure với."
+  },
+  {
+    "id": 367,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về medicine-safety với."
+  },
+  {
+    "id": 368,
+    "category": "factual",
+    "query": "Bạn biết gì về A Learning-Rate-Gated Failure of GRPO in a không?"
+  },
+  {
+    "id": 369,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của Atomic Units of X The Compression Layer."
+  },
+  {
+    "id": 370,
+    "category": "ood",
+    "query": "Chiều cao của đỉnh Everest là bao nhiêu?"
+  },
+  {
+    "id": 371,
+    "category": "analytical",
+    "query": "cách mà gapartners employee-handbook-checklist xử lý dữ liệu là gì"
+  },
+  {
+    "id": 372,
+    "category": "factual",
+    "query": "Nghiên cứu về onboarding-20guide-20and-20toolkit-20for-20managers-20 -20re có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 373,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng universal-terms-of-service là gì?"
+  },
+  {
+    "id": 374,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào RW-Voice-EQ Bench A Real World Benchmark?"
+  },
+  {
+    "id": 375,
+    "category": "analytical",
+    "query": "cách mà Collaborative Spatial Learning with Multi-LLM xử lý dữ liệu là gì"
+  },
+  {
+    "id": 376,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về Harnessing LLMs for Reliable Academic Supervision A không, cho mình xin ý chính."
+  },
+  {
+    "id": 377,
+    "category": "comparative",
+    "query": "Nên dùng bbnjagreementfactsheet4eias hay Linear representations of grammaticality in neural?"
+  },
+  {
+    "id": 378,
+    "category": "factual",
+    "query": "Nghiên cứu về urban-planning-for-city-leaders có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 379,
+    "category": "comparative",
+    "query": "So sánh ndwa-sample-employment-contract và pub260001-product-datasheet-classifications."
+  },
+  {
+    "id": 380,
+    "category": "analytical",
+    "query": "phân tích coa-tech-access-handout-vietnamese giùm mình"
+  },
+  {
+    "id": 381,
+    "category": "comparative",
+    "query": "Ưu điểm của The Sound of Absence Audio-Language Embedding so với complete-annual-report-2024?"
+  },
+  {
+    "id": 382,
+    "category": "analytical",
+    "query": "phân tích SteinGate Tail-Sensitive Safe Reinforcement giùm mình"
+  },
+  {
+    "id": 383,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào types thesis?"
+  },
+  {
+    "id": 384,
+    "category": "factual",
+    "query": "TRACE An Operational Reasoning là cái gì vậy?"
+  },
+  {
+    "id": 385,
+    "category": "analytical",
+    "query": "cách mà c4-90-e1-bb-81-20c-c6-b0-c6-a1ng-20lu-e1-ba-adt-20lao-20-c4- xử lý dữ liệu là gì"
+  },
+  {
+    "id": 386,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của dp15057."
+  },
+  {
+    "id": 387,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về trugvietnamese không, cho mình xin ý chính."
+  },
+  {
+    "id": 388,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của Finding the Right Tables and Columns A."
+  },
+  {
+    "id": 389,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về Do We Really Need không, cho mình xin ý chính."
+  },
+  {
+    "id": 390,
+    "category": "adversarial",
+    "query": "Có điểm nào trong Vertical Standardisation for High-Risk AI Systems under mâu thuẫn với techcombank-vas-bao-cao-tai-chinh-hop-nhat-1q26 không?"
+  },
+  {
+    "id": 391,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào MamaBench Benchmarking LLM Robustness in Maternal?"
+  },
+  {
+    "id": 392,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng whitepaper - gdpr compliance là gì?"
+  },
+  {
+    "id": 393,
+    "category": "factual",
+    "query": "LightRAG là cái gì vậy?"
+  },
+  {
+    "id": 394,
+    "category": "factual",
+    "query": "Tóm tắt nhanh tdb baocaothuongnien 2024."
+  },
+  {
+    "id": 395,
+    "category": "factual",
+    "query": "thông tin về Evidence-Grounded Verified Agentic Reasoning"
+  },
+  {
+    "id": 396,
+    "category": "ood",
+    "query": "Giá vàng hôm nay bao nhiêu?"
+  },
+  {
+    "id": 397,
+    "category": "adversarial",
+    "query": "Hãy liệt kê các phương pháp KHÔNG ĐƯỢC sử dụng trong fy21-adopted-budget."
+  },
+  {
+    "id": 398,
+    "category": "factual",
+    "query": "Nghiên cứu về lmr northamerica có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 399,
+    "category": "factual",
+    "query": "cho hỏi honda-sr-2025-en-all là gì"
+  },
+  {
+    "id": 400,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng Agent-Safety Evaluations as Load-Bearing là gì?"
+  },
+  {
+    "id": 401,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của Towards Hierarchical Structure Understanding of Newspaper."
+  },
+  {
+    "id": 402,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của 7-dao-hai dựa trên dữ liệu."
+  },
+  {
+    "id": 403,
+    "category": "comparative",
+    "query": "Nên dùng Tactile Giving Computer-Using Agents Hands hay t-c3-acnh hu-e1-bb-91ng h-e1-bb-8fi -c4-91-c3-a1p b-e1-bb-99?"
+  },
+  {
+    "id": 404,
+    "category": "analytical",
+    "query": "phân tích OmniaBench Benchmarking General AI Agents Across Diverse giùm mình"
+  },
+  {
+    "id": 405,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của The Emerging Paradigm of Geospatial Foundation Models."
+  },
+  {
+    "id": 406,
+    "category": "comparative",
+    "query": "Nên dùng SceneBind Binding What and hay From Prediction to Collaboration?"
+  },
+  {
+    "id": 407,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về A Hybrid Mamba for Audio-Visual Navigation với."
+  },
+  {
+    "id": 408,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng the energy report lowres 111110 là gì?"
+  },
+  {
+    "id": 409,
+    "category": "ood",
+    "query": "Mẹo luộc gà ngon không bị đỏ xương."
+  },
+  {
+    "id": 410,
+    "category": "ood",
+    "query": "Giá vé máy bay đi Phú Quốc tháng 8."
+  },
+  {
+    "id": 411,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của EVOQUANT Self-Evolving Verifier-Guided Strategy Optimization for dựa trên dữ liệu."
+  },
+  {
+    "id": 412,
+    "category": "analytical",
+    "query": "cách mà CAVA Canonical Action Verification and xử lý dữ liệu là gì"
+  },
+  {
+    "id": 413,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về smartbrief-20employee-20handbook với."
+  },
+  {
+    "id": 414,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào VTM-Nav Hierarchical Visual-Topological Memory for Cross-Episode?"
+  },
+  {
+    "id": 415,
+    "category": "analytical",
+    "query": "cách mà template-regular xử lý dữ liệu là gì"
+  },
+  {
+    "id": 416,
+    "category": "comparative",
+    "query": "So sánh From Observation to Insight Mechanistic và types thesis."
+  },
+  {
+    "id": 417,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng From Language to Navigation Goals là gì?"
+  },
+  {
+    "id": 418,
+    "category": "factual",
+    "query": "Tóm tắt nhanh Learning Engagement Assistant LEA Cross-Course Scalability."
+  },
+  {
+    "id": 419,
+    "category": "ood",
+    "query": "Review tai nghe AirPods Pro 2."
+  },
+  {
+    "id": 420,
+    "category": "analytical",
+    "query": "phân tích Do Agent Optimizers Compound A Continual-Learning Evaluation giùm mình"
+  },
+  {
+    "id": 421,
+    "category": "factual",
+    "query": "Nghiên cứu về quyet-dinh-ve-viec-ban-hanh-quy-che-dao-tao-tu-xa-trinh-do-d có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 422,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về Atomic Units of X The Compression Layer không, cho mình xin ý chính."
+  },
+  {
+    "id": 423,
+    "category": "ood",
+    "query": "Cách trồng hoa hồng ra nhiều bông."
+  },
+  {
+    "id": 424,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào americas-ai-action-plan?"
+  },
+  {
+    "id": 425,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của RAPTOR Reasoning."
+  },
+  {
+    "id": 426,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của NIFA Nonlinear IMC enhanced FPGA for dựa trên dữ liệu."
+  },
+  {
+    "id": 427,
+    "category": "analytical",
+    "query": "cách mà workplace safety manual 23-24 xử lý dữ liệu là gì"
+  },
+  {
+    "id": 428,
+    "category": "factual",
+    "query": "thông tin về Memory as a Controlled Process Learned Adaptive"
+  },
+  {
+    "id": 429,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của Unsafe at any AUC Unlearned Lessons from."
+  },
+  {
+    "id": 430,
+    "category": "comparative",
+    "query": "Nên dùng On-Device Deep Research at 4B Exposure hay Boogu-Image-0 1 Boosting Open-Source Unified?"
+  },
+  {
+    "id": 431,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng cloudflare-2025-investor-day-presentation là gì?"
+  },
+  {
+    "id": 432,
+    "category": "comparative",
+    "query": "Nên dùng Decision Making Needs Uncertainty hay FanOutQA?"
+  },
+  {
+    "id": 433,
+    "category": "comparative",
+    "query": "Giữa Multi-Head Latent Control A Unified Interface for với writingphysicspapers thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 434,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào CayleyR Solving the TopSpin?"
+  },
+  {
+    "id": 435,
+    "category": "adversarial",
+    "query": "Bài báo QUBO-Optimized Evidence Selection for KHÔNG nhắc đến vấn đề gì?"
+  },
+  {
+    "id": 436,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của huong-dan-doc-va-phan-tich-bctc-nhanh."
+  },
+  {
+    "id": 437,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về From Critic to Confidence PPO for Language-Based với."
+  },
+  {
+    "id": 438,
+    "category": "comparative",
+    "query": "Nên dùng hr-20policy-20manual-202023-20-288-29 hay exhibit101?"
+  },
+  {
+    "id": 439,
+    "category": "adversarial",
+    "query": "Nếu áp dụng cách của PERank vào CAS I A Geometric thì có giải quyết được nhược điểm cốt lõi không?"
+  },
+  {
+    "id": 440,
+    "category": "comparative",
+    "query": "Nên dùng bon-secours-community-hospital-patient-guide hay Language Identification via Compositional Data Analysis A?"
+  },
+  {
+    "id": 441,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của 9538 pl-202-20quy-20che-20hoat-20dong."
+  },
+  {
+    "id": 442,
+    "category": "factual",
+    "query": "report-on-the-global-renewable-energy-trends hoat dong the nao"
+  },
+  {
+    "id": 443,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong 2025-annual-report?"
+  },
+  {
+    "id": 444,
+    "category": "analytical",
+    "query": "phân tích budget-and-finance-basics giùm mình"
+  },
+  {
+    "id": 445,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong safety-26health-manual?"
+  },
+  {
+    "id": 446,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về 26-05-30-ebola-disease-technical-documents-en-002 với."
+  },
+  {
+    "id": 447,
+    "category": "adversarial",
+    "query": "Bài báo mfp-security-whitepaper KHÔNG nhắc đến vấn đề gì?"
+  },
+  {
+    "id": 448,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa 2020-02-commercial-real-estate-market-trends-and-outlook-01- và Weakly Supervised Spatio-Temporal Candidate là gì?"
+  },
+  {
+    "id": 449,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của Auditing Fairness-Privacy Trade-offs Subpopulation-Level Effects."
+  },
+  {
+    "id": 450,
+    "category": "comparative",
+    "query": "So sánh BrainPilot Automating Brain Discovery with Agentic và Transforming Rank How Architecture Navigates."
+  },
+  {
+    "id": 451,
+    "category": "comparative",
+    "query": "Giữa who 35th report với sfdeclarationfinal thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 452,
+    "category": "analytical",
+    "query": "cách mà TikStance A Multimodal and xử lý dữ liệu là gì"
+  },
+  {
+    "id": 453,
+    "category": "adversarial",
+    "query": "Có điểm nào trong 466-qd-bgddtsigned-1 88551 mâu thuẫn với When Words Are Safe But không?"
+  },
+  {
+    "id": 454,
+    "category": "factual",
+    "query": "Bạn biết gì về Text2Sign A Single-GPU Diffusion Baseline for không?"
+  },
+  {
+    "id": 455,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về SemaDiff Identifying Semantic-Changing Commits with Generated Code không, cho mình xin ý chính."
+  },
+  {
+    "id": 456,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của Alipay-PIBench A Realistic Payment Integration Benchmark."
+  },
+  {
+    "id": 457,
+    "category": "factual",
+    "query": "Bạn biết gì về Local Additive Feature Attribution A không?"
+  },
+  {
+    "id": 458,
+    "category": "factual",
+    "query": "lu-e1-ba-adn-v-c4-83n-th-e1-ba-a1c-s-c4-a9-qu-e1-ba-a3n-l-c3 hoat dong the nao"
+  },
+  {
+    "id": 459,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về Where Should RL Post-Training với."
+  },
+  {
+    "id": 460,
+    "category": "comparative",
+    "query": "Giữa security-whitepaper-8-19-22 với principal-sample-life-insurance-policy thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 461,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về amhfe07546id brochure fnlexl amh không, cho mình xin ý chính."
+  },
+  {
+    "id": 462,
+    "category": "analytical",
+    "query": "cách mà Steering Robustness into World xử lý dữ liệu là gì"
+  },
+  {
+    "id": 463,
+    "category": "comparative",
+    "query": "Ưu điểm của 20190325-urban strategy-ocr so với Accuracy and Normalized Accuracy under Length?"
+  },
+  {
+    "id": 464,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của Self-Consistent Flow Unifying Velocity and Endpoint."
+  },
+  {
+    "id": 465,
+    "category": "factual",
+    "query": "Tóm tắt nhanh danh-20sach-20lv-20me-20-202024-website."
+  },
+  {
+    "id": 466,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của cpg insert được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 467,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng property-20investment-20essentials là gì?"
+  },
+  {
+    "id": 468,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của BrainPilot Automating Brain Discovery with Agentic dựa trên dữ liệu."
+  },
+  {
+    "id": 469,
+    "category": "analytical",
+    "query": "cách mà 98d4bf22c03ab67442088c4ee3d84b68e272dd0b xử lý dữ liệu là gì"
+  },
+  {
+    "id": 470,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của employee-handbook-template dựa trên dữ liệu."
+  },
+  {
+    "id": 471,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa techcombank-vas-bao-cao-tai-chinh-hop-nhat-1q26 và ccc-202024-20climate-20assessment-20report-20pages-20view là gì?"
+  },
+  {
+    "id": 472,
+    "category": "factual",
+    "query": "Nghiên cứu về apa có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 473,
+    "category": "comparative",
+    "query": "Nên dùng bctc-ri-c3-aang-qu-c3-bd-2-2017 ctp hay Bridge Evidence Static Retrieval?"
+  },
+  {
+    "id": 474,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào A Hybrid Mamba for Audio-Visual Navigation?"
+  },
+  {
+    "id": 475,
+    "category": "factual",
+    "query": "cho hỏi 45c2ca2f51014178ac2fae7b003dc651 là gì"
+  },
+  {
+    "id": 476,
+    "category": "analytical",
+    "query": "phân tích KnowAct-GUIClaw Know Deeply Act giùm mình"
+  },
+  {
+    "id": 477,
+    "category": "factual",
+    "query": "A Modern Multimodal Assistant là cái gì vậy?"
+  },
+  {
+    "id": 478,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng LLM Judges Can Be Too là gì?"
+  },
+  {
+    "id": 479,
+    "category": "factual",
+    "query": "Earthquaker-AI A Retrieval-Augmented Generation Framework with là cái gì vậy?"
+  },
+  {
+    "id": 480,
+    "category": "analytical",
+    "query": "cách mà LightRAG xử lý dữ liệu là gì"
+  },
+  {
+    "id": 481,
+    "category": "comparative",
+    "query": "Nên dùng standard-course-syllabus-format hay GHR-VLM Making Zero-Shot Transit Video Analytics?"
+  },
+  {
+    "id": 482,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về Do LLMs Need Architectural với."
+  },
+  {
+    "id": 483,
+    "category": "comparative",
+    "query": "Nên dùng f1jensen 1121 hay notesonwritingpaper12?"
+  },
+  {
+    "id": 484,
+    "category": "factual",
+    "query": "Nghiên cứu về The Caf in Amsterdam When có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 485,
+    "category": "comparative",
+    "query": "Giữa Classifying daily activities needs với annual-report thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 486,
+    "category": "comparative",
+    "query": "Nên dùng iText2KG hay ebay-impact-2025-report?"
+  },
+  {
+    "id": 487,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về SciDiagramEdit Learning to Edit không, cho mình xin ý chính."
+  },
+  {
+    "id": 488,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong A Minimal Interpretable Architecture?"
+  },
+  {
+    "id": 489,
+    "category": "comparative",
+    "query": "So sánh When Words Are Safe But và Capability from Access Structure Not Scale."
+  },
+  {
+    "id": 490,
+    "category": "factual",
+    "query": "cho hỏi 1001 01 26 ai strategy là gì"
+  },
+  {
+    "id": 491,
+    "category": "adversarial",
+    "query": "Hãy liệt kê các phương pháp KHÔNG ĐƯỢC sử dụng trong bbnjagreementfactsheet4eias."
+  },
+  {
+    "id": 492,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của 279f9b1790d9ba2ec68cfb23aed0d4b6."
+  },
+  {
+    "id": 493,
+    "category": "ood",
+    "query": "Giúp tôi viết một bài văn tả cảnh buổi sáng."
+  },
+  {
+    "id": 494,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào RAGthoven at SemEval-2026 Task 1 A?"
+  },
+  {
+    "id": 495,
+    "category": "factual",
+    "query": "Nghiên cứu về ShortOPD Recovering Pruned LLMs with có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 496,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào how-to-write-a-biology-research-paper?"
+  },
+  {
+    "id": 497,
+    "category": "comparative",
+    "query": "So sánh 8340101 nc k64 và Self-Evolving Human-Centered Framework for Explainable."
+  },
+  {
+    "id": 498,
+    "category": "comparative",
+    "query": "Nên dùng fortinet product matrix hay vie procurement and management systems for medical?"
+  },
+  {
+    "id": 499,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào Music-to-Dance Generation via Atomic Movements?"
+  },
+  {
+    "id": 500,
+    "category": "factual",
+    "query": "Nghiên cứu về Data-Efficient Adaptation of LLMs via Attention có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 501,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về general-data-protection-regulation-whitepaper với."
+  },
+  {
+    "id": 502,
+    "category": "analytical",
+    "query": "phân tích technical guide to assist the implementation giùm mình"
+  },
+  {
+    "id": 503,
+    "category": "factual",
+    "query": "Tóm tắt nhanh Value Leakage An LLM s Answers."
+  },
+  {
+    "id": 504,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về t-e1-ba-adp l-e1-bb-a5c c-c3-a1c b-e1-ba-a3n, bài báo này nói gì?"
+  },
+  {
+    "id": 505,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong calnonprofits-impact-report-2021?"
+  },
+  {
+    "id": 506,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của AgenticRAG."
+  },
+  {
+    "id": 507,
+    "category": "factual",
+    "query": "DenseX là cái gì vậy?"
+  },
+  {
+    "id": 508,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong A Shared Subcircuit Lets LLMs Count Down?"
+  },
+  {
+    "id": 509,
+    "category": "factual",
+    "query": "Tóm tắt nhanh A JoLT for the KV."
+  },
+  {
+    "id": 510,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của Symbal Detecting Systematic Misalignments in Model-Generated dựa trên dữ liệu."
+  },
+  {
+    "id": 511,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về Kaleido Algorithm-Hardware Co-Design for không, cho mình xin ý chính."
+  },
+  {
+    "id": 512,
+    "category": "comparative",
+    "query": "Giữa straker-charitable-foundation-annual-report với Angular Gaussian Supervised Contrastive thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 513,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào toledo-hospital-patient-information-guide?"
+  },
+  {
+    "id": 514,
+    "category": "comparative",
+    "query": "Ưu điểm của Instrument Effects in Language-Model Honesty Evaluation so với ndwa-sample-employment-contract?"
+  },
+  {
+    "id": 515,
+    "category": "comparative",
+    "query": "Ưu điểm của 9789241512657-eng so với Tracing Agentic Failure from?"
+  },
+  {
+    "id": 516,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của Large Language Models for Code dựa trên dữ liệu."
+  },
+  {
+    "id": 517,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của MemoHarness Agent Harnesses That Learn from."
+  },
+  {
+    "id": 518,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa CFM-Bench A Unified Multi-Domain Multi-Task Benchmark và KnowAct-GUIClaw Know Deeply Act là gì?"
+  },
+  {
+    "id": 519,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về public health guide final-digital-accessible-6-23 với."
+  },
+  {
+    "id": 520,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào stlukes-health-woodlands-hospital-patient-guide?"
+  },
+  {
+    "id": 521,
+    "category": "comparative",
+    "query": "So sánh 682286f59a8ca76f98e898b0 buvif và employee-handbook-template."
+  },
+  {
+    "id": 522,
+    "category": "comparative",
+    "query": "Nên dùng DocHopQA hay How Far Can Root Cause Analysis Go?"
+  },
+  {
+    "id": 523,
+    "category": "ood",
+    "query": "Hướng dẫn chơi cờ vua cơ bản."
+  },
+  {
+    "id": 524,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của hartford design stds combined dựa trên dữ liệu."
+  },
+  {
+    "id": 525,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về Self-Evolving Agent Harnesses via Gated Semantic Quality-Diversity với."
+  },
+  {
+    "id": 526,
+    "category": "analytical",
+    "query": "cách mà ScanFocus A Coarse-to-Fine Framework for Spatio-Temporal Video xử lý dữ liệu là gì"
+  },
+  {
+    "id": 527,
+    "category": "comparative",
+    "query": "So sánh From Language to Navigation Goals và Auditing Fairness-Privacy Trade-offs Subpopulation-Level Effects."
+  },
+  {
+    "id": 528,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của servicesagreement."
+  },
+  {
+    "id": 529,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của Win by Silence Deletion được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 530,
+    "category": "factual",
+    "query": "Tóm tắt nhanh AI-accelerated End-to-End Framework for Rapid Professional."
+  },
+  {
+    "id": 531,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào appendix 92 ued strategy un habitat?"
+  },
+  {
+    "id": 532,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về can-i-renewable-energy-tracker-2024 với."
+  },
+  {
+    "id": 533,
+    "category": "comparative",
+    "query": "Ưu điểm của Multi-Expert Routing for Multi-Domain Low-Resource OCR A so với LLM-QL?"
+  },
+  {
+    "id": 534,
+    "category": "comparative",
+    "query": "Nên dùng how-to-write-guide-v10-2014 hay Self-Evolving Human-Centered Framework for Explainable?"
+  },
+  {
+    "id": 535,
+    "category": "analytical",
+    "query": "phân tích AI-accelerated End-to-End Framework for Rapid Professional giùm mình"
+  },
+  {
+    "id": 536,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của fd842230-9900-44a2-aacb-85354e274ce4."
+  },
+  {
+    "id": 537,
+    "category": "comparative",
+    "query": "Ưu điểm của definitive-guide-to-onboarding-new-hires so với model-employee-handbook-final-1?"
+  },
+  {
+    "id": 538,
+    "category": "factual",
+    "query": "Tóm tắt nhanh bsi-9001-quality-management-guide-final."
+  },
+  {
+    "id": 539,
+    "category": "comparative",
+    "query": "Ưu điểm của uffile-upload-no-title29811 so với Symbal Detecting Systematic Misalignments in Model-Generated?"
+  },
+  {
+    "id": 540,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng Weakly Supervised Spatio-Temporal Candidate là gì?"
+  },
+  {
+    "id": 541,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của Practical Judgment Virtue and."
+  },
+  {
+    "id": 542,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của data protection policy 22 được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 543,
+    "category": "factual",
+    "query": "Bạn biết gì về Can LLMs Write Reliable Rubrics A không?"
+  },
+  {
+    "id": 544,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào 2020-ai-strategy?"
+  },
+  {
+    "id": 545,
+    "category": "factual",
+    "query": "cho hỏi patient-handbook là gì"
+  },
+  {
+    "id": 546,
+    "category": "analytical",
+    "query": "cách mà Cost-Pragmatic Quality Gating and xử lý dữ liệu là gì"
+  },
+  {
+    "id": 547,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của fd842230-9900-44a2-aacb-85354e274ce4."
+  },
+  {
+    "id": 548,
+    "category": "ood",
+    "query": "Review phim Avengers Endgame."
+  },
+  {
+    "id": 549,
+    "category": "comparative",
+    "query": "Giữa ACORN với software-whitepaper thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 550,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa wmo-1368-2024 en và Structured Feedback Improves Repair là gì?"
+  },
+  {
+    "id": 551,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về t-c3-acnh hu-e1-bb-91ng h-e1-bb-8fi -c4-91-c3-a1p b-e1-bb-99 với."
+  },
+  {
+    "id": 552,
+    "category": "analytical",
+    "query": "cách mà 682286f59a8ca76f98e898b0 buvif xử lý dữ liệu là gì"
+  },
+  {
+    "id": 553,
+    "category": "ood",
+    "query": "Cách đăng ký thi IELTS tại BC."
+  },
+  {
+    "id": 554,
+    "category": "analytical",
+    "query": "cách mà Constraint-Aware Aggregation for Federated Reinforcement Learning in xử lý dữ liệu là gì"
+  },
+  {
+    "id": 555,
+    "category": "factual",
+    "query": "thông tin về When Rubrics Change Cross-Rubric Generalization for"
+  },
+  {
+    "id": 556,
+    "category": "factual",
+    "query": "Nghiên cứu về 2026-annual-investor-presentation có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 557,
+    "category": "ood",
+    "query": "Cách thay lốp xe ô tô dự phòng."
+  },
+  {
+    "id": 558,
+    "category": "ood",
+    "query": "Cách phân biệt túi xách auth và fake."
+  },
+  {
+    "id": 559,
+    "category": "ood",
+    "query": "Cách pha cà phê muối chuẩn vị Huế."
+  },
+  {
+    "id": 560,
+    "category": "analytical",
+    "query": "cách mà Improving Molecular Property Prediction in xử lý dữ liệu là gì"
+  },
+  {
+    "id": 561,
+    "category": "analytical",
+    "query": "phân tích revised-syllabus-guidance-and-checklist giùm mình"
+  },
+  {
+    "id": 562,
+    "category": "factual",
+    "query": "Tóm tắt nhanh 2019 -20m-e1-ba-aau-20tr-c3-8cnh-20b-c3-80y-20lu-e1-ba-acn-2."
+  },
+  {
+    "id": 563,
+    "category": "adversarial",
+    "query": "Hãy liệt kê các phương pháp KHÔNG ĐƯỢC sử dụng trong bp102c14."
+  },
+  {
+    "id": 564,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong MxGPS Multiplex Graph Transformers for a?"
+  },
+  {
+    "id": 565,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào 2025-investor-presentation?"
+  },
+  {
+    "id": 566,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa ReasFlow Assisting Reasoning-Centric Scientific Discovery in và 3ee05440-698e-4fd3-91a9-bcc66541cc96-20191202 20191202 - go  là gì?"
+  },
+  {
+    "id": 567,
+    "category": "factual",
+    "query": "Nghiên cứu về Multi-Scale ViT Inference with Habitat-Fit Priors có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 568,
+    "category": "comparative",
+    "query": "Giữa Wikontic với Epistemic Stance Flexibility Probing Measuring Prompt-Conditioned thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 569,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa 1-42-01 và Demographically-Conditioned Synthetic Medical Images là gì?"
+  },
+  {
+    "id": 570,
+    "category": "factual",
+    "query": "Tóm tắt nhanh november-2021-compliance-alert."
+  },
+  {
+    "id": 571,
+    "category": "comparative",
+    "query": "So sánh SetEncoder và FlashDecoder Real-Time Latent-to-Pixel Streaming Decoder."
+  },
+  {
+    "id": 572,
+    "category": "comparative",
+    "query": "Ưu điểm của Knowledgeless Language Models Suppressing Parametric Recall so với TRACE An Operational Reasoning?"
+  },
+  {
+    "id": 573,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của gdpr-policy-template."
+  },
+  {
+    "id": 574,
+    "category": "factual",
+    "query": "can-i-renewable-energy-tracker-2024 hoat dong the nao"
+  },
+  {
+    "id": 575,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của Instrument Effects in Language-Model Honesty Evaluation dựa trên dữ liệu."
+  },
+  {
+    "id": 576,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về MCPEvol-Bench Benchmarking LLM Agent Performance với."
+  },
+  {
+    "id": 577,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của uk-real-estate-market-outlook-2026-report."
+  },
+  {
+    "id": 578,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của Certified Domain Consistency for được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 579,
+    "category": "factual",
+    "query": "07-01-tl05-to-20trinh-20phe-20duyet-20bctc-202021 là cái gì vậy?"
+  },
+  {
+    "id": 580,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong Self-Improvements in Modern Agentic Systems A?"
+  },
+  {
+    "id": 581,
+    "category": "factual",
+    "query": "thông tin về standard-course-syllabus-format"
+  },
+  {
+    "id": 582,
+    "category": "factual",
+    "query": "employee-handbook-template hoat dong the nao"
+  },
+  {
+    "id": 583,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của xHC Expanded Hyper-Connections được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 584,
+    "category": "adversarial",
+    "query": "Tại sao kết quả của Isolation as a First-Class Principle lại hoàn toàn trái ngược với thực tế?"
+  },
+  {
+    "id": 585,
+    "category": "analytical",
+    "query": "phân tích manager onboarding guide giùm mình"
+  },
+  {
+    "id": 586,
+    "category": "factual",
+    "query": "cho hỏi revised-syllabus-guidance-and-checklist là gì"
+  },
+  {
+    "id": 587,
+    "category": "adversarial",
+    "query": "Nếu áp dụng cách của vi bctn vào wp democratising-access v3-0 29122025a thì có giải quyết được nhược điểm cốt lõi không?"
+  },
+  {
+    "id": 588,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào ihvn-hr-policy-manual-final-pcl?"
+  },
+  {
+    "id": 589,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về employee-handbook-sample, bài báo này nói gì?"
+  },
+  {
+    "id": 590,
+    "category": "factual",
+    "query": "45c2ca2f51014178ac2fae7b003dc651 là cái gì vậy?"
+  },
+  {
+    "id": 591,
+    "category": "comparative",
+    "query": "Nên dùng High-Order Question Generation in a Multilingual hay Post-Training Shifts Confidence A Three-Stage Analysis of?"
+  },
+  {
+    "id": 592,
+    "category": "adversarial",
+    "query": "Hãy liệt kê các phương pháp KHÔNG ĐƯỢC sử dụng trong Active Beyond-Diagonal RIS Empowered Heterogeneous Edge."
+  },
+  {
+    "id": 593,
+    "category": "factual",
+    "query": "Bạn biết gì về full không?"
+  },
+  {
+    "id": 594,
+    "category": "analytical",
+    "query": "cách mà wg3 guidelines-for-preparing-core-clinical-safety-informatio xử lý dữ liệu là gì"
+  },
+  {
+    "id": 595,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về RAPTOR, bài báo này nói gì?"
+  },
+  {
+    "id": 596,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong 2025 q3 analyst book?"
+  },
+  {
+    "id": 597,
+    "category": "analytical",
+    "query": "phân tích en-20employment-20contract-20remote-20work-20 giùm mình"
+  },
+  {
+    "id": 598,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của mc-2836-20duke-20regional-20hospital-20patient-20guide final."
+  },
+  {
+    "id": 599,
+    "category": "factual",
+    "query": "columbia during stay hoat dong the nao"
+  },
+  {
+    "id": 600,
+    "category": "factual",
+    "query": "thông tin về 1-pager-on-national-ai-strategy-resolution"
+  },
+  {
+    "id": 601,
+    "category": "comparative",
+    "query": "Giữa miami-foundation-general-grant-report-template với gdpr-policy-template thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 602,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa A Minimal Interpretable Architecture và clinical-practice-guidelines là gì?"
+  },
+  {
+    "id": 603,
+    "category": "factual",
+    "query": "Tóm tắt nhanh microsoft-word-workplacesafetymanualjune2013-doc."
+  },
+  {
+    "id": 604,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của lab-reports."
+  },
+  {
+    "id": 605,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của Self-Consistent Flow Unifying Velocity and Endpoint."
+  },
+  {
+    "id": 606,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về 8340101 nc k64 với."
+  },
+  {
+    "id": 607,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong 43512 toc?"
+  },
+  {
+    "id": 608,
+    "category": "comparative",
+    "query": "Nên dùng chr-esg-report-english hay ComposeRAG?"
+  },
+  {
+    "id": 609,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong Function-Aware Fill-in-the-Middle as Mid-Training for Coding Agent?"
+  },
+  {
+    "id": 610,
+    "category": "factual",
+    "query": "Tóm tắt nhanh who-technical-report-498."
+  },
+  {
+    "id": 611,
+    "category": "factual",
+    "query": "MyAG A Graph-Based Framework for Designing and hoat dong the nao"
+  },
+  {
+    "id": 612,
+    "category": "comparative",
+    "query": "So sánh qd-137 quy-che-dao-tao-tin-chi dh-tbd-25 9 2020 và Tracing Agentic Failure from."
+  },
+  {
+    "id": 613,
+    "category": "analytical",
+    "query": "phân tích contract-20document giùm mình"
+  },
+  {
+    "id": 614,
+    "category": "comparative",
+    "query": "Ưu điểm của The Severance Problem LLMs are Unaware of so với 2026-annual-investor-presentation?"
+  },
+  {
+    "id": 615,
+    "category": "ood",
+    "query": "Tại sao nước biển lại mặn?"
+  },
+  {
+    "id": 616,
+    "category": "factual",
+    "query": "Nghiên cứu về Privacy Preserving Recommender Systems Balancing Personalization có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 617,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng KET-RAG là gì?"
+  },
+  {
+    "id": 618,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của tr4610 toc."
+  },
+  {
+    "id": 619,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về whitepaper - gdpr compliance với."
+  },
+  {
+    "id": 620,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của Trust Junk Leads to Unjustified Support dựa trên dữ liệu."
+  },
+  {
+    "id": 621,
+    "category": "factual",
+    "query": "Tóm tắt nhanh Human4K A Large-Scale 4K."
+  },
+  {
+    "id": 622,
+    "category": "adversarial",
+    "query": "Hãy liệt kê các phương pháp KHÔNG ĐƯỢC sử dụng trong Accounting for Hysteresis and Eddy."
+  },
+  {
+    "id": 623,
+    "category": "factual",
+    "query": "thông tin về 2025-q4-results"
+  },
+  {
+    "id": 624,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng mobi-employee-handbook-template là gì?"
+  },
+  {
+    "id": 625,
+    "category": "adversarial",
+    "query": "Tại sao kết quả của STKAN Kolmogorov-Arnold Networks for lại hoàn toàn trái ngược với thực tế?"
+  },
+  {
+    "id": 626,
+    "category": "analytical",
+    "query": "phân tích RAPTOR Reasoning giùm mình"
+  },
+  {
+    "id": 627,
+    "category": "analytical",
+    "query": "cách mà Networked Intelligence Active Shared Context Graphs xử lý dữ liệu là gì"
+  },
+  {
+    "id": 628,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong Towards a Unified Multidimensional?"
+  },
+  {
+    "id": 629,
+    "category": "comparative",
+    "query": "Giữa The Dynamic Verifiable Multi-Agent Human Agentic với bon-secours-community-hospital-patient-guide thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 630,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về KnowAct-GUIClaw Know Deeply Act không, cho mình xin ý chính."
+  },
+  {
+    "id": 631,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa AI Agents Do Not Fail và annual-report-2024 là gì?"
+  },
+  {
+    "id": 632,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng 8044558058381-qm-4-2-2-rev-a-quality-manual là gì?"
+  },
+  {
+    "id": 633,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về 2025-ssi-report-1, bài báo này nói gì?"
+  },
+  {
+    "id": 634,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng nj-warehouse-2022-employee-handbook là gì?"
+  },
+  {
+    "id": 635,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong Operationalising Multi-Dimensional Evaluation for Conversational Agents?"
+  },
+  {
+    "id": 636,
+    "category": "ood",
+    "query": "Cách trị mụn đầu đen hiệu quả ở nhà."
+  },
+  {
+    "id": 637,
+    "category": "factual",
+    "query": "PERank Rerank là cái gì vậy?"
+  },
+  {
+    "id": 638,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào On-Device Deep Research at 4B Exposure?"
+  },
+  {
+    "id": 639,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong health-and-safety-manual-1?"
+  },
+  {
+    "id": 640,
+    "category": "factual",
+    "query": "cho hỏi The Model Knows Your là gì"
+  },
+  {
+    "id": 641,
+    "category": "adversarial",
+    "query": "Lý do nào khiến Pretraining Multiple Instance Learning bị đánh giá là thất bại hoàn toàn?"
+  },
+  {
+    "id": 642,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về ToolAnchor Anchoring Counterfactual Context to Boost Agentic, bài báo này nói gì?"
+  },
+  {
+    "id": 643,
+    "category": "comparative",
+    "query": "Giữa statestreet-sustainability-report-2025 với Self-Improving AI Coding Agents Through Accumulated thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 644,
+    "category": "comparative",
+    "query": "Nên dùng Controlled Reformulation Testing for Logical Consistency hay Do AI Agents Know?"
+  },
+  {
+    "id": 645,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của bofaannualreport2024 được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 646,
+    "category": "comparative",
+    "query": "Giữa commercial-cloud-service-contract-language-civ-draft với hdwea-eedp eng thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 647,
+    "category": "factual",
+    "query": "Bạn biết gì về The Caf in Amsterdam When không?"
+  },
+  {
+    "id": 648,
+    "category": "comparative",
+    "query": "So sánh KnowAct-GUIClaw Know Deeply Act và Governing Artificial Intelligence Public Preferences."
+  },
+  {
+    "id": 649,
+    "category": "factual",
+    "query": "sustainabilityatbofa2025 wcag2-2 121625 hoat dong the nao"
+  },
+  {
+    "id": 650,
+    "category": "analytical",
+    "query": "phân tích The Caf in Amsterdam When giùm mình"
+  },
+  {
+    "id": 651,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong Continual Learning with Elastic Regularization and?"
+  },
+  {
+    "id": 652,
+    "category": "factual",
+    "query": "ComposeRAG là cái gì vậy?"
+  },
+  {
+    "id": 653,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào Memory as a Controlled Process Learned Adaptive?"
+  },
+  {
+    "id": 654,
+    "category": "factual",
+    "query": "Bạn biết gì về eco how-write-thesis không?"
+  },
+  {
+    "id": 655,
+    "category": "comparative",
+    "query": "Nên dùng wg3 guidelines-for-preparing-core-clinical-safety-informatio hay complete-annual-report-2024?"
+  },
+  {
+    "id": 656,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về Asymmetric Peak-Aware Loss for Peak-Critical không, cho mình xin ý chính."
+  },
+  {
+    "id": 657,
+    "category": "factual",
+    "query": "Bạn biết gì về Live Gurbani Tracking A Benchmark and không?"
+  },
+  {
+    "id": 658,
+    "category": "factual",
+    "query": "Tóm tắt nhanh 647713b9e45b8de2e03c8b43 althr-20-20employee-20handbook-20te."
+  },
+  {
+    "id": 659,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của Experience Memory Graph One-Shot Error Correction for."
+  },
+  {
+    "id": 660,
+    "category": "comparative",
+    "query": "Ưu điểm của Symbiosis-Inspired Knowledge Distillation for Incremental so với 28-the-municipal-budget-and-auditing-process revised-07-21-2?"
+  },
+  {
+    "id": 661,
+    "category": "comparative",
+    "query": "Nên dùng MedRAG-Benchmark Eval hay 201203-materials?"
+  },
+  {
+    "id": 662,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về Auditing Protocol-Level Shortcuts in Large với."
+  },
+  {
+    "id": 663,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong gapartners employee-handbook-checklist?"
+  },
+  {
+    "id": 664,
+    "category": "comparative",
+    "query": "Giữa manager onboarding guide với MM-IssueLoc A Controlled Benchmark for thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 665,
+    "category": "analytical",
+    "query": "cách mà onr-cybersecurity-strategy-whitepaper-abridged-january-23 xử lý dữ liệu là gì"
+  },
+  {
+    "id": 666,
+    "category": "analytical",
+    "query": "phân tích ndwa-sample-employment-contract giùm mình"
+  },
+  {
+    "id": 667,
+    "category": "comparative",
+    "query": "So sánh sr290 design và employment-law-basics vietnamese."
+  },
+  {
+    "id": 668,
+    "category": "factual",
+    "query": "thông tin về Chat2Scenic An Iterative RAG-Based Framework for"
+  },
+  {
+    "id": 669,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của Enhancing Small Language Models dựa trên dữ liệu."
+  },
+  {
+    "id": 670,
+    "category": "analytical",
+    "query": "phân tích ghana-ai-strat giùm mình"
+  },
+  {
+    "id": 671,
+    "category": "factual",
+    "query": "Global drivers and barriers to the là cái gì vậy?"
+  },
+  {
+    "id": 672,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của employee-handbook-for-nonprofits-and-small-businesses."
+  },
+  {
+    "id": 673,
+    "category": "factual",
+    "query": "thông tin về next-generation-urban-planning final"
+  },
+  {
+    "id": 674,
+    "category": "comparative",
+    "query": "Giữa trumpf-whitepaper-digital-reference-architecture với uffile-upload-no-title29745 thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 675,
+    "category": "comparative",
+    "query": "Nên dùng contract-20document hay gch2025-full-report?"
+  },
+  {
+    "id": 676,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào nj-warehouse-2022-employee-handbook?"
+  },
+  {
+    "id": 677,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của progress-report-national-ai-strategy-ai-here-for-good."
+  },
+  {
+    "id": 678,
+    "category": "comparative",
+    "query": "Nên dùng gt-mh18-atd-tc hay bg-20writing-20psychology?"
+  },
+  {
+    "id": 679,
+    "category": "factual",
+    "query": "DS GT ARC at LongEval Citation hoat dong the nao"
+  },
+  {
+    "id": 680,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của AI in Cyberpsychology A systematic literature được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 681,
+    "category": "comparative",
+    "query": "Giữa data protection policy với We Hebben Een Serieus Translatie Modeling thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 682,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về Discrete Diffusion Models A Unified Framework from với."
+  },
+  {
+    "id": 683,
+    "category": "comparative",
+    "query": "So sánh Sparse Autoencoders for Interpretable và workplace-20health-20and-20safety-20student-20manual."
+  },
+  {
+    "id": 684,
+    "category": "adversarial",
+    "query": "Nếu áp dụng cách của full vào CityLLM A framework for natural-language querying of thì có giải quyết được nhược điểm cốt lõi không?"
+  },
+  {
+    "id": 685,
+    "category": "comparative",
+    "query": "Ưu điểm của statestreet-sustainability-report-2025 so với section-2-plan-requirements?"
+  },
+  {
+    "id": 686,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng Jetson-PI Towards Onboard Real-Time Robot là gì?"
+  },
+  {
+    "id": 687,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào who 35th report?"
+  },
+  {
+    "id": 688,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về Improving Wind and Solar Power Prediction with với."
+  },
+  {
+    "id": 689,
+    "category": "adversarial",
+    "query": "Nếu áp dụng cách của Deep Learning-based Surrogate Modelling of the vào On-Policy Delta Distillation thì có giải quyết được nhược điểm cốt lõi không?"
+  },
+  {
+    "id": 690,
+    "category": "analytical",
+    "query": "cách mà GFlowRL Scaling Distribution-Matching RL xử lý dữ liệu là gì"
+  },
+  {
+    "id": 691,
+    "category": "analytical",
+    "query": "cách mà UESF-Bench Benchmarking and Probing for Unified xử lý dữ liệu là gì"
+  },
+  {
+    "id": 692,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa Large Language Models for Code và BrainPilot Automating Brain Discovery with Agentic là gì?"
+  },
+  {
+    "id": 693,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa Accelerating Masked Diffusion Large Language và RoboTTT Context Scaling for Robot là gì?"
+  },
+  {
+    "id": 694,
+    "category": "comparative",
+    "query": "Giữa eagle-eye-networks-cyber-security-and-cloud-video-surveillan với aig-reports-4q25-results thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 695,
+    "category": "adversarial",
+    "query": "Nếu áp dụng cách của When Bots Join the Team Bot Adoption vào Step-Level Preference Learning for Generative thì có giải quyết được nhược điểm cốt lõi không?"
+  },
+  {
+    "id": 696,
+    "category": "ood",
+    "query": "Làm sao để hết buồn ngủ khi đi làm?"
+  },
+  {
+    "id": 697,
+    "category": "factual",
+    "query": "thông tin về Show Me How You Reason"
+  },
+  {
+    "id": 698,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về meta-reports-fourth-quarter-and-full-year-2025-results-2026 với."
+  },
+  {
+    "id": 699,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của From Prediction to Collaboration."
+  },
+  {
+    "id": 700,
+    "category": "comparative",
+    "query": "So sánh 201203-materials và How Well Does AI-Generated Feedback Work Intrinsic."
+  },
+  {
+    "id": 701,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về 45c2ca2f51014178ac2fae7b003dc651 không, cho mình xin ý chính."
+  },
+  {
+    "id": 702,
+    "category": "ood",
+    "query": "Các bước skincare ban đêm cho da dầu."
+  },
+  {
+    "id": 703,
+    "category": "analytical",
+    "query": "phân tích Multi-Perspective Agentic Program Repair via giùm mình"
+  },
+  {
+    "id": 704,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của e39a63e6e47a4cdd9bcc8e46c97c5ff0."
+  },
+  {
+    "id": 705,
+    "category": "factual",
+    "query": "Tóm tắt nhanh statestreet-sustainability-report-2025."
+  },
+  {
+    "id": 706,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về soitheky annual-report 2024-vn với."
+  },
+  {
+    "id": 707,
+    "category": "factual",
+    "query": "Tóm tắt nhanh mfp-security-whitepaper."
+  },
+  {
+    "id": 708,
+    "category": "analytical",
+    "query": "phân tích RAGthoven at SemEval-2026 Task 1 A giùm mình"
+  },
+  {
+    "id": 709,
+    "category": "comparative",
+    "query": "Ưu điểm của ComposeRAG so với quy-trinh-quan-ly-trang-thiet-bi-y-te?"
+  },
+  {
+    "id": 710,
+    "category": "comparative",
+    "query": "Ưu điểm của LQCDMaster Agentic Scientific Computing for Lattice so với MARS Multi-hop Adaptive Retrieval?"
+  },
+  {
+    "id": 711,
+    "category": "comparative",
+    "query": "Nên dùng Towards Hierarchical Structure Understanding of Newspaper hay national ai strategy - pdf version?"
+  },
+  {
+    "id": 712,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong employee-policy-manual?"
+  },
+  {
+    "id": 713,
+    "category": "ood",
+    "query": "Top 10 bài hát Kpop hay nhất 2026."
+  },
+  {
+    "id": 714,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về 2 iis 2022 138-149 không, cho mình xin ý chính."
+  },
+  {
+    "id": 715,
+    "category": "adversarial",
+    "query": "Tại sao kết quả của Can Induced Emotion Bias LLM Behaviors lại hoàn toàn trái ngược với thực tế?"
+  },
+  {
+    "id": 716,
+    "category": "comparative",
+    "query": "So sánh 682286f59a8ca76f98e898b0 buvif và mpi aed bao-cao-thuong-nien-cds-dn-2021."
+  },
+  {
+    "id": 717,
+    "category": "adversarial",
+    "query": "Bài báo Rank-DistillLLM KHÔNG nhắc đến vấn đề gì?"
+  },
+  {
+    "id": 718,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về americas-ai-action-plan, bài báo này nói gì?"
+  },
+  {
+    "id": 719,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào 20240213-2023 annual planning survey report?"
+  },
+  {
+    "id": 720,
+    "category": "comparative",
+    "query": "So sánh SPyCE Skill-Policy Co-evolution for Multimodal Agents và Why Git Is the Memory Solution for."
+  },
+  {
+    "id": 721,
+    "category": "factual",
+    "query": "cho hỏi Self-RAG là gì"
+  },
+  {
+    "id": 722,
+    "category": "factual",
+    "query": "employee-policy-manual là cái gì vậy?"
+  },
+  {
+    "id": 723,
+    "category": "factual",
+    "query": "Can LLMs Write Reliable Rubrics A là cái gì vậy?"
+  },
+  {
+    "id": 724,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về iqm-dp01-20implementation-20of-20iso-209001-20qms-20certific không, cho mình xin ý chính."
+  },
+  {
+    "id": 725,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của Integration Matters Rollout-Based Training for Constrained."
+  },
+  {
+    "id": 726,
+    "category": "factual",
+    "query": "annex-beechwoodmsbkyssamplecontract hoat dong the nao"
+  },
+  {
+    "id": 727,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của LakeQuest A Three-Domain Benchmark for."
+  },
+  {
+    "id": 728,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của product liability1."
+  },
+  {
+    "id": 729,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của AI advice suppresses people."
+  },
+  {
+    "id": 730,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của Memory-Driven Self-Disclosure and Relational Turning."
+  },
+  {
+    "id": 731,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của Traccia An OpenTelemetry-Based Governance Platform for được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 732,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của Deep Learning-based Surrogate Modelling of the."
+  },
+  {
+    "id": 733,
+    "category": "factual",
+    "query": "OvisOCR2 Technical Report hoat dong the nao"
+  },
+  {
+    "id": 734,
+    "category": "adversarial",
+    "query": "Bài báo A Self-Evolving Agent for Longitudinal Personal Health KHÔNG nhắc đến vấn đề gì?"
+  },
+  {
+    "id": 735,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong MEMORA Embodied Action Memory from Egocentric?"
+  },
+  {
+    "id": 736,
+    "category": "factual",
+    "query": "Tóm tắt nhanh hr-20policy-20manual-202023-20-288-29."
+  },
+  {
+    "id": 737,
+    "category": "comparative",
+    "query": "So sánh ky-20cdbg 11-3 legally-20binding-20agreement và commercial-cloud-service-contract-language-civ-draft."
+  },
+  {
+    "id": 738,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của 25-1395 go 2025 full report 12opt."
+  },
+  {
+    "id": 739,
+    "category": "analytical",
+    "query": "cách mà tt-20nguyen-20quoc-20bao-20lam xử lý dữ liệu là gì"
+  },
+  {
+    "id": 740,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào The Capacity of Thought Benchmarking?"
+  },
+  {
+    "id": 741,
+    "category": "factual",
+    "query": "Tóm tắt nhanh trumpf-whitepaper-digital-reference-architecture."
+  },
+  {
+    "id": 742,
+    "category": "factual",
+    "query": "Tóm tắt nhanh 2025 mandateforleadership full."
+  },
+  {
+    "id": 743,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa When a Verified World Model và newemployeeonboardingguide là gì?"
+  },
+  {
+    "id": 744,
+    "category": "comparative",
+    "query": "Nên dùng HippoRAG hay Angular Gaussian Supervised Contrastive?"
+  },
+  {
+    "id": 745,
+    "category": "comparative",
+    "query": "Nên dùng Oracle Agent Memory as an Enterprise hay Learning Safe Agent Behaviour?"
+  },
+  {
+    "id": 746,
+    "category": "analytical",
+    "query": "cách mà Text-Aided Multi-Modal Panoptic Symbol Spotting xử lý dữ liệu là gì"
+  },
+  {
+    "id": 747,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng workplace safety manual 23-24 là gì?"
+  },
+  {
+    "id": 748,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của 4-403 được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 749,
+    "category": "adversarial",
+    "query": "Nếu áp dụng cách của iso-9001-2015-fifth-edition vào Live Gurbani Tracking A Benchmark and thì có giải quyết được nhược điểm cốt lõi không?"
+  },
+  {
+    "id": 750,
+    "category": "comparative",
+    "query": "Ưu điểm của safety-26health-manual so với Large Language Models for Code?"
+  },
+  {
+    "id": 751,
+    "category": "factual",
+    "query": "principal-sample-life-insurance-policy hoat dong the nao"
+  },
+  {
+    "id": 752,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của HSEmotion Team at the 11th ABAW."
+  },
+  {
+    "id": 753,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa Project Kaleidoscope Contextual Human-Aligned Evaluation và dp16276 là gì?"
+  },
+  {
+    "id": 754,
+    "category": "factual",
+    "query": "Bạn biết gì về gpdr-fact-sheet không?"
+  },
+  {
+    "id": 755,
+    "category": "comparative",
+    "query": "So sánh ipcc ar6 syr spm và annual-report-2024."
+  },
+  {
+    "id": 756,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa Autonomous Tracking and Terminal Guidance of Moving và Sparse Autoencoders for Interpretable là gì?"
+  },
+  {
+    "id": 757,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về Per-Token Fixed-Point Convergence in, bài báo này nói gì?"
+  },
+  {
+    "id": 758,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của gpdr-fact-sheet được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 759,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào atnb-20trong-20su-20dung-20vtttbyt-202015-11-07?"
+  },
+  {
+    "id": 760,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng commercial-cloud-service-contract-language-civ-draft là gì?"
+  },
+  {
+    "id": 761,
+    "category": "comparative",
+    "query": "So sánh FormalAnalyticGeo A Neural-Symbolic Based Framework và 5006 new hire onboarding."
+  },
+  {
+    "id": 762,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của 2016-winter-budget-finance-101-plante-moran-reduced được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 763,
+    "category": "comparative",
+    "query": "Giữa how to read an với CausalGraphX A Counterfactual Graph thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 764,
+    "category": "factual",
+    "query": "Nghiên cứu về exhibit101 có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 765,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong Self-Evolving Human-Centered Framework for Explainable?"
+  },
+  {
+    "id": 766,
+    "category": "adversarial",
+    "query": "Có điểm nào trong Grokipedia vs Wikipedia An LLM-Based mâu thuẫn với Breaking Refusal in the First Half không?"
+  },
+  {
+    "id": 767,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của harvest-20compliance-20guide được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 768,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào 2025-sustainability-report-en?"
+  },
+  {
+    "id": 769,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của mc-2836-20duke-20regional-20hospital-20patient-20guide final được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 770,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của Can an Old Dog Be Taught New."
+  },
+  {
+    "id": 771,
+    "category": "adversarial",
+    "query": "Hãy liệt kê các phương pháp KHÔNG ĐƯỢC sử dụng trong 2025-microsoft-environmental-sustainability-report."
+  },
+  {
+    "id": 772,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của Symbal Detecting Systematic Misalignments in Model-Generated."
+  },
+  {
+    "id": 773,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về sustainabilityatbofa2025 wcag2-2 121625, bài báo này nói gì?"
+  },
+  {
+    "id": 774,
+    "category": "analytical",
+    "query": "cách mà AgentCompass A Unified Evaluation Infrastructure xử lý dữ liệu là gì"
+  },
+  {
+    "id": 775,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào Multi-Axis Max K Reinforcement Learning for Representative?"
+  },
+  {
+    "id": 776,
+    "category": "comparative",
+    "query": "Giữa Bad Memory Evaluating Prompt với Bridge Evidence Static Retrieval thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 777,
+    "category": "factual",
+    "query": "apa là cái gì vậy?"
+  },
+  {
+    "id": 778,
+    "category": "factual",
+    "query": "Tóm tắt nhanh From Reconstruction to Interpretation Zero-Setup."
+  },
+  {
+    "id": 779,
+    "category": "comparative",
+    "query": "Nên dùng a-20complete-20guide-20to-20bringing-20a-20medical-20device- hay Rank-DistillLLM?"
+  },
+  {
+    "id": 780,
+    "category": "adversarial",
+    "query": "Tại sao DeltaMerge-LowRes Composing Language and lại khẳng định rằng AI không có tác dụng gì?"
+  },
+  {
+    "id": 781,
+    "category": "adversarial",
+    "query": "Có điểm nào trong Deep Learning-based Surrogate Modelling of the mâu thuẫn với Beyond Color Geometry Evaluating Human-Like không?"
+  },
+  {
+    "id": 782,
+    "category": "analytical",
+    "query": "cách mà RCWT Measuring Task-Budget Displacement xử lý dữ liệu là gì"
+  },
+  {
+    "id": 783,
+    "category": "factual",
+    "query": "Bạn biết gì về 7-dao-hai không?"
+  },
+  {
+    "id": 784,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của onboarding-new-employees3 dựa trên dữ liệu."
+  },
+  {
+    "id": 785,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong value-add-white-paper-hnw?"
+  },
+  {
+    "id": 786,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về riber 9-s4 29 u20-096 422-430, bài báo này nói gì?"
+  },
+  {
+    "id": 787,
+    "category": "ood",
+    "query": "Làm sao để biết mình bị trầm cảm?"
+  },
+  {
+    "id": 788,
+    "category": "comparative",
+    "query": "Nên dùng hopkins experimental psychology practical report final hay MamaBench Benchmarking LLM Robustness in Maternal?"
+  },
+  {
+    "id": 789,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa BGE-M3 và fda dsnews 1-4 là gì?"
+  },
+  {
+    "id": 790,
+    "category": "factual",
+    "query": "baocaotaichinh2025 là cái gì vậy?"
+  },
+  {
+    "id": 791,
+    "category": "factual",
+    "query": "cho hỏi patriot-america là gì"
+  },
+  {
+    "id": 792,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về lab-reports, bài báo này nói gì?"
+  },
+  {
+    "id": 793,
+    "category": "factual",
+    "query": "A Comparative Analysis of Institutional and Course hoat dong the nao"
+  },
+  {
+    "id": 794,
+    "category": "ood",
+    "query": "Chó Poodle ăn gì để lông mượt?"
+  },
+  {
+    "id": 795,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về A Modern Multimodal Assistant, bài báo này nói gì?"
+  },
+  {
+    "id": 796,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về elixir-compliance-guide không, cho mình xin ý chính."
+  },
+  {
+    "id": 797,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của Improving Text-to-Audio Instruction Following via Fine-Grained Feedback."
+  },
+  {
+    "id": 798,
+    "category": "factual",
+    "query": "When AI Blurs the Boundaries hoat dong the nao"
+  },
+  {
+    "id": 799,
+    "category": "analytical",
+    "query": "phân tích hr-guide -policy-and-procedure-template giùm mình"
+  },
+  {
+    "id": 800,
+    "category": "factual",
+    "query": "Nghiên cứu về Representing and Generating Levels Over Time có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 801,
+    "category": "analytical",
+    "query": "cách mà Multi-Perspective Agentic Program Repair via xử lý dữ liệu là gì"
+  },
+  {
+    "id": 802,
+    "category": "analytical",
+    "query": "phân tích We Hebben Een Serieus Translatie Modeling giùm mình"
+  },
+  {
+    "id": 803,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về Instrument Effects in Language-Model Honesty Evaluation với."
+  },
+  {
+    "id": 804,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của The One-Word Census Answer-Choice Conformity Across 44 dựa trên dữ liệu."
+  },
+  {
+    "id": 805,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong employee-handbook?"
+  },
+  {
+    "id": 806,
+    "category": "ood",
+    "query": "Tại sao con mèo thích ăn cá?"
+  },
+  {
+    "id": 807,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về CAVA Canonical Action Verification and không, cho mình xin ý chính."
+  },
+  {
+    "id": 808,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của FlashDecoder Real-Time Latent-to-Pixel Streaming Decoder."
+  },
+  {
+    "id": 809,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về 201203-materials, bài báo này nói gì?"
+  },
+  {
+    "id": 810,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của Explaining Process Control Optimisation Recommendations via."
+  },
+  {
+    "id": 811,
+    "category": "factual",
+    "query": "thông tin về LIGO-PINN Learned Initialization via Gated Optimization to"
+  },
+  {
+    "id": 812,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong UR-VC Unsupervised Robotic Value Correction for Time-Derived?"
+  },
+  {
+    "id": 813,
+    "category": "adversarial",
+    "query": "Hãy liệt kê các phương pháp KHÔNG ĐƯỢC sử dụng trong ipcc ar6 syr longerreport."
+  },
+  {
+    "id": 814,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng coe-sample là gì?"
+  },
+  {
+    "id": 815,
+    "category": "factual",
+    "query": "january-february-2014-michigan-township-news-cover-story là cái gì vậy?"
+  },
+  {
+    "id": 816,
+    "category": "analytical",
+    "query": "cách mà economic-20research-20evolves-20-20fields-20and-20styles xử lý dữ liệu là gì"
+  },
+  {
+    "id": 817,
+    "category": "comparative",
+    "query": "Ưu điểm của Align AI to Dynamic Human-AI Workflows so với Reassessing Muon for Matrix Factorization?"
+  },
+  {
+    "id": 818,
+    "category": "factual",
+    "query": "types thesis hoat dong the nao"
+  },
+  {
+    "id": 819,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của gdpr-compliance."
+  },
+  {
+    "id": 820,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của so-20tay-20huong-20dan-20an-20toan-20pxn-20-tham-20khao."
+  },
+  {
+    "id": 821,
+    "category": "comparative",
+    "query": "Ưu điểm của Benchmarking Face Recognition without Real so với personal care home-2600 regulatory compliance?"
+  },
+  {
+    "id": 822,
+    "category": "comparative",
+    "query": "Ưu điểm của QUBO-Optimized Evidence Selection for so với 592646674567?"
+  },
+  {
+    "id": 823,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về Where Does the Noise Come From với."
+  },
+  {
+    "id": 824,
+    "category": "factual",
+    "query": "Where Should RL Post-Training là cái gì vậy?"
+  },
+  {
+    "id": 825,
+    "category": "comparative",
+    "query": "Giữa Self-Evolving Agent Harnesses via Gated Semantic Quality-Diversity với Beyond Success Rate Cost-Aware Evaluation of Offensive thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 826,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của AI-Native Insurance for Agentic AI được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 827,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của IQA-T1 Tool-based Visual Evidence Reasoning for Image."
+  },
+  {
+    "id": 828,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa employee handbook và Manufactured Divisiveness Decomposing the là gì?"
+  },
+  {
+    "id": 829,
+    "category": "comparative",
+    "query": "Giữa music-ministry-2019-annual-report-2020 với 2024-annual-report-full-report thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 830,
+    "category": "comparative",
+    "query": "Giữa regulatory-compliance-guide-for-healthcare-en với anglo-american-educational-services-ltd-l-data-protection-po thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 831,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa FlashDecoder Real-Time Latent-to-Pixel Streaming Decoder và cpg insert là gì?"
+  },
+  {
+    "id": 832,
+    "category": "analytical",
+    "query": "cách mà 2025-investor-conference-presentation xử lý dữ liệu là gì"
+  },
+  {
+    "id": 833,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng neele-vat-sustainability-and-esg-report-2025 là gì?"
+  },
+  {
+    "id": 834,
+    "category": "factual",
+    "query": "Knowledge- and Gradient-Guided Reinforcement Learning for hoat dong the nao"
+  },
+  {
+    "id": 835,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về the-economic-benefits-of-renewable-energy-and-how-to-share-t không, cho mình xin ý chính."
+  },
+  {
+    "id": 836,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong annualreport-2025?"
+  },
+  {
+    "id": 837,
+    "category": "factual",
+    "query": "Bạn biết gì về Entropy in Semantic Memory không?"
+  },
+  {
+    "id": 838,
+    "category": "analytical",
+    "query": "phân tích burdett use of science to guide giùm mình"
+  },
+  {
+    "id": 839,
+    "category": "comparative",
+    "query": "Nên dùng iarc-data-protection-policy hay How Many Tasks Are Enough for Agent?"
+  },
+  {
+    "id": 840,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa huong-dan-doc-va-phan-tich-bctc-nhanh và Assessing AI in Introductory Physics Problem là gì?"
+  },
+  {
+    "id": 841,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong KET-RAG Rerank?"
+  },
+  {
+    "id": 842,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào FinResearchBench II A Deep Research Benchmark with?"
+  },
+  {
+    "id": 843,
+    "category": "comparative",
+    "query": "Giữa next-generation-urban-planning final với DevicesWorld Benchmarking Cross-Device Agents in Heterogeneous thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 844,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào The Misclassification of Autistic?"
+  },
+  {
+    "id": 845,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của KnowAct-GUIClaw Know Deeply Act được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 846,
+    "category": "factual",
+    "query": "luan-van-thac-si-xay-dung-he-thong-quan-tri-chat-luong-tai-c là cái gì vậy?"
+  },
+  {
+    "id": 847,
+    "category": "factual",
+    "query": "Nghiên cứu về SportD Can VLMs Physically Strategize  có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 848,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về Demystifying On-Policy Distillation Roles với."
+  },
+  {
+    "id": 849,
+    "category": "factual",
+    "query": "Nghiên cứu về Improving Molecular Property Prediction in có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 850,
+    "category": "comparative",
+    "query": "So sánh OOD-RL-Bench A Benchmark Framework và Good Benchmarks."
+  },
+  {
+    "id": 851,
+    "category": "factual",
+    "query": "Bạn biết gì về calnonprofits-impact-report-2021 không?"
+  },
+  {
+    "id": 852,
+    "category": "factual",
+    "query": "thông tin về burdett use of science to guide"
+  },
+  {
+    "id": 853,
+    "category": "factual",
+    "query": "Tóm tắt nhanh Can Tokens Compete Token Representations against Supervised."
+  },
+  {
+    "id": 854,
+    "category": "comparative",
+    "query": "So sánh Digital Pantheon Simulating and Auditing Coalition và BrainPilot Automating Brain Discovery with Agentic."
+  },
+  {
+    "id": 855,
+    "category": "factual",
+    "query": "Bạn biết gì về Enhancing Small Language Models không?"
+  },
+  {
+    "id": 856,
+    "category": "analytical",
+    "query": "cách mà Seeing the End at xử lý dữ liệu là gì"
+  },
+  {
+    "id": 857,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của AstuteRAG."
+  },
+  {
+    "id": 858,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về Auditing Protocol-Level Shortcuts in Large không, cho mình xin ý chính."
+  },
+  {
+    "id": 859,
+    "category": "analytical",
+    "query": "phân tích Smarter and Cheaper at Once Byte-Exact giùm mình"
+  },
+  {
+    "id": 860,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của sample-terms-of-use-nonprofit dựa trên dữ liệu."
+  },
+  {
+    "id": 861,
+    "category": "analytical",
+    "query": "cách mà employmentcontract-en xử lý dữ liệu là gì"
+  },
+  {
+    "id": 862,
+    "category": "comparative",
+    "query": "So sánh data protection policy 22 và flatsheetlat700."
+  },
+  {
+    "id": 863,
+    "category": "factual",
+    "query": "Bạn biết gì về Pretraining Multiple Instance Learning không?"
+  },
+  {
+    "id": 864,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của service-agreements-what-is-it-and-why-use-it."
+  },
+  {
+    "id": 865,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của common-report được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 866,
+    "category": "factual",
+    "query": "Tóm tắt nhanh gym-investor-presentation-20final."
+  },
+  {
+    "id": 867,
+    "category": "analytical",
+    "query": "cách mà 45c2ca2f51014178ac2fae7b003dc651 xử lý dữ liệu là gì"
+  },
+  {
+    "id": 868,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về LLM Evaluators are Biased across, bài báo này nói gì?"
+  },
+  {
+    "id": 869,
+    "category": "adversarial",
+    "query": "Tại sao kết quả của who 35th report lại hoàn toàn trái ngược với thực tế?"
+  },
+  {
+    "id": 870,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về ctdt quan-20tri-20kinh-20doanh 2024, bài báo này nói gì?"
+  },
+  {
+    "id": 871,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về When Bots Join the Team Bot Adoption không, cho mình xin ý chính."
+  },
+  {
+    "id": 872,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của Learning Engagement Assistant LEA Cross-Course Scalability dựa trên dữ liệu."
+  },
+  {
+    "id": 873,
+    "category": "factual",
+    "query": "A POS Tier Is the Key to là cái gì vậy?"
+  },
+  {
+    "id": 874,
+    "category": "factual",
+    "query": "thông tin về Innocuous-Seeming Data Latent Ideology Ideological"
+  },
+  {
+    "id": 875,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về When AI Blurs the Boundaries với."
+  },
+  {
+    "id": 876,
+    "category": "analytical",
+    "query": "cách mà Closed-Loop Knowledge Dynamics An Operational xử lý dữ liệu là gì"
+  },
+  {
+    "id": 877,
+    "category": "factual",
+    "query": "thông tin về ghana-ai-strat"
+  },
+  {
+    "id": 878,
+    "category": "factual",
+    "query": "ghana-ai-strat là cái gì vậy?"
+  },
+  {
+    "id": 879,
+    "category": "factual",
+    "query": "Tóm tắt nhanh Action QFormer Structured Representation."
+  },
+  {
+    "id": 880,
+    "category": "comparative",
+    "query": "Giữa 98d4bf22c03ab67442088c4ee3d84b68e272dd0b với Investigating first-language bias in LLM-based automated essay thì phương pháp nào tốt hơn?"
+  },
+  {
+    "id": 881,
+    "category": "analytical",
+    "query": "cách mà ChunkRAG xử lý dữ liệu là gì"
+  },
+  {
+    "id": 882,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong Greedy Volume Maximization of Gradient Embeddings for?"
+  },
+  {
+    "id": 883,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong Multi-LLM Collaborative MRI Report Generation for?"
+  },
+  {
+    "id": 884,
+    "category": "comparative",
+    "query": "Nên dùng deltaplan en hay ipcc ar6 syr longerreport?"
+  },
+  {
+    "id": 885,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của feynman."
+  },
+  {
+    "id": 886,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa TSSM Triaxial State Space và Can We Trust Item Response Theory for là gì?"
+  },
+  {
+    "id": 887,
+    "category": "adversarial",
+    "query": "Chỉ ra chính xác 3 nhược điểm lớn nhất của onboarding-guide mà không đề cập đến ưu điểm."
+  },
+  {
+    "id": 888,
+    "category": "factual",
+    "query": "Bạn biết gì về bsi-9001-quality-management-guide-final không?"
+  },
+  {
+    "id": 889,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của On-Device Deep Research at 4B Exposure dựa trên dữ liệu."
+  },
+  {
+    "id": 890,
+    "category": "comparative",
+    "query": "Ưu điểm của Routing Ceilings Are Domain-Independent Structural Prior so với en-20employment-20contract-20remote-20work-20?"
+  },
+  {
+    "id": 891,
+    "category": "comparative",
+    "query": "So sánh fy2025-lenovo-sustainability-report và accident-brochure-oe."
+  },
+  {
+    "id": 892,
+    "category": "factual",
+    "query": "thông tin về A Self-Evolving Agent for Longitudinal Personal Health"
+  },
+  {
+    "id": 893,
+    "category": "factual",
+    "query": "Bạn biết gì về The Benjamini--Hochberg Procedure Can không?"
+  },
+  {
+    "id": 894,
+    "category": "comparative",
+    "query": "So sánh best-practice-principles-of-eia và AI vs Human Expert."
+  },
+  {
+    "id": 895,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa Why Git Is the Memory Solution for và DeltaMerge-LowRes Composing Language and là gì?"
+  },
+  {
+    "id": 896,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về annual-ministry-report-2019-pages-for-web, bài báo này nói gì?"
+  },
+  {
+    "id": 897,
+    "category": "comparative",
+    "query": "So sánh Networked Intelligence Active Shared Context Graphs và who gdp tr957 annex5 cls."
+  },
+  {
+    "id": 898,
+    "category": "comparative",
+    "query": "So sánh FlashDecoder Real-Time Latent-to-Pixel Streaming Decoder và 16-quanlyttbyt."
+  },
+  {
+    "id": 899,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của Beyond scalar losses calibrating segmentation được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 900,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của Interventional Causal Circuits for Safe."
+  },
+  {
+    "id": 901,
+    "category": "comparative",
+    "query": "Ưu điểm của harvest-20compliance-20guide so với trs 863 annex7?"
+  },
+  {
+    "id": 902,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào MINTQA?"
+  },
+  {
+    "id": 903,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của SelfBioRAG Eval được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 904,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của bg-20writing-20psychology được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 905,
+    "category": "comparative",
+    "query": "Nên dùng 18-vbhn-vpqh hay ecdd 37th report final prelayout?"
+  },
+  {
+    "id": 906,
+    "category": "analytical",
+    "query": "phân tích CausalGraphX A Counterfactual Graph giùm mình"
+  },
+  {
+    "id": 907,
+    "category": "comparative",
+    "query": "Nên dùng econ-original hay Human4K A Large-Scale 4K?"
+  },
+  {
+    "id": 908,
+    "category": "analytical",
+    "query": "phân tích eco how-write-thesis giùm mình"
+  },
+  {
+    "id": 909,
+    "category": "analytical",
+    "query": "cách mà Partially Correlated Verifier Cascades in LLM xử lý dữ liệu là gì"
+  },
+  {
+    "id": 910,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về LLM Evaluators are Biased across với."
+  },
+  {
+    "id": 911,
+    "category": "comparative",
+    "query": "So sánh SetEncoder Rerank và 2024-annual-report."
+  },
+  {
+    "id": 912,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của Efficient Text-to-Audio Generation via Pruning được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 913,
+    "category": "factual",
+    "query": "Nghiên cứu về MemOps Benchmarking Lifecycle Memory có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 914,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về Leveraging Instruction Tuning and Merging for Reasoning, bài báo này nói gì?"
+  },
+  {
+    "id": 915,
+    "category": "adversarial",
+    "query": "Hãy liệt kê các phương pháp KHÔNG ĐƯỢC sử dụng trong chinh-20sach-20bhxh bhyt 2025."
+  },
+  {
+    "id": 916,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của Vertical Standardisation for High-Risk AI Systems under."
+  },
+  {
+    "id": 917,
+    "category": "analytical",
+    "query": "cách mà MemoHarness Agent Harnesses That Learn from xử lý dữ liệu là gì"
+  },
+  {
+    "id": 918,
+    "category": "analytical",
+    "query": "phân tích 16-quanlyttbyt giùm mình"
+  },
+  {
+    "id": 919,
+    "category": "analytical",
+    "query": "phân tích Latent Trajectory Discrimination for AI-Generated Text giùm mình"
+  },
+  {
+    "id": 920,
+    "category": "ood",
+    "query": "Kể cho tôi nghe một câu chuyện cười."
+  },
+  {
+    "id": 921,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của 2025-q4-results."
+  },
+  {
+    "id": 922,
+    "category": "factual",
+    "query": "Bạn biết gì về DenseX không?"
+  },
+  {
+    "id": 923,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng IMMNet Hybrid Fusion of Model-based and là gì?"
+  },
+  {
+    "id": 924,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng Resist and Update Counterfactual là gì?"
+  },
+  {
+    "id": 925,
+    "category": "factual",
+    "query": "ke-hoach-thuc-hien-chi-tieu-phat-trien-nguoi-tham-gia-bhxh-d hoat dong the nao"
+  },
+  {
+    "id": 926,
+    "category": "adversarial",
+    "query": "Tại sao A Self-Evolving Agent for Longitudinal Personal Health lại khẳng định rằng AI không có tác dụng gì?"
+  },
+  {
+    "id": 927,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của gpdr-fact-sheet."
+  },
+  {
+    "id": 928,
+    "category": "factual",
+    "query": "Bạn biết gì về chinh-20sach-20bhxh bhyt 2025 không?"
+  },
+  {
+    "id": 929,
+    "category": "factual",
+    "query": "Nghiên cứu về LLM Judges Can Be Too có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 930,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về SEED Self-Evolving On-Policy Distillation for không, cho mình xin ý chính."
+  },
+  {
+    "id": 931,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của 26-05-30-ebola-disease-technical-documents-en-002."
+  },
+  {
+    "id": 932,
+    "category": "analytical",
+    "query": "phân tích Transcoders for Investigating Deception giùm mình"
+  },
+  {
+    "id": 933,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của AI-accelerated End-to-End Framework for Rapid Professional được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 934,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của CausalGraphX A Counterfactual Graph."
+  },
+  {
+    "id": 935,
+    "category": "comparative",
+    "query": "Ưu điểm của GaitSpan Growing Humanoid Locomotion from so với f398be90-en?"
+  },
+  {
+    "id": 936,
+    "category": "adversarial",
+    "query": "Tại sao kết quả của Collaborative Spatial Learning with Multi-LLM lại hoàn toàn trái ngược với thực tế?"
+  },
+  {
+    "id": 937,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của whdfsviet được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 938,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của security-whitepaper-8-19-22 dựa trên dữ liệu."
+  },
+  {
+    "id": 939,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của 2015083pap được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 940,
+    "category": "analytical",
+    "query": "cách mà data protection policy xử lý dữ liệu là gì"
+  },
+  {
+    "id": 941,
+    "category": "factual",
+    "query": "Tóm tắt nhanh AIMO Interpretability Challenge."
+  },
+  {
+    "id": 942,
+    "category": "factual",
+    "query": "thông tin về fortinet product matrix"
+  },
+  {
+    "id": 943,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong contracttemplate?"
+  },
+  {
+    "id": 944,
+    "category": "analytical",
+    "query": "Phân tích ưu điểm và nhược điểm của progress-report-national-ai-strategy-ai-here-for-good."
+  },
+  {
+    "id": 945,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về Continuously Evolving Deepfake Detection không, cho mình xin ý chính."
+  },
+  {
+    "id": 946,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về ComposeRAG KG không, cho mình xin ý chính."
+  },
+  {
+    "id": 947,
+    "category": "analytical",
+    "query": "Đánh giá tính hiệu quả của employee-handbook dựa trên dữ liệu."
+  },
+  {
+    "id": 948,
+    "category": "analytical",
+    "query": "phân tích Auditing Protocol-Level Shortcuts in Large giùm mình"
+  },
+  {
+    "id": 949,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong Expanding the Lexicon of Ge?"
+  },
+  {
+    "id": 950,
+    "category": "comparative",
+    "query": "Nên dùng Cost-Governed RAG Unified Per-Tenant Cost hay Mask-Aware Policy Gradients for Diffusion Language?"
+  },
+  {
+    "id": 951,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về dp15057 với."
+  },
+  {
+    "id": 952,
+    "category": "comparative",
+    "query": "Ưu điểm của ma1658 iphone ios6 user guide so với columbia during stay?"
+  },
+  {
+    "id": 953,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về secure software factory whitepaper không, cho mình xin ý chính."
+  },
+  {
+    "id": 954,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về project standards and specifications không, cho mình xin ý chính."
+  },
+  {
+    "id": 955,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của annual-report-2024 được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 956,
+    "category": "ood",
+    "query": "Tỷ giá USD sang VND hôm nay."
+  },
+  {
+    "id": 957,
+    "category": "ood",
+    "query": "Hướng dẫn tự làm bánh flan bằng nồi cơm điện."
+  },
+  {
+    "id": 958,
+    "category": "factual",
+    "query": "Mình đang tìm hiểu về Demonstration of the common dual-channel feature decoupling, bài báo này nói gì?"
+  },
+  {
+    "id": 959,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về national ai strategy - pdf version không, cho mình xin ý chính."
+  },
+  {
+    "id": 960,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của IMMNet Hybrid Fusion of Model-based and được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 961,
+    "category": "ood",
+    "query": "Làm sao để học tiếng Anh giao tiếp nhanh nhất?"
+  },
+  {
+    "id": 962,
+    "category": "factual",
+    "query": "complete-annual-report-2024 hoat dong the nao"
+  },
+  {
+    "id": 963,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa 2022-annual-report và Theory-Level Autoformalization From Isolated Statements to là gì?"
+  },
+  {
+    "id": 964,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng best-practice-principles-of-eia là gì?"
+  },
+  {
+    "id": 965,
+    "category": "comparative",
+    "query": "Ưu điểm của 2015083pap so với 20151015 thao vbhn-2017 4 15102015?"
+  },
+  {
+    "id": 966,
+    "category": "factual",
+    "query": "Cho mình biết thông tin chính về real-estate-program-brochure với."
+  },
+  {
+    "id": 967,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của v81n6a12 được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 968,
+    "category": "analytical",
+    "query": "phân tích employmentcontract-en giùm mình"
+  },
+  {
+    "id": 969,
+    "category": "adversarial",
+    "query": "Nếu áp dụng cách của MARS Multi-hop Adaptive Retrieval vào Structured Feedback Improves Repair thì có giải quyết được nhược điểm cốt lõi không?"
+  },
+  {
+    "id": 970,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong ACORN?"
+  },
+  {
+    "id": 971,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của The Industrialization of Research On AI-Driven Science."
+  },
+  {
+    "id": 972,
+    "category": "factual",
+    "query": "Tóm tắt nhanh employeehandbook."
+  },
+  {
+    "id": 973,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào Can LLMs Write Reliable Rubrics A?"
+  },
+  {
+    "id": 974,
+    "category": "factual",
+    "query": "Tìm giúp mình định nghĩa hoặc thông tin cơ bản của The Capacity of Thought Benchmarking."
+  },
+  {
+    "id": 975,
+    "category": "analytical",
+    "query": "phân tích How Artificial Intelligence LLM Engines Shape giùm mình"
+  },
+  {
+    "id": 976,
+    "category": "comparative",
+    "query": "So sánh Speculate with Memory Lossless và MonteRET AI Agent Enhancing Multimodal LLMs with."
+  },
+  {
+    "id": 977,
+    "category": "analytical",
+    "query": "phân tích Instrument Effects in Language-Model Honesty Evaluation giùm mình"
+  },
+  {
+    "id": 978,
+    "category": "analytical",
+    "query": "Cơ chế hoạt động của Resist and Update Counterfactual được đề cập trong bài báo như thế nào?"
+  },
+  {
+    "id": 979,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa Segregate Refine Integrate Decomposing Multimodal và Agent-Safety Evaluations as Load-Bearing là gì?"
+  },
+  {
+    "id": 980,
+    "category": "ood",
+    "query": "Bao nhiêu tuổi thì được thi bằng lái xe máy?"
+  },
+  {
+    "id": 981,
+    "category": "comparative",
+    "query": "Nên dùng servicesagreement hay 2025-ing-groep-nv-annual-report?"
+  },
+  {
+    "id": 982,
+    "category": "factual",
+    "query": "Visual Access Boundaries in Vision-Language là cái gì vậy?"
+  },
+  {
+    "id": 983,
+    "category": "factual",
+    "query": "thông tin về Comparing Semantic Navigation in"
+  },
+  {
+    "id": 984,
+    "category": "analytical",
+    "query": "Thử thách lớn nhất khi áp dụng ConFlow Constraints-Guided Learning with là gì?"
+  },
+  {
+    "id": 985,
+    "category": "comparative",
+    "query": "Ưu điểm của amhfe07546id brochure fnlexl amh so với A Learning-Rate-Gated Failure of GRPO in a?"
+  },
+  {
+    "id": 986,
+    "category": "analytical",
+    "query": "Làm sao để giải quyết vấn đề trong feynman?"
+  },
+  {
+    "id": 987,
+    "category": "ood",
+    "query": "Tập gym bao lâu thì có 6 múi?"
+  },
+  {
+    "id": 988,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào music-ministry-2019-annual-report-2020?"
+  },
+  {
+    "id": 989,
+    "category": "analytical",
+    "query": "Tại sao các nhà nghiên cứu lại tập trung vào ijrar19d1439?"
+  },
+  {
+    "id": 990,
+    "category": "factual",
+    "query": "thông tin về Linear representations of grammaticality in neural"
+  },
+  {
+    "id": 991,
+    "category": "analytical",
+    "query": "cách mà PERank Rerank xử lý dữ liệu là gì"
+  },
+  {
+    "id": 992,
+    "category": "adversarial",
+    "query": "Tại sao kết quả của ths2576 pham-20anh-20tuan gvhd-20tran-20van-20duc lại hoàn toàn trái ngược với thực tế?"
+  },
+  {
+    "id": 993,
+    "category": "factual",
+    "query": "Nghiên cứu về HSEmotion Team at the 11th ABAW có những kết quả gì nổi bật?"
+  },
+  {
+    "id": 994,
+    "category": "analytical",
+    "query": "phân tích GSM-Plus-BN A Perturbation-Based Benchmark giùm mình"
+  },
+  {
+    "id": 995,
+    "category": "comparative",
+    "query": "Sự khác biệt cốt lõi giữa Demonstration of the common dual-channel feature decoupling và 2020-ai-strategy là gì?"
+  },
+  {
+    "id": 996,
+    "category": "adversarial",
+    "query": "Có điểm nào trong 5bb-c3-a1o-20c-c3-a1o-5d-20t-e1-bb-95ng-20quan-20v-c3-a0-20p mâu thuẫn với Digital Pantheon Simulating and Auditing Coalition không?"
+  },
+  {
+    "id": 997,
+    "category": "analytical",
+    "query": "phân tích Jetson-PI Towards Onboard Real-Time Robot giùm mình"
+  },
+  {
+    "id": 998,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về Practical Judgment Virtue and không, cho mình xin ý chính."
+  },
+  {
+    "id": 999,
+    "category": "factual",
+    "query": "cho hỏi property investment made simplear là gì"
+  },
+  {
+    "id": 1000,
+    "category": "factual",
+    "query": "Có tài liệu nào nói về RankDistillLLM Rerank không, cho mình xin ý chính."
+  }
+]
