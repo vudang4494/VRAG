@@ -1,7 +1,7 @@
 # ==============================================================================
 # Enterprise RAG Stack — Mac Mini M4 Optimized (24GB RAM)
 # Hardware: Apple M4 (10-core, 24GB unified) + Ollama + Qdrant + Neo4j
-# Stack: Ollama (Qwen3.5-4B Q4_K_M GGUF, Metal GPU) + BGE-M3 Embeddings
+# Stack: Ollama (Gemma4-4B, Metal GPU) + BGE-M3 Embeddings
 # Strategy: Drop Langfuse/ClickHouse/Prometheus/Grafana for resource savings
 # Total RAM budget: ~9.5GB (out of 24GB)
 # ==============================================================================

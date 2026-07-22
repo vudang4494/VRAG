@@ -1,7 +1,7 @@
 # ==============================================================================
-# Enterprise RAG Stack v2.0 — Apple Silicon Mac Optimized
+# Enterprise RAG Stack — Apple Silicon Mac Optimized
 # Hardware: MacBook (Apple Silicon, 16GB RAM) + Ollama + Qdrant + Neo4j
-# Stack: Ollama (Qwen3-4B Q4_K_M GGUF) + BGE-M3 Embeddings + Hybrid GraphRAG
+# Stack: Ollama (Gemma4-4B) + BGE-M3 Embeddings + Hybrid GraphRAG
 # ==============================================================================
 
 networks:
@@ -333,7 +333,7 @@ services:
       # differs from the src/config.py default, so an override here is visible in the
       # logs of every run. Keep it that way: if you change a model, change it in
       # src/config.py too, or accept that the banner will flag it on every boot.
-      # Override at runtime: OLLAMA_MODEL=gemma3:12b docker compose up -d
+      # Override at runtime: OLLAMA_MODEL=gemma4:e4b docker compose up -d
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
       - OLLAMA_MODEL=gemma4:e4b
       - LIGHT_LLM=gemma4:e4b

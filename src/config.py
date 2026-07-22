@@ -192,7 +192,7 @@ class Settings(BaseSettings):
     # Default 0 = pure zero-LLM (only GLiNER + centroid router).
     # Each unit adds 1 LLM reformulation in order:
     #   1=rewrite, 2=+keywords, 3=+hyde, 4=+decompose, 5=+step_back
-    # With qwen2.5:7b each LLM call is ~10-30s — set higher only when quality matters more than latency.
+    # With gemma4:e4b each LLM call is ~3-5s — set higher only when quality matters more than latency.
     query_understanding_enabled: bool = True
     query_reformulations: int = 0
     query_understanding_timeout_s: float = 60.0
@@ -308,7 +308,7 @@ class Settings(BaseSettings):
     )
 
     # Generation deliberation
-    # Defaults tuned for qwen2.5:7b CPU/Metal speed. Enable richer modes via env
+    # Defaults tuned for gemma4:e4b CPU/Metal speed. Enable richer modes via env
     # when on GPU. Each draft is 1 LLM call; judge = 1 more; outline = 1 more.
     generation_outline_enabled: bool = False
     generation_drafts: int = 1

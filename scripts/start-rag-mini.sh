@@ -4,7 +4,7 @@
 # Usage: ./scripts/start-rag-mini.sh
 # Prerequisites:
 #   1. Ollama running on host:  ollama serve
-#   2. Models pulled:           ollama pull qwen3.5:9b && ollama pull bge-m3
+#   2. Models pulled:           ollama pull gemma4:e4b && ollama pull bge-m3
 # ==============================================================================
 
 set -e

@@ -43,7 +43,7 @@ ollama list
 
 echo ""
 echo "=== Pull recommended models ==="
-echo "  Qwen3.5-9B:   ollama pull qwen3.5:9b"
+echo "  Gemma4-4B:     ollama pull gemma4:e4b"
 echo "  BGE-M3:        ollama pull bge-m3"
 echo ""
-echo "To use: ollama run qwen3.5:9b 'your prompt here'"
+echo "To use: ollama run gemma4:e4b 'your prompt here'"

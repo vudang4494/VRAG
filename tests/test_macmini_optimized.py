@@ -155,7 +155,7 @@ class TestMacMiniLLMPerformance:
 
     @pytest.mark.asyncio
     async def test_llm_generation_latency(self):
-        """Measure LLM generation latency (Qwen3.5-4B on Metal)."""
+        """Measure LLM generation latency (Gemma4-4B on Metal)."""
         latencies = []
         tokens_generated = []
 
