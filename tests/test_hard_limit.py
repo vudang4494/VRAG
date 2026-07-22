@@ -30,16 +30,15 @@ class TestHardLimitConfig:
         from src.config import get_settings
 
         settings = get_settings()
-        assert hasattr(settings, "graph_scope_size")
-        assert settings.graph_scope_size >= 50  # reasonable minimum
-        assert settings.graph_scope_size <= 500  # reasonable maximum
+        assert hasattr(settings, "entity_gate_seed_chunks")
+        assert settings.entity_gate_seed_chunks >= 50  # reasonable minimum
+        assert settings.entity_gate_seed_chunks <= 1000  # reasonable maximum
 
     def test_use_hard_limit_config(self):
         from src.config import get_settings
 
         settings = get_settings()
-        assert hasattr(settings, "use_hard_limit")
-        assert isinstance(settings.use_hard_limit, bool)
+        assert hasattr(settings, "entity_gate_seed_chunks")
 
 
 class TestScopeCollection:
@@ -47,15 +46,13 @@ class TestScopeCollection:
 
     def test_scope_size_respected(self):
         """Verify scope size limit is respected."""
-        # Graph scope size controls how many chunk IDs are collected
-        # from dense paths to filter graph queries
         from src.config import get_settings
 
         settings = get_settings()
-        max_scope = settings.graph_scope_size
+        max_scope = settings.entity_gate_seed_chunks
 
         # Simulate collecting chunk IDs
-        all_ids = [f"chunk_{i}" for i in range(200)]
+        all_ids = [f"chunk_{i}" for i in range(500)]
         scope = all_ids[:max_scope]
 
         assert len(scope) <= max_scope

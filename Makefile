@@ -416,7 +416,7 @@ pipeline-init:
 
 pipeline-smoke:
 	@echo "═══ VRAG end-to-end smoke test ═══"
-	$(PYTEST:pytest=python3) scripts/smoke_test.py --api http://localhost:8800 --tenant $(TENANT)
+	python3 scripts/verify_pipeline.py --tenant $(TENANT)
 
 # The 53-query benchmark is gone. Its dataset declared tenant "rag51", which holds zero
 # points, so every run refused all 53 queries and reported it as 0% recall — a retrieval

@@ -1,18 +1,18 @@
 [project]
-name = "enterprise-rag-stack"
-version = "2.0.0"
-description = "Self-hosted Hybrid GraphRAG + Vector search platform with Ollama"
+name = "vrag"
+version = "1.0.0"
+description = "Vector-Centric Hybrid GraphRAG Platform with Ollama"
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "MIT"}
+license = {text = "Apache-2.0"}
 authors = [
-    {name = "Enterprise Team", email = "team@example.com"}
+    {name = "vudang4494", email = "vu.dh4494@gmail.com"}
 ]
-keywords = ["rag", "graphrag", "llm", "ollama", "qdrant", "neo4j", "enterprise"]
+keywords = ["rag", "graphrag", "llm", "ollama", "qdrant", "neo4j", "vrag"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]

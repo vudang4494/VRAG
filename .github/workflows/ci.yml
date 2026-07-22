@@ -25,7 +25,6 @@ jobs:
 
       - name: Ruff check
         run: uvx ruff check . --target-version py311
-        continue-on-error: true
 
       - name: Ruff format check
         run: uvx ruff format --check --target-version py311 .
@@ -45,15 +44,12 @@ jobs:
       - name: Type check critical modules
         run: |
           uv run --with mypy types-requests types-redis pydantic pydantic-settings \
-            mypy api/routes_v3.py \
-               src/services/retrieval_v2.py \
-               src/services/ingestion_v2.py \
+            mypy src/services/retrieval.py \
+               src/services/ingestion.py \
                src/services/rerank_l2r.py \
                --ignore-missing-imports \
                --follow-imports=skip \
-               --no-error-summary \
-               2>&1 | head -50
-        continue-on-error: true
+               --no-error-summary
 
   # ── Unit tests ─────────────────────────────────────────────────────────────
   test:
@@ -70,13 +66,12 @@ jobs:
       - name: Collect tests
         run: |
           uv run --with pytest pytest-asyncio httpx \
-            python3 -m pytest tests/ --collect-only 2>&1 || true
+            python3 -m pytest tests/ --collect-only
 
       - name: Run tests
         run: |
-          uv run --with pytest pytest-asyncio httpx \
-            python3 -m pytest tests/ -v --tb=short 2>&1 || true
-        continue-on-error: true
+          PYTHONPATH=. uv run --with pytest pytest-asyncio httpx \
+            python3 -m pytest tests/ -v --tb=short
 
   # ── Smoke test ──────────────────────────────────────────────────────────────
   smoke:
@@ -93,8 +88,6 @@ jobs:
 
       - name: Start Ollama (mock)
         run: |
-          # In CI we use a stub Ollama — smoke test checks API health endpoint
-          # which gracefully returns 503 when Ollama is unreachable
           docker info
 
       - name: Build API image
@@ -103,7 +96,6 @@ jobs:
 
       - name: Start stack
         run: |
-          # Only start infra containers (skip app to avoid Ollama dependency in CI)
           docker compose up -d qdrant redis postgres
           sleep 5
           docker compose ps
@@ -132,4 +124,3 @@ jobs:
       - name: Audit dependencies
         run: |
           uv run --with pip-audit pip-audit --requirement=api/requirements.txt 2>&1 || true
-        continue-on-error: true

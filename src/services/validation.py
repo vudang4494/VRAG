@@ -207,14 +207,15 @@ async def grounding_gate_cosine(
         sent_vecs = await embed_batch(http, embed_url, embed_model, sents)
         chunk_vecs = await embed_batch(http, embed_url, embed_model, passages)
     except Exception as e:
-        # Embed backend down → don't spuriously refuse a good answer; pass open and log.
-        logger.warning(f"cosine grounding embed failed, passing open: {e}")
+        # Embed backend error -> fail closed to preserve anti-hallucination shield.
+        logger.error(f"Cosine grounding embed failed (fail-closed): {e}")
         return {
-            "passed": True,
-            "grounded_ratio": 1.0,
+            "passed": False,
+            "grounded_ratio": 0.0,
             "claims_total": 0,
             "verdicts": [],
             "skipped": "embed_error",
+            "error": str(e),
         }
 
     verdicts: list[tuple[str, str]] = []

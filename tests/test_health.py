@@ -47,7 +47,7 @@ class TestRAGAPIEndpoints:
         assert r.status_code == 200
         data = r.json()
         assert data["status"] == "ok"
-        assert data["version"] == "2.0.0"
+        assert data["version"] == "1.0.0"
 
     def test_health_deep(self):
         r = httpx.get(f"{BASE}:8800/health/deep", timeout=30)
