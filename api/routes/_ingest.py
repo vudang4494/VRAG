@@ -6,6 +6,7 @@ import contextlib
 from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 from loguru import logger
 
+from src.clients import get_clients
 from src.services.ingestion import ingest_document
 
 router = APIRouter()
@@ -37,8 +38,7 @@ async def ingest_upload(
         raise HTTPException(status_code=413, detail="File too large (>200MB)")
 
     fname = filename or file.filename or "upload"
-    clients_get = __import__("src.clients", fromlist=["get_clients"]).get_clients
-    clients = clients_get()
+    clients = get_clients()
 
     task = asyncio.ensure_future(
         ingest_document(

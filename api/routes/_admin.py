@@ -7,6 +7,9 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from loguru import logger  # noqa: F401 — reserved for future per-endpoint logging
 
+from src.clients import get_clients
+from src.config import get_settings
+
 router = APIRouter()
 
 
@@ -25,10 +28,8 @@ async def gaea_refine(body: dict[str, Any]):
     """
     from src.services.graph_embeddings import batch_refine_tenant
 
-    settings_get = __import__("src.config", fromlist=["get_settings"]).get_settings
-    clients_get = __import__("src.clients", fromlist=["get_clients"]).get_clients
-    settings = settings_get()
-    clients = clients_get()
+    settings = get_settings()
+    clients = get_clients()
     started = time.monotonic()
     tenant = body.get("tenant_id", "default")
     alpha = float(body.get("alpha", 0.35))
@@ -60,10 +61,8 @@ async def hefr_populate(body: dict[str, Any]):
     """
     from src.services.hefr import populate_entity_collection
 
-    settings_get = __import__("src.config", fromlist=["get_settings"]).get_settings
-    clients_get = __import__("src.clients", fromlist=["get_clients"]).get_clients
-    settings = settings_get()
-    clients = clients_get()
+    settings = get_settings()
+    clients = get_clients()
     started = time.monotonic()
     tenant = body.get("tenant_id", "default")
     batch_size = int(body.get("batch_size", 100))
@@ -89,10 +88,8 @@ async def hefr_retrieve(body: dict[str, Any]):
     from src.services.embedding import embed_single
     from src.services.hefr import hefr_retrieve as _hefr_retrieve
 
-    settings_get = __import__("src.config", fromlist=["get_settings"]).get_settings
-    clients_get = __import__("src.clients", fromlist=["get_clients"]).get_clients
-    settings = settings_get()
-    clients = clients_get()
+    settings = get_settings()
+    clients = get_clients()
     tenant = body.get("tenant_id", "default")
     query = body.get("query", "")
     top_k = int(body.get("top_k", 20))
@@ -137,10 +134,8 @@ async def cross_doc_build(body: dict[str, Any]):
         link_documents_by_entities,
     )
 
-    settings_get = __import__("src.config", fromlist=["get_settings"]).get_settings
-    clients_get = __import__("src.clients", fromlist=["get_clients"]).get_clients
-    settings = settings_get()
-    clients = clients_get()
+    settings = get_settings()
+    clients = get_clients()
     started = time.monotonic()
     tenant = body.get("tenant_id", "default")
 
@@ -202,10 +197,8 @@ async def community_build(body: dict[str, Any]):
     """
     from src.services.community import build_communities_for_tenant
 
-    settings_get = __import__("src.config", fromlist=["get_settings"]).get_settings
-    clients_get = __import__("src.clients", fromlist=["get_clients"]).get_clients
-    settings = settings_get()
-    clients = clients_get()
+    settings = get_settings()
+    clients = get_clients()
     started = time.monotonic()
     tenant = body.get("tenant_id", "default")
     # lazy=true → LazyGraphRAG cluster-only build (no eager LLM summary); defaults
@@ -245,10 +238,8 @@ async def entity_resolution_build(body: dict[str, Any]):
     """
     from src.services.kg import resolve_entity_aliases
 
-    settings_get = __import__("src.config", fromlist=["get_settings"]).get_settings
-    clients_get = __import__("src.clients", fromlist=["get_clients"]).get_clients
-    settings = settings_get()
-    clients = clients_get()
+    settings = get_settings()
+    clients = get_clients()
     started = time.monotonic()
     tenant = body.get("tenant_id", "default")
     judge_types = [
@@ -285,10 +276,8 @@ async def entity_resolution_audit(body: dict[str, Any]):
     """
     from src.services.kg import audit_alias_gray_zone
 
-    settings_get = __import__("src.config", fromlist=["get_settings"]).get_settings
-    clients_get = __import__("src.clients", fromlist=["get_clients"]).get_clients
-    settings = settings_get()
-    clients = clients_get()
+    settings = get_settings()
+    clients = get_clients()
     started = time.monotonic()
     default_types = [
         x.strip() for x in settings.entity_resolution_judge_types_csv.split(",") if x.strip()
@@ -316,10 +305,8 @@ async def rerank_l2r_test(body: dict[str, Any]):
     from src.services.rerank_l2r import rerank_l2r
     from src.services.retrieval import multi_path_retrieve
 
-    settings_get = __import__("src.config", fromlist=["get_settings"]).get_settings
-    clients_get = __import__("src.clients", fromlist=["get_clients"]).get_clients
-    settings = settings_get()
-    clients = clients_get()
+    settings = get_settings()
+    clients = get_clients()
     query = body.get("query", "")
     tenant_id = body.get("tenant_id", "default")
     top_k = int(body.get("top_k", 5))
@@ -412,10 +399,8 @@ async def _run_repair_pipeline(body: dict[str, Any]) -> dict[str, Any]:
         upsert_chunk_and_entities,
     )
 
-    settings_get = __import__("src.config", fromlist=["get_settings"]).get_settings
-    clients_get = __import__("src.clients", fromlist=["get_clients"]).get_clients
-    settings = settings_get()
-    clients = clients_get()
+    settings = get_settings()
+    clients = get_clients()
 
     # tenant_id is required. It used to default to "rag51" — a tenant with zero points,
     # so a caller who forgot the field got a silent no-op against an empty tenant and read
