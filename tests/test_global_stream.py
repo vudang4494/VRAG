@@ -47,6 +47,8 @@ async def _events(resp) -> list[dict]:
 def _patch_env(monkeypatch, global_on: bool):
     monkeypatch.setattr("src.config.get_settings", lambda: _settings(global_on))
     monkeypatch.setattr("src.clients.get_clients", lambda: SimpleNamespace(llm=None))
+    monkeypatch.setattr("api.routes._chat_stream.get_settings", lambda: _settings(global_on))
+    monkeypatch.setattr("api.routes._chat_stream.get_clients", lambda: SimpleNamespace(llm=None))
 
 
 async def test_stream_global_shortcut(monkeypatch):

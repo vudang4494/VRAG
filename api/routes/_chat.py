@@ -6,13 +6,15 @@ import time
 import uuid
 from typing import Any
 
-from fastapi import HTTPException
+from fastapi import APIRouter, HTTPException
 from loguru import logger
 
 from api.routes._prompts import DRAFT_PROMPT, JUDGE_PROMPT, OUTLINE_PROMPT, REFINE_PROMPT
 from api.routes._utils import build_sources_out, format_context, llm_complete
+from src.clients import get_clients
+from src.config import get_settings
 
-router = __import__("fastapi").APIRouter()
+router = APIRouter()
 
 
 @router.post("/chat", tags=["chat"])
@@ -28,10 +30,8 @@ async def chat(body: dict[str, Any]):
         "max_retries": 1
       }
     """
-    settings_get = __import__("src.config", fromlist=["get_settings"]).get_settings
-    clients_get = __import__("src.clients", fromlist=["get_clients"]).get_clients
-    settings = settings_get()
-    clients = clients_get()
+    settings = get_settings()
+    clients = get_clients()
     started_total = time.monotonic()
     latency: dict[str, float] = {}
 

@@ -44,15 +44,15 @@ _OOD_PATTERNS = [
     r"giá .*hôm nay",
     r"nấu (phở|canh|bún)",
     r"tin tức",
-    r"(?i)news today",
-    r"(?i)weather",
-    r"(?i)stock price",
-    r"(?i)cook (pho|soup|recipe)",
-    r"(?i)news",
+    r"news today",
+    r"weather",
+    r"stock price",
+    r"cook (pho|soup|recipe)",
+    r"news",
     r"bóng đá",
-    r"(?i)sport",
-    r"(?i)football",
-    r"(?i)game",
+    r"sport",
+    r"football",
+    r"game",
     r"làm bánh",
     r"tập gym",
     r"mua sắm",
@@ -71,11 +71,11 @@ _GLOBAL_PATTERNS = [
     r"(điểm|nội dung) chung",
     r"khái quát",
     r"bức tranh (chung|tổng)",
-    r"(?i)main (theme|topic)",
-    r"(?i)(across|throughout) (the )?(corpus|document|dataset|collection)",
-    r"(?i)overall (theme|trend|topic|picture)",
-    r"(?i)high[- ]level (overview|summary)",
-    r"(?i)what are the .*(theme|topic|trend)",
+    r"main (theme|topic)",
+    r"(across|throughout) (the )?(corpus|document|dataset|collection)",
+    r"overall (theme|trend|topic|picture)",
+    r"high[- ]level (overview|summary)",
+    r"what are the .*(theme|topic|trend)",
 ]
 
 
@@ -120,14 +120,16 @@ def _embed_query_sync(query: str, embed_url: str, embed_model: str) -> np.ndarra
         return None
 
 
+_OOD_REGEX = re.compile("|".join(_OOD_PATTERNS), re.IGNORECASE)
+_GLOBAL_REGEX = re.compile("|".join(_GLOBAL_PATTERNS), re.IGNORECASE)
+
+
 def _match_ood(query: str) -> bool:
-    q = query.strip().lower()
-    return any(re.search(pat, q) for pat in _OOD_PATTERNS)
+    return bool(_OOD_REGEX.search(query.strip()))
 
 
 def _match_global(query: str) -> bool:
-    q = query.strip().lower()
-    return any(re.search(pat, q) for pat in _GLOBAL_PATTERNS)
+    return bool(_GLOBAL_REGEX.search(query.strip()))
 
 
 def _global_enabled() -> bool:

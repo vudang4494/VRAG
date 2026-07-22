@@ -5,6 +5,10 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
+from src.clients import get_clients
+from src.config import get_settings
+from src.services.query_router import classify_query, should_use_react
+
 router = APIRouter()
 
 
@@ -35,12 +39,9 @@ async def chat_react(body: dict[str, Any]):
     Body: {"query": "...", "tenant_id": "default", "max_steps": 6}
     """
     from api.routes._chat import chat
-    from src.services.query_router import classify_query, should_use_react
 
-    settings_get = __import__("src.config", fromlist=["get_settings"]).get_settings
-    clients_get = __import__("src.clients", fromlist=["get_clients"]).get_clients
-    settings = settings_get()
-    clients = clients_get()
+    settings = get_settings()
+    clients = get_clients()
     query = (body.get("query") or "").strip()
     if not query:
         raise HTTPException(status_code=400, detail="Missing 'query'")

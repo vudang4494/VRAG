@@ -11,6 +11,8 @@ from loguru import logger
 
 from api.routes._prompts import DRAFT_PROMPT
 from api.routes._utils import format_context
+from src.clients import get_clients
+from src.config import get_settings
 
 router = APIRouter()
 
@@ -32,10 +34,8 @@ async def chat_stream(body: dict[str, Any]):
 
     Body same shape as /chat.
     """
-    settings_get = __import__("src.config", fromlist=["get_settings"]).get_settings
-    clients_get = __import__("src.clients", fromlist=["get_clients"]).get_clients
-    settings = settings_get()
-    clients = clients_get()
+    settings = get_settings()
+    clients = get_clients()
     started_total = time.monotonic()
 
     query = (body.get("query") or "").strip()

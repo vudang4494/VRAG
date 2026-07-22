@@ -517,14 +517,16 @@ async def multi_path_retrieve(
     # Phase 8: tag query domain for reward scoring
     query_domain = tag_query(understanding.get("original", ""))
 
-    # Embed all reformulations in parallel
-    embed_tasks = [
-        _embed_query(
-            clients.http, settings.ollama_embed_url, settings.ollama_embed_model, r["text"]
-        )
-        for r in reformulations
-    ]
-    embeds = await asyncio.gather(*embed_tasks)
+    # Embed unique reformulations in parallel to avoid duplicate HTTP calls
+    unique_texts = list({r["text"] for r in reformulations if r.get("text")})
+    embed_results = await asyncio.gather(
+        *[
+            _embed_query(clients.http, settings.ollama_embed_url, settings.ollama_embed_model, t)
+            for t in unique_texts
+        ]
+    )
+    embed_map = dict(zip(unique_texts, embed_results, strict=False))
+    embeds = [embed_map.get(r["text"], []) for r in reformulations]
 
     # ── Primary entity-gate: discover cross-doc chunk scope via entity cosine.
     # Replaces the lossy doc-gate. The seed chunk_ids_scope is fed to every
