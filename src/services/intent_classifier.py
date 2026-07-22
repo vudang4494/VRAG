@@ -6,7 +6,7 @@ Classifies user input into one of:
   - "greeting"  : pleasantry / chit-chat → respond directly, skip RAG
   - "ood"       : out-of-domain / refused topic → return refusal, skip RAG
 
-Single LLM call (gemma3:4b, format=json). Falls back to keyword heuristics on
+Single LLM call (gemma4:e4b, format=json). Falls back to keyword heuristics on
 LLM failure so the pipeline never blocks on classification.
 """
 

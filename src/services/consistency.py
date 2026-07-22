@@ -69,7 +69,7 @@ async def _llm_call(llm: Any, model: str, prompt: str, max_tokens: int = 256) ->
 async def generate_views(
     text: str,
     llm: Any,
-    model: str = "gemma3:4b",
+    model: str = "gemma4:e4b",
     enable_llm_views: bool = True,
 ) -> dict[str, str]:
     """
@@ -161,7 +161,7 @@ async def process_chunk_consistency(
     http: httpx.AsyncClient,
     embed_url: str,
     embed_model: str = "bge-m3",
-    llm_model: str = "gemma3:4b",
+    llm_model: str = "gemma4:e4b",
     enable_llm_views: bool = True,
     embed_prefix: str = "",
 ) -> dict[str, Any]:
@@ -193,7 +193,7 @@ async def process_batch_consistency(
     http: httpx.AsyncClient,
     embed_url: str,
     embed_model: str = "bge-m3",
-    llm_model: str = "gemma3:4b",
+    llm_model: str = "gemma4:e4b",
     concurrent_limit: int = 3,
     enable_llm_views: bool = True,
 ) -> list[dict]:

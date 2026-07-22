@@ -65,7 +65,7 @@ _ENTITY_PATTERN = re.compile(
 )
 
 
-async def extract_atomic_claims(answer: str, llm: Any, model: str = "gemma3:4b") -> list[str]:
+async def extract_atomic_claims(answer: str, llm: Any, model: str = "gemma4:e4b") -> list[str]:
     """Use LLM to extract verifiable claims from the answer.
 
     Phase 0a fix: use Ollama native (think:false) to avoid Qwen3 empty content.
@@ -95,7 +95,7 @@ async def extract_atomic_claims(answer: str, llm: Any, model: str = "gemma3:4b")
         return [s.strip() for s in re.split(r"(?<=[.!?])\s+", answer) if len(s.strip()) > 10][:10]
 
 
-async def verify_claim(claim: str, context: str, llm: Any, model: str = "gemma3:4b") -> str:
+async def verify_claim(claim: str, context: str, llm: Any, model: str = "gemma4:e4b") -> str:
     """Returns 'YES' | 'NO' | 'PARTIAL'. Phase 0a — Ollama native."""
     from src.services.ollama_helper import ollama_chat
 
@@ -124,7 +124,7 @@ async def hallucination_gate(
     answer: str,
     context: str,
     llm: Any,
-    model: str = "gemma3:4b",
+    model: str = "gemma4:e4b",
     min_grounded_ratio: float = 0.80,
     concurrent_limit: int = 8,
     max_claims: int = 5,
@@ -397,7 +397,7 @@ async def validate_answer(
     llm: Any,
     neo4j_driver=None,
     tenant_id: str | None = None,
-    model: str = "gemma3:4b",
+    model: str = "gemma4:e4b",
     min_grounded_ratio: float = 0.80,
     max_invalid_entities: int = 2,
     min_citation_ratio: float = 0.70,
@@ -520,7 +520,7 @@ async def correct_and_regenerate(
     query: str,
     context: str,
     llm: Any,
-    model: str = "gemma3:4b",
+    model: str = "gemma4:e4b",
     failure_reason: str = "",
 ) -> str:
     """

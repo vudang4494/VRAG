@@ -80,7 +80,7 @@ Văn bản:
 
 
 async def _detect_entities(
-    text: str, llm: Any, model: str = "gemma3:4b", max_chars: int = 3000
+    text: str, llm: Any, model: str = "gemma4:e4b", max_chars: int = 3000
 ) -> list[tuple[str, str]]:
     """One LLM-NER call → list of (entity_text, entity_type). Detection only, no masking."""
     import json
@@ -132,7 +132,7 @@ async def _mask_llm_ner(
     text: str,
     mask_map: MaskMap,
     llm: Any,
-    model: str = "gemma3:4b",
+    model: str = "gemma4:e4b",
     max_chars: int = 3000,
 ) -> str:
     """Use LLM to detect PERSON / ORGANIZATION / ADDRESS, then mask (single-text path)."""
@@ -144,7 +144,7 @@ async def _mask_llm_ner(
 async def mask_pii(
     text: str,
     llm: Any = None,
-    model: str = "gemma3:4b",
+    model: str = "gemma4:e4b",
     use_llm_ner: bool = True,
     existing_map: MaskMap | None = None,
 ) -> tuple[str, MaskMap]:
@@ -169,7 +169,7 @@ async def mask_pii(
 async def mask_chunks(
     chunks: list[dict],
     llm: Any = None,
-    model: str = "gemma3:4b",
+    model: str = "gemma4:e4b",
     use_llm_ner: bool = True,
     ner_window: int = 3000,
     ner_concurrency: int = 2,

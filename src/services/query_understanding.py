@@ -93,12 +93,14 @@ async def _llm_text(llm: Any, model: str, prompt: str, max_tokens: int = 200) ->
     )
 
 
-async def rewrite_query(query: str, llm: Any, model: str = "gemma3:4b") -> str:
+async def rewrite_query(query: str, llm: Any, model: str = "gemma4:e4b") -> str:
     text = await _llm_text(llm, model, _REWRITE_PROMPT.format(query=query), max_tokens=200)
     return text or query
 
 
-async def decompose_query(query: str, llm: Any, model: str = "gemma3:4b") -> tuple[bool, list[str]]:
+async def decompose_query(
+    query: str, llm: Any, model: str = "gemma4:e4b"
+) -> tuple[bool, list[str]]:
     raw = await _llm_text(llm, model, _DECOMPOSE_PROMPT.format(query=query), max_tokens=300)
     raw = re.sub(r"```(?:json)?\s*|\s*```", "", raw).strip()
     try:
@@ -110,22 +112,22 @@ async def decompose_query(query: str, llm: Any, model: str = "gemma3:4b") -> tup
         return False, []
 
 
-async def hyde_generate(query: str, llm: Any, model: str = "gemma3:4b") -> str:
+async def hyde_generate(query: str, llm: Any, model: str = "gemma4:e4b") -> str:
     text = await _llm_text(llm, model, _HYDE_PROMPT.format(query=query), max_tokens=300)
     return text or query
 
 
-async def step_back_query(query: str, llm: Any, model: str = "gemma3:4b") -> str:
+async def step_back_query(query: str, llm: Any, model: str = "gemma4:e4b") -> str:
     text = await _llm_text(llm, model, _STEP_BACK_PROMPT.format(query=query), max_tokens=120)
     return text or query
 
 
-async def extract_keywords(query: str, llm: Any, model: str = "gemma3:4b") -> str:
+async def extract_keywords(query: str, llm: Any, model: str = "gemma4:e4b") -> str:
     text = await _llm_text(llm, model, _KEYWORDS_PROMPT.format(query=query), max_tokens=100)
     return text or query
 
 
-async def classify_intent(query: str, llm: Any, model: str = "gemma3:4b") -> str:
+async def classify_intent(query: str, llm: Any, model: str = "gemma4:e4b") -> str:
     raw = await _llm_text(llm, model, _INTENT_PROMPT.format(query=query), max_tokens=20)
     raw = raw.lower().strip()
     for kw in ("factual", "analytical", "summarization", "comparison"):
@@ -310,7 +312,7 @@ async def extract_entities_fast(query: str) -> list[str]:
 async def understand_query(
     query: str,
     llm: Any,
-    model: str = "gemma3:4b",
+    model: str = "gemma4:e4b",
     timeout: float = 10.0,
     intent: str | None = None,
 ) -> dict[str, Any]:

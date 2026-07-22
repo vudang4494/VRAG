@@ -591,7 +591,7 @@ def canonicalize_relationships(rels: list[dict], canonical_map: dict[str, str]) 
 async def extract_entities_and_relations(
     text: str,
     llm: Any,  # kept for backward compat; ignored — uses Ollama native helper
-    model: str = "gemma3:4b",
+    model: str = "gemma4:e4b",
     max_chars: int = 2500,
 ) -> dict:
     """Use LLM to extract entities + relationships from text. Returns dict.

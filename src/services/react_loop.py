@@ -1,7 +1,7 @@
 """ReAct Loop — explicit multi-step Thought→Action→Observation reasoning.
 
 Phase 2 novel contribution: makes LLM reasoning traceable + helps small LLM
-(gemma3:4b) by decomposing complex queries into discrete sub-tasks.
+(gemma4:e4b) by decomposing complex queries into discrete sub-tasks.
 
 Each step:
   1. THOUGHT: LLM decides next action based on history

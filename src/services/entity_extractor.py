@@ -338,7 +338,7 @@ def create_entity_extractor(
     labels: list[str] | None = None,
     threshold: float = 0.5,
     llm_for_relations: Any = None,
-    relation_model: str = "gemma3:4b",
+    relation_model: str = "gemma4:e4b",
     extract_relations: bool = False,
 ) -> BaseEntityExtractor:
     """

@@ -18,7 +18,7 @@ Usage:
     from src.services.ollama_helper import ollama_chat
     content = await ollama_chat(
         messages=[{"role": "user", "content": prompt}],
-        model="gemma3:4b",
+        model="gemma4:e4b",
         max_tokens=512,
         temperature=0.2,
     )

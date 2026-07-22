@@ -157,7 +157,7 @@ async def rerank_stage3(
     query: str,
     candidates: list[dict],
     llm: Any,
-    model: str = "gemma3:4b",
+    model: str = "gemma4:e4b",
     top_k: int = 5,
     concurrent_limit: int = 5,
     per_call_timeout: float = 5.0,

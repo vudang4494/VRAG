@@ -230,7 +230,7 @@ async def generate_consistent_summary(
     entities: list[dict],
     chunks: list[dict],
     llm: Any,
-    model: str = "gemma3:4b",
+    model: str = "gemma4:e4b",
     vote_passes: int = 3,
 ) -> tuple[str, int]:
     """
@@ -372,7 +372,7 @@ async def build_communities_for_tenant(
     resolution: float = 1.0,
     min_size: int = 3,
     vote_passes: int = 3,
-    llm_model: str = "gemma3:4b",
+    llm_model: str = "gemma4:e4b",
     concurrent_summaries: int = 2,
     summarize: bool = True,
     use_npmi: bool = False,
@@ -503,7 +503,7 @@ async def incremental_update_communities(
     tenant_id: str | None = None,
     new_entity_names: list[str] | None = None,
     deleted_doc_ids: list[str] | None = None,
-    llm_model: str = "gemma3:4b",
+    llm_model: str = "gemma4:e4b",
     max_neighbors: int = 20,
     community_rebuild_threshold: int = 50,
 ) -> dict[str, Any]:
