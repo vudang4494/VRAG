@@ -8,7 +8,6 @@ This directory contains the full technical documentation for the VRAG project.
 |------|---------|
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Deep technical reference — algorithms, data structures, retrieval paths, failure modes |
 | [SPEC.md](SPEC.md) | Technical specification — pipeline tiers, KG schema, Qdrant schema, config |
-| [SPEC-PREGEN-GATE.md](SPEC-PREGEN-GATE.md) | Pre-generation gate spec — PASS/RECOVER/REFUSE decision before generation |
 | [PIPELINE_FLOW.md](PIPELINE_FLOW.md) | End-to-end query flow, stage by stage |
 | [PRODUCTION_PIPELINE.md](PRODUCTION_PIPELINE.md) | Production config, Docker, env vars, latency targets |
 | [STRUCTURE.md](STRUCTURE.md) | Module map — where each part of the pipeline lives |
